@@ -1,0 +1,22 @@
+{
+  "name": "spec-framework",
+  "version": "1.1.0",
+  "description": "Spec-Driven AI Development Framework",
+  "private": true,
+  "scripts": {
+    "explore":        "node tools/explorer/server.js",
+    "sync":           "node tools/registry/registry-sync.js",
+    "sync:watch":     "node tools/registry/registry-sync.js --watch",
+    "sync:validate":  "node tools/registry/registry-sync.js --validate",
+    "sync:dry":       "node tools/registry/registry-sync.js --dry-run",
+    "lint:spec":      "node tools/linter/spec-lint.js",
+    "registry:list":  "node tools/registry/registry-cli.js list",
+    "registry:search":"node tools/registry/registry-cli.js search",
+    "registry:get":   "node tools/registry/registry-cli.js get",
+    "registry:validate":"node tools/registry/registry-cli.js validate",
+    "hooks:install":  "node tools/hooks/install-hooks.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

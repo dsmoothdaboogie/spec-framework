@@ -1,0 +1,130 @@
+{
+  "$schema": "./registry.schema.json",
+  "version": "1.1.0",
+  "lastUpdated": "2026-03-22",
+  "maintainer": "UI Architecture",
+  "adapter": "material-v3",
+  "specs": [
+    {
+      "specId": "ds/components/component-map",
+      "specType": "component",
+      "title": "Component Spec: Semantic Component Map",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "UI Architecture",
+      "path": "specs/ds/components/component-map.spec.md",
+      "tags": [
+        "ds",
+        "components",
+        "component-map"
+      ],
+      "appliesTo": [
+        "Angular 19+",
+        "Angular Material 17+"
+      ],
+      "lastReviewed": "2026-03-20",
+      "deprecatedBy": null
+    },
+    {
+      "specId": "ds/patterns/ag-grid-datatable",
+      "specType": "pattern",
+      "title": "Pattern Spec: AG Grid Datatable",
+      "version": "2.0.0",
+      "status": "active",
+      "owner": "UI Architecture",
+      "path": "specs/ds/patterns/ag-grid-datatable.spec.md",
+      "tags": [
+        "ds",
+        "patterns",
+        "ag-grid-datatable"
+      ],
+      "appliesTo": [
+        "Angular 19+",
+        "AG Grid Community/Enterprise v31+"
+      ],
+      "lastReviewed": "2026-03-20",
+      "related": [
+        "ds/tokens/semantic",
+        "ds/components/component-map"
+      ],
+      "deprecatedBy": null
+    },
+    {
+      "specId": "ds/tokens/semantic",
+      "specType": "token",
+      "title": "Token Spec: Semantic Design Tokens",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "UI Architecture",
+      "path": "specs/ds/tokens/semantic.spec.md",
+      "tags": [
+        "ds",
+        "tokens",
+        "semantic"
+      ],
+      "appliesTo": [
+        "Angular 19+",
+        "Angular Material 17+"
+      ],
+      "lastReviewed": "2026-03-20",
+      "deprecatedBy": null
+    },
+    {
+      "specId": "ds/templates/deal-list",
+      "specType": "template",
+      "title": "Template Spec: Deal List",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "UI Architecture",
+      "path": "specs/ds/templates/deal-list.template-spec.md",
+      "tags": [
+        "ds",
+        "templates",
+        "deal-list"
+      ],
+      "appliesTo": [
+        "Angular 19+"
+      ],
+      "lastReviewed": "2026-03-22",
+      "composedOf": [
+        "ds/patterns/ag-grid-datatable"
+      ],
+      "instantiatedBy": [
+        "feat/deal-list/buyside"
+      ],
+      "deprecatedBy": null
+    },
+    {
+      "specId": "feat/deal-list/buyside",
+      "specType": "page",
+      "title": "Page Spec: Deal List — Buyside Trader",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "Buyside Trading UI Team",
+      "path": "specs/feat/deal-list/buyside.page-spec.md",
+      "tags": [
+        "feat",
+        "deal-list",
+        "buyside"
+      ],
+      "appliesTo": [
+        "Angular 19+"
+      ],
+      "lastReviewed": "2026-03-22",
+      "extends": "ds/templates/deal-list",
+      "deprecatedBy": null
+    }
+  ],
+  "namespaces": {
+    "ds/tokens": "Token adapter specs — swap point between pattern specs and underlying library",
+    "ds/components": "Component adapter specs — semantic names to library implementations",
+    "ds/patterns": "UI pattern specs — organism-level implementation standards",
+    "ds/templates": "Template specs — page structure contracts composing organisms into layouts",
+    "ds/layout": "App shell and page chrome specs (navigation, sidebars, headers)",
+    "feat/auth": "Authentication and authorization patterns",
+    "feat/forms": "Reactive forms patterns",
+    "feat/routing": "Routing and navigation patterns",
+    "feat/deal-list": "Deal list persona page specs — implementations of ds/templates/deal-list",
+    "infra/mfe": "Module Federation and MFE integration patterns"
+  }
+}

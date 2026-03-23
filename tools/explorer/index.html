@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spec Explorer</title>
+<style>
+  /* ── Reset & base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:           #0c0e14;
+    --bg-2:         #111520;
+    --bg-3:         #1a1f2e;
+    --bg-4:         #222840;
+    --border:       #1e2433;
+    --border-2:     #2a3348;
+    --text-1:       #e2e8f0;
+    --text-2:       #94a3b8;
+    --text-3:       #64748b;
+    --text-4:       #475569;
+    --brand:        #6366f1;
+    --brand-dim:    #4f46e5;
+    --brand-bg:     #1e1b4b22;
+    --green:        #4ade80;
+    --green-bg:     #0f281844;
+    --green-border: #166534;
+    --yellow:       #fbbf24;
+    --yellow-bg:    #1a150044;
+    --red:          #f87171;
+    --red-bg:       #2a100044;
+    --mono:         'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    --sans:         'Inter', 'Segoe UI', system-ui, sans-serif;
+    --sidebar-w:    260px;
+    --detail-w:     340px;
+    --radius:       6px;
+    --transition:   0.15s ease;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text-1);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-size: 14px;
+  }
+
+  /* ── Top bar ── */
+  #topbar {
+    height: 48px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 16px;
+    flex-shrink: 0;
+    background: var(--bg-2);
+  }
+
+  #topbar .logo {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--brand);
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  #topbar .sep { width: 1px; height: 20px; background: var(--border); }
+
+  #search {
+    flex: 1;
+    max-width: 320px;
+    height: 30px;
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-1);
+    font-size: 13px;
+    padding: 0 10px 0 32px;
+    outline: none;
+    transition: border-color var(--transition);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 10px center;
+  }
+  #search:focus { border-color: var(--brand); }
+  #search::placeholder { color: var(--text-4); }
+
+  .topbar-filters { display: flex; gap: 6px; }
+
+  .filter-btn {
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-3);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all var(--transition);
+    font-family: var(--mono);
+    letter-spacing: 0.04em;
+  }
+  .filter-btn:hover { border-color: var(--border-2); color: var(--text-2); }
+  .filter-btn.active { background: var(--brand); border-color: var(--brand); color: #fff; }
+
+  #sync-btn {
+    margin-left: auto;
+    height: 28px;
+    padding: 0 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-3);
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all var(--transition);
+    font-family: var(--mono);
+  }
+  #sync-btn:hover { border-color: var(--brand); color: var(--brand); }
+  #sync-btn.spinning svg { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #adapter-badge {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-4);
+    white-space: nowrap;
+  }
+  #adapter-badge span { color: var(--green); }
+
+  /* ── Layout ── */
+  #layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── Sidebar ── */
+  #sidebar {
+    width: var(--sidebar-w);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  #sidebar-header {
+    padding: 10px 12px 6px;
+    font-size: 10px;
+    color: var(--text-4);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  #spec-count {
+    font-family: var(--mono);
+    background: var(--bg-3);
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-size: 10px;
+    color: var(--text-3);
+  }
+
+  #spec-list {
+    overflow-y: auto;
+    flex: 1;
+    padding: 6px 0;
+  }
+
+  .namespace-group { margin-bottom: 4px; }
+
+  .namespace-label {
+    padding: 6px 12px 4px;
+    font-size: 10px;
+    color: var(--text-4);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-family: var(--mono);
+  }
+
+  .spec-item {
+    padding: 7px 12px;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .spec-item:hover { background: var(--bg-3); }
+  .spec-item.active {
+    background: var(--brand-bg);
+    border-left-color: var(--brand);
+  }
+
+  .spec-item-text { flex: 1; overflow: hidden; }
+  .spec-item-name {
+    font-size: 12px;
+    color: var(--text-1);
+    font-family: var(--mono);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+  }
+  .spec-item-sub {
+    font-size: 11px;
+    color: var(--text-4);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+  }
+
+  /* Status dots */
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot.active     { background: var(--green); }
+  .dot.draft      { background: var(--yellow); }
+  .dot.deprecated { background: var(--red); }
+
+  /* ── Main panel ── */
+  #main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  #empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-4);
+    gap: 12px;
+  }
+  #empty-state svg { opacity: 0.3; }
+  #empty-state p { font-size: 13px; }
+
+  /* Spec header */
+  #spec-header {
+    padding: 16px 24px 14px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    display: none;
+  }
+
+  .spec-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .spec-id {
+    font-family: var(--mono);
+    font-size: 15px;
+    color: var(--text-1);
+    font-weight: 600;
+  }
+
+  .badge {
+    font-size: 10px;
+    font-family: var(--mono);
+    padding: 2px 8px;
+    border-radius: 100px;
+    letter-spacing: 0.06em;
+  }
+  .badge.active     { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+  .badge.draft      { background: var(--yellow-bg); color: var(--yellow); border: 1px solid #854d0e55; }
+  .badge.deprecated { background: var(--red-bg); color: var(--red); border: 1px solid #7f1d1d55; }
+
+  .version-badge {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-4);
+  }
+
+  .spec-meta {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    font-size: 11px;
+    color: var(--text-4);
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+  .meta-item strong { color: var(--text-3); }
+
+  /* Tabs */
+  #tab-bar {
+    display: none;
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    gap: 0;
+    flex-shrink: 0;
+  }
+
+  .tab {
+    padding: 10px 16px;
+    font-size: 12px;
+    color: var(--text-3);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all var(--transition);
+    font-family: var(--mono);
+    letter-spacing: 0.04em;
+  }
+  .tab:hover { color: var(--text-2); }
+  .tab.active { color: var(--brand); border-bottom-color: var(--brand); }
+
+  /* Tab panels */
+  #tab-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: none;
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Spec content rendering ── */
+  .spec-section {
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .section-header {
+    padding: 10px 16px;
+    background: var(--bg-3);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+    transition: background var(--transition);
+  }
+  .section-header:hover { background: var(--bg-4); }
+
+  .section-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--brand);
+    background: var(--brand-bg);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  .section-title {
+    font-size: 13px;
+    color: var(--text-1);
+    font-weight: 500;
+    flex: 1;
+  }
+
+  .section-tag {
+    font-size: 10px;
+    color: var(--text-4);
+    font-family: var(--mono);
+  }
+
+  .chevron {
+    color: var(--text-4);
+    transition: transform var(--transition);
+    font-size: 10px;
+  }
+  .chevron.open { transform: rotate(90deg); }
+
+  .section-body {
+    padding: 16px;
+    display: none;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text-2);
+  }
+  .section-body.open { display: block; }
+  .section-body p { margin-bottom: 10px; }
+  .section-body code {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: var(--bg-3);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--brand);
+  }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin: 10px 0;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text-2);
+    overflow-x: auto;
+    white-space: pre;
+    position: relative;
+  }
+
+  .copy-btn {
+    position: absolute;
+    top: 8px; right: 8px;
+    padding: 3px 8px;
+    font-size: 10px;
+    font-family: var(--mono);
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text-3);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+  .copy-btn:hover { border-color: var(--brand); color: var(--brand); }
+  .copy-btn.copied { color: var(--green); border-color: var(--green-border); }
+
+  /* Token table */
+  .token-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin: 10px 0;
+  }
+  .token-table th {
+    text-align: left;
+    padding: 6px 10px;
+    background: var(--bg-3);
+    color: var(--text-3);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    font-family: var(--mono);
+    border-bottom: 1px solid var(--border);
+  }
+  .token-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-2);
+    vertical-align: top;
+  }
+  .token-table tr:last-child td { border-bottom: none; }
+  .token-table tr:hover td { background: var(--bg-3); }
+  .token-table .token-name { font-family: var(--mono); font-size: 11px; color: var(--brand); }
+  .token-table .token-value { font-family: var(--mono); font-size: 11px; color: var(--text-3); }
+
+  /* Checklist */
+  .checklist { list-style: none; margin: 10px 0; }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-2);
+  }
+  .checklist li:last-child { border-bottom: none; }
+
+  .check-box {
+    width: 16px; height: 16px;
+    border: 1px solid var(--border-2);
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition);
+    font-size: 10px;
+  }
+  .check-box:hover { border-color: var(--brand); }
+  .check-box.checked { background: var(--brand); border-color: var(--brand); color: #fff; }
+
+  /* Agent instruction callout */
+  .agent-callout {
+    background: var(--green-bg);
+    border-left: 3px solid var(--green-border);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 10px 14px;
+    margin: 10px 0;
+  }
+  .agent-callout-label {
+    font-size: 10px;
+    color: var(--green);
+    font-family: var(--mono);
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+  }
+  .agent-callout p { font-size: 12px; color: var(--text-2); margin: 0; }
+
+  /* ── Agent export panel ── */
+  .agent-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .agent-card {
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all var(--transition);
+    text-align: center;
+  }
+  .agent-card:hover { border-color: var(--border-2); background: var(--bg-3); }
+  .agent-card.selected { border-color: var(--brand); background: var(--brand-bg); }
+  .agent-card.future { opacity: 0.5; }
+
+  .agent-card-icon { font-size: 24px; margin-bottom: 6px; }
+  .agent-card-name { font-size: 12px; color: var(--text-1); font-weight: 500; }
+  .agent-card-file { font-size: 10px; color: var(--text-4); font-family: var(--mono); margin-top: 3px; }
+  .agent-card-status {
+    margin-top: 6px;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    display: inline-block;
+  }
+  .agent-card-status.active { background: var(--green-bg); color: var(--green); }
+  .agent-card-status.future { background: var(--bg-3); color: var(--text-4); }
+
+  #agent-block-container { margin-top: 16px; }
+  #agent-block-label {
+    font-size: 11px;
+    color: var(--text-4);
+    font-family: var(--mono);
+    margin-bottom: 8px;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── Detail panel ── */
+  #detail {
+    width: var(--detail-w);
+    border-left: 1px solid var(--border);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  #detail.visible { display: flex; }
+
+  #detail-header {
+    padding: 10px 14px 8px;
+    font-size: 10px;
+    color: var(--text-4);
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid var(--border);
+    text-transform: uppercase;
+  }
+
+  #detail-content {
+    padding: 14px;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  .detail-section { margin-bottom: 20px; }
+  .detail-label {
+    font-size: 10px;
+    color: var(--text-4);
+    letter-spacing: 0.08em;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .tag-list { display: flex; flex-wrap: wrap; gap: 4px; }
+  .tag {
+    font-size: 10px;
+    font-family: var(--mono);
+    padding: 2px 7px;
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    color: var(--text-3);
+  }
+
+  .related-list { display: flex; flex-direction: column; gap: 4px; }
+  .related-link {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--brand);
+    cursor: pointer;
+    padding: 5px 8px;
+    background: var(--brand-bg);
+    border-radius: var(--radius);
+    transition: background var(--transition);
+  }
+  .related-link:hover { background: var(--bg-4); }
+
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .meta-row:last-child { border-bottom: none; }
+  .meta-row .key { color: var(--text-4); }
+  .meta-row .val { color: var(--text-2); font-family: var(--mono); font-size: 11px; }
+
+  .adapter-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text-2);
+    margin-bottom: 4px;
+  }
+  .adapter-pill .dot { width: 5px; height: 5px; }
+
+  /* Scrollbars */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 2px; }
+
+  /* Toast */
+  #toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 8px 14px;
+    background: var(--bg-3);
+    border: 1px solid var(--border-2);
+    border-radius: var(--radius);
+    font-size: 12px;
+    color: var(--text-2);
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    font-family: var(--mono);
+  }
+  #toast.show { opacity: 1; }
+
+  /* Scope pills */
+  .scope-section { margin: 8px 0; }
+  .scope-label { font-size: 11px; color: var(--text-4); margin-bottom: 4px; font-family: var(--mono); }
+  .scope-items { display: flex; flex-direction: column; gap: 3px; }
+  .scope-item {
+    font-size: 12px;
+    color: var(--text-2);
+    padding: 4px 8px;
+    background: var(--bg-3);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .scope-item::before { content: '✓'; color: var(--green); font-size: 10px; }
+  .scope-item.out::before { content: '→'; color: var(--brand); }
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div id="topbar">
+  <div class="logo">⬡ SPEC EXPLORER</div>
+  <div class="sep"></div>
+  <input id="search" type="text" placeholder="Search specs..." autocomplete="off">
+  <div class="topbar-filters">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="active">Active</button>
+    <button class="filter-btn" data-filter="draft">Draft</button>
+    <button class="filter-btn" data-filter="deprecated">Deprecated</button>
+  </div>
+  <div id="adapter-badge">Adapter: <span id="adapter-name">loading...</span></div>
+  <button id="sync-btn">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M23 4v6h-6M1 20v-6h6"/>
+      <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+    </svg>
+    Sync
+  </button>
+</div>
+
+<!-- Layout -->
+<div id="layout">
+
+  <!-- Sidebar -->
+  <div id="sidebar">
+    <div id="sidebar-header">
+      Specs
+      <span id="spec-count">0</span>
+    </div>
+    <div id="spec-list"></div>
+  </div>
+
+  <!-- Main -->
+  <div id="main">
+    <div id="empty-state">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+        <polyline points="10 9 9 9 8 9"/>
+      </svg>
+      <p>Select a spec from the sidebar</p>
+    </div>
+
+    <div id="spec-header">
+      <div class="spec-title-row">
+        <span class="spec-id" id="hdr-spec-id"></span>
+        <span class="badge" id="hdr-status"></span>
+        <span class="version-badge" id="hdr-version"></span>
+      </div>
+      <div class="spec-meta" id="hdr-meta"></div>
+    </div>
+
+    <div id="tab-bar">
+      <div class="tab active" data-tab="overview">Overview</div>
+      <div class="tab" data-tab="checklist">Checklist</div>
+      <div class="tab" data-tab="tokens">Tokens</div>
+      <div class="tab" data-tab="agent">Agent Export</div>
+      <div class="tab" data-tab="raw">Raw</div>
+    </div>
+
+    <div id="tab-content">
+      <!-- Overview -->
+      <div class="tab-panel active" id="tab-overview"></div>
+      <!-- Checklist -->
+      <div class="tab-panel" id="tab-checklist"></div>
+      <!-- Tokens -->
+      <div class="tab-panel" id="tab-tokens"></div>
+      <!-- Agent export -->
+      <div class="tab-panel" id="tab-agent">
+        <p style="color:var(--text-3);font-size:13px;margin-bottom:16px;">
+          Select an agent to get the spec framework block ready to paste into its config file.
+        </p>
+        <div class="agent-grid" id="agent-grid"></div>
+        <div id="agent-block-container" style="display:none">
+          <div id="agent-block-label"></div>
+          <div class="code-block" id="agent-block-code" style="max-height:400px;overflow-y:auto"></div>
+        </div>
+      </div>
+      <!-- Raw -->
+      <div class="tab-panel" id="tab-raw">
+        <div class="code-block" id="raw-content" style="font-size:11px;line-height:1.5"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail panel -->
+  <div id="detail">
+    <div id="detail-header">Spec Info</div>
+    <div id="detail-content"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────────
+let allSpecs    = [];
+let activeSpec  = null;
+let activeTab   = 'overview';
+let statusFilter = 'all';
+let searchQuery  = '';
+let checkStates  = {}; // specId -> { itemIndex -> checked }
+
+const AGENTS = [
+  { id: 'agents',   name: 'AGENTS.md',       icon: '🤖', file: 'AGENTS.md',                        status: 'active' },
+  { id: 'devin',    name: 'Devin.ai',         icon: '🔧', file: '.devin/knowledge.md',               status: 'active' },
+  { id: 'copilot',  name: 'GitHub Copilot',   icon: '🐙', file: '.github/copilot-instructions.md',   status: 'active' },
+  { id: 'claude',   name: 'Claude',           icon: '🧠', file: 'CLAUDE.md',                         status: 'future' },
+  { id: 'cursor',   name: 'Cursor',           icon: '⚡', file: '.cursor/rules/spec-framework.mdc',  status: 'future' },
+];
+
+// ── Fetch helpers ─────────────────────────────────────────────────────────────
+async function api(path) {
+  const r = await fetch(path);
+  return r.json();
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+async function boot() {
+  const data = await api('/api/registry');
+  allSpecs = data.specs || [];
+  document.getElementById('adapter-name').textContent = data.adapter || 'unknown';
+  renderSidebar();
+  buildAgentGrid();
+}
+
+// ── Sidebar ───────────────────────────────────────────────────────────────────
+function renderSidebar() {
+  const query    = searchQuery.toLowerCase();
+  const filtered = allSpecs.filter(s => {
+    const matchFilter = statusFilter === 'all' || s.status === statusFilter;
+    const matchSearch = !query ||
+      s.specId.toLowerCase().includes(query) ||
+      s.title.toLowerCase().includes(query) ||
+      (s.tags || []).some(t => t.toLowerCase().includes(query));
+    return matchFilter && matchSearch;
+  });
+
+  document.getElementById('spec-count').textContent = filtered.length;
+
+  // Group by namespace/category
+  const groups = {};
+  for (const s of filtered) {
+    const parts = s.specId.split('/');
+    const ns    = parts.slice(0, 2).join('/');
+    if (!groups[ns]) groups[ns] = [];
+    groups[ns].push(s);
+  }
+
+  const list = document.getElementById('spec-list');
+  list.innerHTML = '';
+
+  if (!filtered.length) {
+    list.innerHTML = '<div style="padding:20px 14px;color:var(--text-4);font-size:12px;">No specs found</div>';
+    return;
+  }
+
+  for (const [ns, specs] of Object.entries(groups)) {
+    const group = document.createElement('div');
+    group.className = 'namespace-group';
+    group.innerHTML = `<div class="namespace-label">${ns}</div>`;
+
+    for (const s of specs) {
+      const item  = document.createElement('div');
+      item.className = `spec-item${activeSpec?.specId === s.specId ? ' active' : ''}`;
+      const pattern = s.specId.split('/').pop();
+      item.innerHTML = `
+        <div class="dot ${s.status}"></div>
+        <div class="spec-item-text">
+          <div class="spec-item-name">${pattern}</div>
+          <div class="spec-item-sub">v${s.version} · ${s.owner}</div>
+        </div>`;
+      item.addEventListener('click', () => selectSpec(s.specId));
+      group.appendChild(item);
+    }
+    list.appendChild(group);
+  }
+}
+
+// ── Select spec ───────────────────────────────────────────────────────────────
+async function selectSpec(specId) {
+  const data = await api(`/api/spec?id=${encodeURIComponent(specId)}`);
+  if (!data) return;
+  activeSpec = data;
+
+  // Update sidebar active state
+  document.querySelectorAll('.spec-item').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.spec-item').forEach(el => {
+    if (el.querySelector('.spec-item-name')?.textContent === specId.split('/').pop()) {
+      el.classList.add('active');
+    }
+  });
+
+  renderHeader(data);
+  renderTabs(data);
+  renderDetail(data);
+
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('spec-header').style.display = 'block';
+  document.getElementById('tab-bar').style.display     = 'flex';
+  document.getElementById('tab-content').style.display = 'block';
+  document.getElementById('detail').classList.add('visible');
+
+  activateTab(activeTab);
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+function renderHeader(data) {
+  document.getElementById('hdr-spec-id').textContent  = data.specId;
+  const statusEl = document.getElementById('hdr-status');
+  statusEl.textContent  = data.status;
+  statusEl.className    = `badge ${data.status}`;
+  document.getElementById('hdr-version').textContent  = `v${data.version}`;
+
+  const meta = [];
+  if (data.owner)       meta.push(`<span class="meta-item"><strong>Owner</strong> ${data.owner}</span>`);
+  if (data.lastReviewed) meta.push(`<span class="meta-item"><strong>Reviewed</strong> ${data.lastReviewed}</span>`);
+  if (data.appliesTo?.length) meta.push(`<span class="meta-item"><strong>Applies to</strong> ${data.appliesTo.join(', ')}</span>`);
+  document.getElementById('hdr-meta').innerHTML = meta.join('');
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+function activateTab(tabId) {
+  activeTab = tabId;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === `tab-${tabId}`));
+}
+
+function renderTabs(data) {
+  renderOverview(data);
+  renderChecklist(data);
+  renderTokens(data);
+  renderRaw(data);
+  renderAgentExport();
+}
+
+// ── Overview ──────────────────────────────────────────────────────────────────
+function renderOverview(data) {
+  const panel    = document.getElementById('tab-overview');
+  const content  = data.content || '';
+  const sections = parseSections(content);
+  panel.innerHTML = '';
+
+  for (const section of sections) {
+    const el = document.createElement('div');
+    el.className = 'spec-section';
+
+    const sectionNum = section.heading.match(/^(\d+)\./)?.[1] || '';
+    const sectionTitle = section.heading.replace(/^\d+\.\s+/, '');
+    const isOpen = ['1', '2', '3', '4'].includes(sectionNum);
+
+    el.innerHTML = `
+      <div class="section-header" onclick="toggleSection(this)">
+        ${sectionNum ? `<span class="section-num">${sectionNum}</span>` : ''}
+        <span class="section-title">${sectionTitle}</span>
+        <span class="chevron ${isOpen ? 'open' : ''}">▶</span>
+      </div>
+      <div class="section-body ${isOpen ? 'open' : ''}">${renderSectionBody(section.body)}</div>`;
+
+    panel.appendChild(el);
+  }
+}
+
+function toggleSection(header) {
+  const chevron = header.querySelector('.chevron');
+  const body    = header.nextElementSibling;
+  chevron.classList.toggle('open');
+  body.classList.toggle('open');
+}
+
+function parseSections(content) {
+  const lines    = content.split('\n');
+  const sections = [];
+  let current    = null;
+
+  for (const line of lines) {
+    if (line.startsWith('## ')) {
+      if (current) sections.push(current);
+      current = { heading: line.replace('## ', '').trim(), body: '' };
+    } else if (current) {
+      current.body += line + '\n';
+    }
+  }
+  if (current) sections.push(current);
+  return sections;
+}
+
+function renderSectionBody(body) {
+  let html = escapeHtml(body);
+
+  // Code blocks
+  html = html.replace(/```[\w]*\n([\s\S]*?)```/g, (_, code) => {
+    const id = 'cb-' + Math.random().toString(36).slice(2);
+    return `<div class="code-block" id="${id}">${code}<button class="copy-btn" onclick="copyCode('${id}')">copy</button></div>`;
+  });
+
+  // Inline code
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+  // Agent instruction callouts
+  html = html.replace(/&gt;\s+\*\*Agent instruction:\*\*\s*(.+)/g,
+    '<div class="agent-callout"><div class="agent-callout-label">⬡ AGENT INSTRUCTION</div><p>$1</p></div>');
+
+  // Bold
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+  // Tables (basic)
+  html = html.replace(/((\|.+\|\n)+)/g, renderTable);
+
+  // Bullets
+  html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+  html = html.replace(/(<li>.*<\/li>\n?)+/g, m => `<ul style="padding-left:18px;margin:6px 0">${m}</ul>`);
+
+  // Paragraphs
+  html = html.replace(/\n\n([^<\n])/g, '\n\n<p>$1');
+
+  return html;
+}
+
+function renderTable(match) {
+  const rows = match.trim().split('\n').filter(r => !r.match(/^\|[-\s|]+\|$/));
+  if (!rows.length) return match;
+  let html = '<table class="token-table">';
+  rows.forEach((row, i) => {
+    const cells = row.split('|').filter(c => c.trim());
+    const tag   = i === 0 ? 'th' : 'td';
+    html += '<tr>' + cells.map(c => `<${tag} class="${i > 0 && c.trim().startsWith('`') ? 'token-name' : ''}">${c.trim()}</${tag}>`).join('') + '</tr>';
+  });
+  return html + '</table>';
+}
+
+// ── Checklist ─────────────────────────────────────────────────────────────────
+function renderChecklist(data) {
+  const panel    = document.getElementById('tab-checklist');
+  const meta     = data._meta || {};
+  const items    = meta.checklist || [];
+  const specKey  = data.specId;
+
+  if (!checkStates[specKey]) checkStates[specKey] = {};
+
+  if (!items.length) {
+    panel.innerHTML = '<p style="color:var(--text-4);font-size:13px">No checklist items found in this spec.</p>';
+    return;
+  }
+
+  const passed  = Object.values(checkStates[specKey]).filter(Boolean).length;
+  const total   = items.length;
+  const pct     = Math.round((passed / total) * 100);
+
+  panel.innerHTML = `
+    <div style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:12px;color:var(--text-3)">Compliance check — mark items as you verify</span>
+        <span style="font-family:var(--mono);font-size:12px;color:${pct === 100 ? 'var(--green)' : 'var(--text-3)'}">
+          ${passed}/${total} (${pct}%)
+        </span>
+      </div>
+      <div style="height:4px;background:var(--bg-3);border-radius:2px">
+        <div style="height:100%;width:${pct}%;background:${pct === 100 ? 'var(--green)' : 'var(--brand)'};border-radius:2px;transition:width 0.3s"></div>
+      </div>
+    </div>
+    <ul class="checklist" id="checklist-items"></ul>
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button onclick="resetChecklist('${specKey}')" style="padding:5px 12px;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--text-3);font-size:11px;cursor:pointer;font-family:var(--mono)">Reset</button>
+      <button onclick="copyChecklist('${specKey}')" style="padding:5px 12px;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--text-3);font-size:11px;cursor:pointer;font-family:var(--mono)">Copy report</button>
+    </div>`;
+
+  const ul = document.getElementById('checklist-items');
+  items.forEach((item, i) => {
+    const checked = !!checkStates[specKey][i];
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <div class="check-box ${checked ? 'checked' : ''}" onclick="toggleCheck('${specKey}', ${i})">
+        ${checked ? '✓' : ''}
+      </div>
+      <span style="${checked ? 'text-decoration:line-through;color:var(--text-4)' : ''}">${item}</span>`;
+    ul.appendChild(li);
+  });
+}
+
+function toggleCheck(specKey, index) {
+  checkStates[specKey][index] = !checkStates[specKey][index];
+  if (activeSpec) renderChecklist(activeSpec);
+}
+
+function resetChecklist(specKey) {
+  checkStates[specKey] = {};
+  if (activeSpec) renderChecklist(activeSpec);
+}
+
+function copyChecklist(specKey) {
+  const meta  = activeSpec?._meta || {};
+  const items = meta.checklist || [];
+  const lines = [`SPEC COMPLIANCE REPORT`, `Spec: ${activeSpec.specId} v${activeSpec.version}`, ``];
+  items.forEach((item, i) => {
+    const checked = checkStates[specKey]?.[i];
+    lines.push(`${checked ? '✓' : '✗'} ${item}`);
+  });
+  navigator.clipboard.writeText(lines.join('\n'));
+  toast('Compliance report copied');
+}
+
+// ── Tokens tab ────────────────────────────────────────────────────────────────
+function renderTokens(data) {
+  const panel   = document.getElementById('tab-tokens');
+  const content = data.content || '';
+
+  // Find the token table section
+  const tokenSection = content.match(/## 3\. Design System Tokens([\s\S]*?)(?=\n## )/)?.[1] || '';
+
+  if (!tokenSection) {
+    panel.innerHTML = '<p style="color:var(--text-4);font-size:13px">No token section found. Tokens are defined in the semantic adapter spec.</p>';
+    return;
+  }
+
+  panel.innerHTML = `
+    <div style="margin-bottom:16px">
+      <div style="font-size:13px;color:var(--text-2);margin-bottom:12px">
+        Token references for this spec. All values resolve through the current adapter.
+      </div>
+      ${renderSectionBody(tokenSection)}
+    </div>`;
+}
+
+// ── Raw tab ───────────────────────────────────────────────────────────────────
+function renderRaw(data) {
+  const el  = document.getElementById('raw-content');
+  const id  = 'raw-block';
+  el.id     = id;
+  el.textContent = data.content || '';
+  // Add copy button
+  if (!el.querySelector('.copy-btn')) {
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = 'copy';
+    btn.onclick = () => copyCode(id);
+    el.appendChild(btn);
+  }
+}
+
+// ── Agent export ──────────────────────────────────────────────────────────────
+function buildAgentGrid() {
+  const grid = document.getElementById('agent-grid');
+  grid.innerHTML = '';
+
+  for (const agent of AGENTS) {
+    const card = document.createElement('div');
+    card.className = `agent-card ${agent.status === 'future' ? 'future' : ''}`;
+    card.innerHTML = `
+      <div class="agent-card-icon">${agent.icon}</div>
+      <div class="agent-card-name">${agent.name}</div>
+      <div class="agent-card-file">${agent.file}</div>
+      <div class="agent-card-status ${agent.status}">
+        ${agent.status === 'active' ? '● Active' : '○ Future'}
+      </div>`;
+    card.addEventListener('click', () => selectAgent(agent));
+    grid.appendChild(card);
+  }
+}
+
+let selectedAgent = null;
+
+async function selectAgent(agent) {
+  selectedAgent = agent;
+  document.querySelectorAll('.agent-card').forEach(c => c.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+
+  const container = document.getElementById('agent-block-container');
+  const label     = document.getElementById('agent-block-label');
+  const code      = document.getElementById('agent-block-code');
+
+  label.textContent = `SPEC FRAMEWORK BLOCK — paste into ${agent.file}`;
+  code.textContent  = 'Loading...';
+  container.style.display = 'block';
+
+  const data = await api(`/api/agent?id=${agent.id}`);
+  const block = data.block || '// Block not found';
+
+  code.textContent = block;
+  if (!code.querySelector('.copy-btn')) {
+    const btn = document.createElement('button');
+    btn.className   = 'copy-btn';
+    btn.textContent = 'copy';
+    btn.onclick     = () => { navigator.clipboard.writeText(block); toast('Block copied'); };
+    code.appendChild(btn);
+  }
+}
+
+function renderAgentExport() {
+  // Reset selection on spec change
+  selectedAgent = null;
+  document.querySelectorAll('.agent-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('agent-block-container').style.display = 'none';
+}
+
+// ── Detail panel ──────────────────────────────────────────────────────────────
+function renderDetail(data) {
+  const content = document.getElementById('detail-content');
+  const meta    = data._meta || {};
+
+  const adapters = [];
+  if (meta.tokenAdapter)     adapters.push({ label: 'Tokens', val: meta.tokenAdapter });
+  if (meta.componentAdapter) adapters.push({ label: 'Components', val: meta.componentAdapter });
+  if (meta.adapter)          adapters.push({ label: 'Adapter', val: meta.adapter });
+
+  content.innerHTML = `
+    ${adapters.length ? `
+    <div class="detail-section">
+      <div class="detail-label">Adapters</div>
+      ${adapters.map(a => `
+        <div class="adapter-pill">
+          <div class="dot active"></div>
+          <span style="color:var(--text-4);font-size:10px">${a.label}:</span>
+          <span>${a.val}</span>
+        </div>`).join('<br>')}
+    </div>` : ''}
+
+    <div class="detail-section">
+      <div class="detail-label">Metadata</div>
+      <div class="meta-row"><span class="key">Status</span><span class="val">${data.status}</span></div>
+      <div class="meta-row"><span class="key">Version</span><span class="val">${data.version}</span></div>
+      <div class="meta-row"><span class="key">Owner</span><span class="val">${data.owner}</span></div>
+      <div class="meta-row"><span class="key">Reviewed</span><span class="val">${data.lastReviewed}</span></div>
+      <div class="meta-row"><span class="key">Words</span><span class="val">${meta.wordCount || '—'}</span></div>
+      <div class="meta-row"><span class="key">Modified</span><span class="val">${meta.lastModified || '—'}</span></div>
+      <div class="meta-row"><span class="key">Checklist</span><span class="val">${meta.checklist?.length || 0} items</span></div>
+    </div>
+
+    ${data.tags?.length ? `
+    <div class="detail-section">
+      <div class="detail-label">Tags</div>
+      <div class="tag-list">${data.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+    </div>` : ''}
+
+    ${data.related?.length ? `
+    <div class="detail-section">
+      <div class="detail-label">Related Specs</div>
+      <div class="related-list">
+        ${data.related.map(r => `<div class="related-link" onclick="selectSpec('${r}')">${r}</div>`).join('')}
+      </div>
+    </div>` : ''}
+
+    ${meta.agentInstructions?.length ? `
+    <div class="detail-section">
+      <div class="detail-label">Agent Instructions (${meta.agentInstructions.length})</div>
+      ${meta.agentInstructions.map(i => `
+        <div class="agent-callout" style="margin-bottom:6px">
+          <p>${i}</p>
+        </div>`).join('')}
+    </div>` : ''}`;
+}
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function copyCode(id) {
+  const el  = document.getElementById(id);
+  const btn = el.querySelector('.copy-btn');
+  const txt = el.textContent.replace('copy', '').trim();
+  navigator.clipboard.writeText(txt);
+  if (btn) { btn.textContent = 'copied!'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1500); }
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+// ── Event listeners ───────────────────────────────────────────────────────────
+document.getElementById('search').addEventListener('input', e => {
+  searchQuery = e.target.value;
+  renderSidebar();
+});
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    statusFilter = btn.dataset.filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderSidebar();
+  });
+});
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => activateTab(tab.dataset.tab));
+});
+
+document.getElementById('sync-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('sync-btn');
+  btn.classList.add('spinning');
+  const result = await api('/api/sync');
+  btn.classList.remove('spinning');
+  if (result.ok) {
+    const data = await api('/api/registry');
+    allSpecs = data.specs || [];
+    document.getElementById('adapter-name').textContent = data.adapter || 'unknown';
+    renderSidebar();
+    toast(`Synced — ${result.specs} spec(s)`);
+  } else {
+    toast('Sync failed');
+  }
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+boot();
+</script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+---
+description: Spec-Driven AI Development Framework rules for Cursor
+globs: ["**/*.ts", "**/*.html", "**/*.scss", "**/*.spec.ts"]
+alwaysApply: false
+---
+
+# Spec Framework Rules for Cursor
+
+> **Status in this organisation:** Not currently enabled in the workplace.
+> This file is included for future readiness. When Cursor becomes available,
+> place this file at `.cursor/rules/spec-framework.mdc` and it will be
+> picked up automatically.
+
+## How to use this file
+
+Cursor rule files (`.mdc`) can coexist with other rule files in `.cursor/rules/`.
+This file will not override or conflict with other rules you have defined.
+Each `.mdc` file in that directory is applied independently.
+
+If you want to merge this into an existing rule file, copy the content
+below the frontmatter and append it to your existing rule file.
+
+---
+
+<!-- SPEC FRAMEWORK START ─────────────────────────────────────────────────────
+     Spec-Driven AI Development Framework — Cursor Integration
+     Version: 1.0.0
+     Maintainer: UI Architecture
+──────────────────────────────────────────────────────────────────────────── -->
+
+## Spec-driven development
+
+This codebase uses a spec-driven development framework. When generating
+Angular components or patterns, always check for a relevant spec before
+writing code.
+
+### Finding a spec
+
+Check the registry for active specs:
+- Registry index: `tools/registry/registry.json`
+- Run: `node tools/registry/registry-cli.js search "<use case>"`
+- Pattern specs: `specs/ds/patterns/*.spec.md`
+- Token adapter: `specs/ds/tokens/semantic.spec.md`
+- Component map: `specs/ds/components/component-map.spec.md`
+
+If an active spec exists: follow it completely.
+If no spec exists: apply Angular conventions below and note the gap.
+
+### Reading a spec — required steps
+
+Read in this order before writing any code:
+
+1. **§2 Scope** — confirm in scope; if not, name the correct spec
+2. **§3 Tokens** — every visual property uses semantic tokens only
+3. **§4 Structure** — generate file scaffold first
+4. **§5 Config** — copy verbatim, no modifications
+5. **§6 Types** — DS renderers and formatters only, no inline logic
+6. **§7 Variants** — identify and state the correct variant
+7. **§8–9 States** — loading, empty, and error are all required
+8. **§11 Checklist** — self-verify, report results before code
+
+### Output contract
+
+Output this before any generated code:
+
+```
+<!-- SPEC COMPLIANCE REPORT -->
+Spec: [spec-id] v[version]
+Variant: [name] — [reason]
+Checklist: [§11 items: ✓ / ✗ / ⚠]
+Unresolved: [independent decisions made]
+```
+
+### Angular 19 conventions (always apply)
+
+```typescript
+// Use signals API
+name    = input<string>();
+value   = input.required<number>();
+changed = output<void>();
+service = inject(MyService);
+
+// Never use
+@Input() @Output() constructor(private ...)
+```
+
+- Standalone components — no NgModules
+- `ChangeDetectionStrategy.OnPush` always
+- `takeUntilDestroyed()` for all subscriptions
+- DS wrapper components only — no direct Material/AG Grid imports
+- Semantic SCSS tokens only — no raw values, no inline styles
+
+### Token imports (always stable)
+
+```scss
+@use '@company/spec-tokens/color'   as color;
+@use '@company/spec-tokens/type'    as type;
+@use '@company/spec-tokens/spacing' as spacing;
+@use '@company/spec-tokens/grid'    as grid-tokens;
+```
+
+### Deprecated specs
+
+Stop immediately if `status: deprecated`. Use `deprecatedBy` spec instead.
+
+<!-- SPEC FRAMEWORK END ────────────────────────────────────────────────────── -->
+
+---
+
+<!-- Add your personal Cursor rules below this line -->

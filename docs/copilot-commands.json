@@ -1,0 +1,29 @@
+{
+  "commands": [
+    {
+      "name": "spec",
+      "description": "Generate code from a pattern spec. Usage: /spec <spec-id> [feature-name]",
+      "prompt": "Read the spec at specs/${1}.spec.md. Follow the AGENT.system-prompt.md contract exactly. Generate the full component scaffold for the feature named '${2}'. Output the compliance report first, then the generated files."
+    },
+    {
+      "name": "spec-search",
+      "description": "Find a spec for a use case. Usage: /spec-search <description>",
+      "prompt": "The developer needs a spec for: '${1}'. Search the registry.json for matching specs by tag or title. List all matches with their spec-id, status, and a one-line description. If nothing matches, suggest the closest spec and explain the gap."
+    },
+    {
+      "name": "spec-check",
+      "description": "Check if existing code complies with its spec. Usage: /spec-check <spec-id>",
+      "prompt": "Review the selected code against the spec at specs/${1}.spec.md. Run through the Agent Checklist in §11 of the spec. For each item, mark ✓ (compliant), ✗ (violation), or ⚠ (partial). List all violations with the exact line and what the spec requires."
+    },
+    {
+      "name": "spec-new",
+      "description": "Scaffold a new spec from the template. Usage: /spec-new <spec-id> <title>",
+      "prompt": "Create a new spec file for spec-id '${1}' titled '${2}'. Use docs/SPEC.template.md as the base. Fill in the frontmatter fields (set status to 'draft', today's date for last-reviewed). Leave content sections as instructed placeholders. Save to specs/${1}.spec.md."
+    },
+    {
+      "name": "spec-diff",
+      "description": "Show what changed between spec versions. Usage: /spec-diff <spec-id> <old-version> <new-version>",
+      "prompt": "Compare version ${2} and ${3} of the spec '${1}' using the change log in §12. Summarize what changed and flag any breaking changes that would require re-generation of existing components."
+    }
+  ]
+}
