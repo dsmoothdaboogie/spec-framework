@@ -1,7 +1,255 @@
 {
-  "generated": "2026-03-22T18:29:04.382Z",
+  "generated": "2026-03-25T16:21:24.707Z",
   "adapter": "material-v3",
   "specs": [
+    {
+      "specId": "domain/entitlements/mnpi-full",
+      "title": "Entitlement: MNPI Full",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "Compliance / UI Architecture",
+      "path": "specs/domain/entitlements/mnpi-full.entitlement.md",
+      "tags": [
+        "domain",
+        "entitlements",
+        "mnpi-full"
+      ],
+      "appliesTo": [],
+      "lastReviewed": "2026-03-20",
+      "deprecatedBy": null,
+      "_meta": {
+        "adapter": null,
+        "tokenAdapter": null,
+        "componentAdapter": null,
+        "agentInstructions": [
+          "When a composition spec declares `entitlement: domain/entitlements/mnpi-full`, render all columns including those tagged `mnpi-sensitive: true` and `audit-only: true`. No suppression applies at this level."
+        ],
+        "sections": [
+          "1. Intent",
+          "2. All columns render at this level",
+          "3. Row actions",
+          "4. Versioning & Change Log"
+        ],
+        "checklist": [],
+        "pathMismatch": true,
+        "wordCount": 181,
+        "lastModified": "2026-03-25"
+      }
+    },
+    {
+      "specId": "domain/entitlements/mnpi-standard",
+      "title": "Entitlement: MNPI Standard",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "Compliance / UI Architecture",
+      "path": "specs/domain/entitlements/mnpi-standard.entitlement.md",
+      "tags": [
+        "domain",
+        "entitlements",
+        "mnpi-standard"
+      ],
+      "appliesTo": [],
+      "lastReviewed": "2026-03-20",
+      "deprecatedBy": null,
+      "_meta": {
+        "adapter": null,
+        "tokenAdapter": null,
+        "componentAdapter": null,
+        "agentInstructions": [
+          "When a composition spec declares `entitlement: domain/entitlements/mnpi-standard`, suppress all columns tagged `mnpi-sensitive: true` in the composition spec column table. Render nothing in their place — do not render a placeholder or disabled column."
+        ],
+        "sections": [
+          "1. Intent",
+          "2. Suppressed at this level",
+          "3. Permitted at this level",
+          "4. Row actions suppressed",
+          "5. Versioning & Change Log"
+        ],
+        "checklist": [],
+        "pathMismatch": true,
+        "wordCount": 204,
+        "lastModified": "2026-03-25"
+      }
+    },
+    {
+      "specId": "domain/patterns/ag-grid-datatable/compliance-viewer",
+      "title": "Composition Spec: AG Grid — Compliance Viewer",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "UI Architecture / Compliance",
+      "path": "specs/domain/patterns/ag-grid-datatable/compliance-viewer.spec.md",
+      "tags": [
+        "domain",
+        "patterns",
+        "ag-grid-datatable",
+        "compliance-viewer"
+      ],
+      "appliesTo": [],
+      "lastReviewed": "2026-03-20",
+      "deprecatedBy": null,
+      "_meta": {
+        "adapter": null,
+        "tokenAdapter": null,
+        "componentAdapter": null,
+        "agentInstructions": [
+          "Read specs in this order:"
+        ],
+        "sections": [
+          "1. Intent",
+          "2. Columns",
+          "3. Filters",
+          "4. Row actions",
+          "5. Bulk actions",
+          "6. Behavioral variant",
+          "7. Grid options override",
+          "8. Empty state",
+          "9. Agent checklist",
+          "10. Versioning & Change Log",
+          "11. Related Specs"
+        ],
+        "checklist": [
+          "Base pattern spec read — all structural rules applied",
+          "Persona definition read — read-only, full MNPI context understood",
+          "Entitlement spec read — mnpi-full, all columns render",
+          "All 10 columns present per §2",
+          "No checkbox column",
+          "No actions column",
+          "No row actions rendered — not disabled, absent",
+          "No bulk action bar",
+          "Row selection disabled per §7",
+          "Server-side mode used",
+          "Default sort: `auditTimestamp` desc",
+          "`@spec` header includes persona and entitlement"
+        ],
+        "pathMismatch": false,
+        "wordCount": 698,
+        "lastModified": "2026-03-25"
+      }
+    },
+    {
+      "specId": "domain/patterns/ag-grid-datatable/deal-origination-banker",
+      "title": "Composition Spec: AG Grid — Deal Origination Banker",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "UI Architecture / Product",
+      "path": "specs/domain/patterns/ag-grid-datatable/deal-origination-banker.spec.md",
+      "tags": [
+        "domain",
+        "patterns",
+        "ag-grid-datatable",
+        "deal-origination-banker"
+      ],
+      "appliesTo": [],
+      "lastReviewed": "2026-03-20",
+      "deprecatedBy": null,
+      "_meta": {
+        "adapter": null,
+        "tokenAdapter": null,
+        "componentAdapter": null,
+        "agentInstructions": [
+          "Read specs in this order before generating:"
+        ],
+        "sections": [
+          "1. Intent",
+          "2. Columns",
+          "3. Filters",
+          "4. Row actions",
+          "5. Bulk actions",
+          "6. Behavioral variant",
+          "7. Empty state",
+          "8. Agent checklist",
+          "9. Versioning & Change Log",
+          "10. Related Specs"
+        ],
+        "checklist": [
+          "Base pattern spec read — all structural rules applied",
+          "Persona definition read — workflow context understood",
+          "Entitlement spec read — mnpi-standard suppression applied",
+          "Columns 8–9 suppressed (mnpi-sensitive: true)",
+          "Column order matches §2 exactly",
+          "Filters match §3 — defaults applied",
+          "Row actions match §4 — no delete action present",
+          "Bulk actions match §5",
+          "Server-side mode used per §6",
+          "Default sort: `lastUpdated` desc",
+          "Empty state matches §7",
+          "`@spec` header includes persona and entitlement"
+        ],
+        "pathMismatch": false,
+        "wordCount": 754,
+        "lastModified": "2026-03-25"
+      }
+    },
+    {
+      "specId": "domain/personas/compliance-viewer.persona.md",
+      "title": "Persona: Compliance Viewer",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "Product / UX / Compliance",
+      "path": "specs/domain/personas/compliance-viewer.persona.md",
+      "tags": [
+        "domain",
+        "personas",
+        "compliance-viewer.persona.md"
+      ],
+      "appliesTo": [],
+      "lastReviewed": "2026-03-20",
+      "deprecatedBy": null,
+      "_meta": {
+        "adapter": null,
+        "tokenAdapter": null,
+        "componentAdapter": null,
+        "agentInstructions": [],
+        "sections": [
+          "1. Identity",
+          "2. Data access level",
+          "3. MNPI entitlement baseline",
+          "4. Workflow context",
+          "5. UI expectations",
+          "6. Versioning & Change Log",
+          "7. Related Specs"
+        ],
+        "checklist": [],
+        "pathMismatch": false,
+        "wordCount": 332,
+        "lastModified": "2026-03-25"
+      }
+    },
+    {
+      "specId": "domain/personas/deal-origination-banker.persona.md",
+      "title": "Persona: Deal Origination Banker",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "Product / UX",
+      "path": "specs/domain/personas/deal-origination-banker.persona.md",
+      "tags": [
+        "domain",
+        "personas",
+        "deal-origination-banker.persona.md"
+      ],
+      "appliesTo": [],
+      "lastReviewed": "2026-03-20",
+      "deprecatedBy": null,
+      "_meta": {
+        "adapter": null,
+        "tokenAdapter": null,
+        "componentAdapter": null,
+        "agentInstructions": [],
+        "sections": [
+          "1. Identity",
+          "2. Data access level",
+          "3. MNPI entitlement baseline",
+          "4. Workflow context",
+          "5. UI expectations",
+          "6. Versioning & Change Log",
+          "7. Related Specs"
+        ],
+        "checklist": [],
+        "pathMismatch": false,
+        "wordCount": 321,
+        "lastModified": "2026-03-25"
+      }
+    },
     {
       "specId": "ds/components/component-map",
       "title": "Component Spec: Semantic Component Map",
@@ -122,6 +370,58 @@
       }
     },
     {
+      "specId": "ds/storybook/standards",
+      "title": "Component Spec: Storybook Standards",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "UI Architecture",
+      "path": "specs/ds/storybook/standards.spec.md",
+      "tags": [
+        "ds",
+        "storybook",
+        "standards"
+      ],
+      "appliesTo": [
+        "Storybook 8+",
+        "Angular 19+"
+      ],
+      "lastReviewed": "2026-03-20",
+      "deprecatedBy": null,
+      "_meta": {
+        "adapter": null,
+        "tokenAdapter": null,
+        "componentAdapter": null,
+        "agentInstructions": [
+          "When generating a component that has a corresponding spec, generate a `.stories.ts` file alongside it. The story file must carry the `@spec` header. Required stories are defined in §4. Do not generate empty or placeholder stories."
+        ],
+        "sections": [
+          "1. Intent",
+          "2. Scope",
+          "3. Story file structure",
+          "4. Required stories per component type",
+          "5. Story title taxonomy",
+          "6. Args and argTypes conventions",
+          "7. Spec linkage in stories",
+          "8. DS swap note",
+          "9. Agent checklist",
+          "10. Versioning & Change Log"
+        ],
+        "checklist": [
+          "`@spec` header present in story file",
+          "`title` follows taxonomy from §5",
+          "`tags: ['autodocs']` present",
+          "Component description includes spec reference per §7",
+          "All required stories present per §4",
+          "`argTypes` documented for every input",
+          "All outputs wired as `action`",
+          "No direct Material imports in story file"
+        ],
+        "pathMismatch": false,
+        "wordCount": 722,
+        "lastModified": "2026-03-25"
+      }
+    },
+    {
       "specId": "ds/tokens/semantic",
       "title": "Token Spec: Semantic Design Tokens",
       "version": "1.0.0",
@@ -173,6 +473,203 @@
         "pathMismatch": false,
         "wordCount": 1197,
         "lastModified": "2026-03-22"
+      }
+    },
+    {
+      "specId": "fw/angular/component-patterns",
+      "title": "Framework Spec: Angular Component Patterns",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "UI Architecture",
+      "path": "specs/fw/angular/component-patterns.spec.md",
+      "tags": [
+        "fw",
+        "angular",
+        "component-patterns"
+      ],
+      "appliesTo": [
+        "Angular 19+"
+      ],
+      "lastReviewed": "2026-03-20",
+      "deprecatedBy": null,
+      "_meta": {
+        "adapter": null,
+        "tokenAdapter": null,
+        "componentAdapter": null,
+        "agentInstructions": [
+          "Read this spec before any ds/ or domain/ spec. All structural decisions — file layout, change detection, signal usage, injection patterns — are defined here and take precedence over library-specific guidance."
+        ],
+        "sections": [
+          "1. Intent",
+          "2. Scope",
+          "3. Component anatomy",
+          "4. Signal patterns",
+          "5. Dependency injection",
+          "6. Subscriptions and cleanup",
+          "7. Template conventions",
+          "8. Import rules",
+          "9. Accessibility",
+          "10. Agent checklist",
+          "11. Versioning & Change Log",
+          "12. Related Specs"
+        ],
+        "checklist": [
+          "Standalone component with `ChangeDetectionStrategy.OnPush`",
+          "`input()` / `output()` — no `@Input` / `@Output` decorators",
+          "`inject()` — no constructor injection",
+          "`takeUntilDestroyed()` or `toSignal()` for all subscriptions",
+          "`@if` / `@for` — no structural directives (`*ngIf`, `*ngFor`)",
+          "Derived state uses `computed()` — not manually synced signals",
+          "No direct Material/CDK imports — DS components only",
+          "File layout matches §3.1"
+        ],
+        "pathMismatch": false,
+        "wordCount": 912,
+        "lastModified": "2026-03-25"
+      }
+    },
+    {
+      "specId": "fw/services/dal-patterns",
+      "title": "Framework Spec: Data Access Layer Patterns",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "UI Architecture",
+      "path": "specs/fw/services/dal-patterns.spec.md",
+      "tags": [
+        "fw",
+        "services",
+        "dal-patterns"
+      ],
+      "appliesTo": [
+        "Angular 19+"
+      ],
+      "lastReviewed": "2026-03-20",
+      "deprecatedBy": null,
+      "_meta": {
+        "adapter": null,
+        "tokenAdapter": null,
+        "componentAdapter": null,
+        "agentInstructions": [
+          "Generate a DAL service for every feature that communicates with an API. Components and stores import the DAL service — never HttpClient directly. All request/response types are defined in the service's types file."
+        ],
+        "sections": [
+          "1. Intent",
+          "2. Scope",
+          "3. File layout",
+          "4. Service structure",
+          "5. Error handling",
+          "6. Agent checklist",
+          "7. Versioning & Change Log",
+          "8. Related Specs"
+        ],
+        "checklist": [
+          "Service uses `inject(HttpClient)` — not constructor injection",
+          "`baseUrl` uses `environment.apiBaseUrl` — no hardcoded URLs",
+          "API response types are in `.api-types.ts` — not inline",
+          "Mapping is in the service — not in stores or components",
+          "No `catchError` in service methods — error handling in store"
+        ],
+        "pathMismatch": false,
+        "wordCount": 530,
+        "lastModified": "2026-03-25"
+      }
+    },
+    {
+      "specId": "fw/state/signalstore",
+      "title": "Framework Spec: NgRx SignalStore Patterns",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "UI Architecture",
+      "path": "specs/fw/state/signalstore.spec.md",
+      "tags": [
+        "fw",
+        "state",
+        "signalstore"
+      ],
+      "appliesTo": [
+        "Angular 19+",
+        "NgRx 18+"
+      ],
+      "lastReviewed": "2026-03-20",
+      "deprecatedBy": null,
+      "_meta": {
+        "adapter": null,
+        "tokenAdapter": null,
+        "componentAdapter": null,
+        "agentInstructions": [
+          "Use SignalStore for any state that is shared between two or more components, or that needs to survive navigation. For local component-only state, use component signals per `fw/angular/component-patterns`. Never use BehaviorSubject or plain services with state for shared state."
+        ],
+        "sections": [
+          "1. Intent",
+          "2. Scope",
+          "3. Store file layout",
+          "4. Standard store shape",
+          "5. Store definition",
+          "6. Consuming a store in a component",
+          "7. Store scope",
+          "8. Agent checklist",
+          "9. Versioning & Change Log",
+          "10. Related Specs"
+        ],
+        "checklist": [
+          "State shape follows §4 — `RequestState` + `error` always paired",
+          "Async operations use `rxMethod` + `tapResponse` per §5",
+          "Derived state uses `withComputed` — not duplicated in state",
+          "Components consume store signals directly — no local copies per §6",
+          "Store scope matches usage pattern per §7"
+        ],
+        "pathMismatch": false,
+        "wordCount": 705,
+        "lastModified": "2026-03-25"
+      }
+    },
+    {
+      "specId": "fw/testing/standards",
+      "title": "Framework Spec: Testing Standards",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "UI Architecture",
+      "path": "specs/fw/testing/standards.spec.md",
+      "tags": [
+        "fw",
+        "testing",
+        "standards"
+      ],
+      "appliesTo": [
+        "Angular 19+",
+        "Jest",
+        "Angular Testing Library"
+      ],
+      "lastReviewed": "2026-03-20",
+      "deprecatedBy": null,
+      "_meta": {
+        "adapter": null,
+        "tokenAdapter": null,
+        "componentAdapter": null,
+        "agentInstructions": [
+          "Generate a spec file for every component, store, and service you create. The spec file must cover all items in the agent checklist below. Do not generate placeholder/empty test files."
+        ],
+        "sections": [
+          "1. Intent",
+          "2. Required coverage by file type",
+          "3. Component test pattern",
+          "4. Store test pattern",
+          "5. Persona/composition test requirements",
+          "6. Agent checklist",
+          "7. Versioning & Change Log"
+        ],
+        "checklist": [
+          "Spec file exists for every generated component, store, and service",
+          "Renders test present",
+          "Loading state test present (components)",
+          "Empty state test present (components)",
+          "All outputs tested",
+          "Store: initial state, success path, error path tested",
+          "Persona components: column visibility tests present"
+        ],
+        "pathMismatch": false,
+        "wordCount": 672,
+        "lastModified": "2026-03-25"
       }
     }
   ]

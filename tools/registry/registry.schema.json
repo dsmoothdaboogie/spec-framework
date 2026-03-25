@@ -15,7 +15,7 @@
         "properties": {
           "specId": {
             "type": "string",
-            "pattern": "^[a-z][a-z0-9-]*/[a-z][a-z0-9-]*/[a-z0-9-]+$",
+            "pattern": "^[a-z]+/[a-z]+/[a-z0-9-]+$",
             "description": "Namespaced spec ID: namespace/category/pattern-name"
           },
           "title": { "type": "string" },
@@ -39,28 +39,6 @@
             "items": { "type": "string" }
           },
           "lastReviewed": { "type": "string", "format": "date" },
-          "specType": {
-            "type": "string",
-            "enum": ["pattern", "template", "page", "token", "component"],
-            "description": "Atomic design tier: token, component, pattern (organism), template, page"
-          },
-          "composedOf": {
-            "type": "array",
-            "items": { "type": "string" },
-            "description": "Spec IDs this template composes — agents must read these before the template"
-          },
-          "extends": {
-            "oneOf": [
-              { "type": "string" },
-              { "type": "null" }
-            ],
-            "description": "Template spec ID this page spec is derived from"
-          },
-          "instantiatedBy": {
-            "type": "array",
-            "items": { "type": "string" },
-            "description": "Page spec IDs that implement this template"
-          },
           "related": {
             "type": "array",
             "items": { "type": "string" }

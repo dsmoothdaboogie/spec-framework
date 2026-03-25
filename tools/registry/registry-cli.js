@@ -32,69 +32,19 @@ function colorStatus(status) {
 
 function printSpec(spec, verbose = false) {
   const deprecated = spec.status === 'deprecated' ? ` → ${spec.deprecatedBy}` : '';
-  const typeLabel = spec.specType ? ` ${DIM}[${spec.specType}]${RESET}` : '';
-  console.log(`${BOLD}${spec.specId}${RESET}${typeLabel} ${DIM}v${spec.version}${RESET} [${colorStatus(spec.status)}${deprecated}]`);
+  console.log(`${BOLD}${spec.specId}${RESET} ${DIM}v${spec.version}${RESET} [${colorStatus(spec.status)}${deprecated}]`);
   console.log(`  ${spec.title}`);
   if (verbose) {
     console.log(`  Owner:       ${spec.owner}`);
     console.log(`  Applies to:  ${spec.appliesTo.join(', ')}`);
     console.log(`  Tags:        ${spec.tags.join(', ')}`);
     console.log(`  Path:        ${spec.path}`);
-    if (spec.composedOf?.length) {
-      console.log(`  Composes:    ${spec.composedOf.join(', ')}`);
-    }
-    if (spec.extends) {
-      console.log(`  Extends:     ${spec.extends}`);
-    }
-    if (spec.instantiatedBy?.length) {
-      console.log(`  Instances:   ${spec.instantiatedBy.join(', ')}`);
-    }
     if (spec.related?.length) {
       console.log(`  Related:     ${spec.related.join(', ')}`);
     }
     console.log(`  Last review: ${spec.lastReviewed}`);
   }
   console.log('');
-}
-
-function printTree(spec, indent = '') {
-  const deprecated = spec.status === 'deprecated' ? ` → ${spec.deprecatedBy}` : '';
-  console.log(`${indent}${BOLD}${spec.specId}${RESET} ${DIM}v${spec.version}${RESET} [${colorStatus(spec.status)}${deprecated}]`);
-
-  if (spec.composedOf?.length) {
-    console.log(`${indent}  ${DIM}composes:${RESET}`);
-    spec.composedOf.forEach(depId => {
-      const dep = registry.specs.find(s => s.specId === depId);
-      if (dep) {
-        printTree(dep, indent + '    ');
-      } else {
-        console.log(`${indent}    ${depId} ${DIM}(not in registry)${RESET}`);
-      }
-    });
-  }
-
-  if (spec.extends) {
-    const parent = registry.specs.find(s => s.specId === spec.extends);
-    console.log(`${indent}  ${DIM}extends:${RESET}`);
-    if (parent) {
-      printTree(parent, indent + '    ');
-    } else {
-      console.log(`${indent}    ${spec.extends} ${DIM}(not in registry)${RESET}`);
-    }
-  }
-
-  if (spec.instantiatedBy?.length) {
-    console.log(`${indent}  ${DIM}instantiated by:${RESET}`);
-    spec.instantiatedBy.forEach(pageId => {
-      const page = registry.specs.find(s => s.specId === pageId);
-      if (page) {
-        const dep2 = page.status === 'deprecated' ? ` → ${page.deprecatedBy}` : '';
-        console.log(`${indent}    ${BOLD}${page.specId}${RESET} ${DIM}v${page.version}${RESET} [${colorStatus(page.status)}${dep2}]`);
-      } else {
-        console.log(`${indent}    ${pageId} ${DIM}(not in registry)${RESET}`);
-      }
-    });
-  }
 }
 
 switch (command) {
@@ -143,21 +93,6 @@ switch (command) {
     break;
   }
 
-  case 'tree': {
-    const specId = args[0];
-    if (!specId) { console.error('Usage: tree <spec-id>'); process.exit(1); }
-
-    const spec = registry.specs.find(s => s.specId === specId);
-    if (!spec) {
-      console.error(`\nSpec not found: ${specId}\n`);
-      process.exit(1);
-    }
-    console.log('');
-    printTree(spec);
-    console.log('');
-    break;
-  }
-
   case 'validate': {
     const errors = [];
     const ids = new Set();
@@ -168,7 +103,7 @@ switch (command) {
       if (ids.has(spec.specId)) errors.push(`${prefix}: duplicate specId`);
       ids.add(spec.specId);
 
-      if (!spec.specId.match(/^[a-z][a-z0-9-]*\/[a-z][a-z0-9-]*\/[a-z0-9-]+$/)) {
+      if (!spec.specId.match(/^[a-z][a-z0-9-]*\/[a-z][a-z0-9-]*\/[a-z0-9-]+(\/[a-z0-9-]+)?$/)) {
         errors.push(`${prefix}: specId format invalid — must be namespace/category/pattern`);
       }
       if (!['draft', 'active', 'deprecated'].includes(spec.status)) {
@@ -201,7 +136,6 @@ Commands:
   list [--status draft|active|deprecated]   List all specs
   search <query>                            Search by title, id, or tag
   get <spec-id>                             Show full spec details
-  tree <spec-id>                            Show composition/instantiation tree
   validate                                  Validate registry integrity
 `);
 }

@@ -1,0 +1,85 @@
+name: Spec Header Check
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main]
+
+jobs:
+  spec-headers:
+    name: Validate spec provenance headers
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2   # needed for --changed-only git diff
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Sync registry
+        run: node tools/registry/registry-sync.js --validate
+
+      - name: Check spec headers (changed files only on PR)
+        if: github.event_name == 'pull_request'
+        run: |
+          node tools/ci/spec-header-check.js \
+            --changed-only \
+            --format github \
+            --fail-on error
+        # Only fails on deprecated specs or missing registry entries.
+        # Major version gaps produce warnings (visible in PR but don't block).
+
+      - name: Check spec headers (full scan on push to main)
+        if: github.event_name == 'push'
+        run: |
+          node tools/ci/spec-header-check.js \
+            --format github \
+            --fail-on error
+
+      - name: Upload spec report
+        if: always()
+        run: |
+          node tools/ci/spec-header-check.js \
+            --format json > spec-header-report.json || true
+
+      - name: Upload report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spec-header-report
+          path: spec-header-report.json
+          retention-days: 30
+
+  # Separate job: check if DS package bumped and flag affected specs
+  spec-dependency-check:
+    name: Check spec dependencies on DS version changes
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+
+      - name: Check for DS package changes
+        id: ds-changed
+        run: |
+          if git diff HEAD~1 HEAD -- package.json | grep -q '"@company/ds'; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Flag affected specs
+        if: steps.ds-changed.outputs.changed == 'true'
+        run: node tools/ci/spec-dependency-check.js --format github

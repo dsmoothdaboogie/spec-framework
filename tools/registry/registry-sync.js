@@ -151,7 +151,7 @@ function walkSpecs(dir) {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       files.push(...walkSpecs(full));
-    } else if (entry.name.endsWith('.spec.md')) {
+    } else if (entry.name.endsWith('.spec.md') || entry.name.endsWith('.persona.md') || entry.name.endsWith('.entitlement.md')) {
       files.push(full);
     }
   }

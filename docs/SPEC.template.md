@@ -1,12 +1,5 @@
 # Pattern Spec: [Title]
-
-> **Authoring guides by spec type:**
-> - **Pattern specs (organisms)** — use this file
-> - **Template specs (page layouts)** — use `docs/TEMPLATE-SPEC.template.md`
-> - **Page specs (persona implementations)** — use `docs/PAGE-SPEC.template.md`
-
 **spec-id:** `[namespace]/[category]/[pattern-name]`
-**spec-type:** `pattern` <!-- pattern | template | page | token | component -->
 **version:** `0.1.0`
 **status:** `draft` <!-- draft | active | deprecated -->
 **owner:** `[Team Name]`

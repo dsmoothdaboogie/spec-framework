@@ -31,23 +31,12 @@ const warnings = [];
 function err(msg) { errors.push(msg); }
 function warn(msg) { warnings.push(msg); }
 
-// ── Detect spec type ──────────────────────────────────────────────────────────
-const specTypeMatch = content.match(/\*\*spec-type:\*\*\s*`([^`]+)`/);
-const specType = specTypeMatch ? specTypeMatch[1] : 'pattern'; // default to pattern for backwards compat
-
 // ── Frontmatter fields ────────────────────────────────────────────────────────
 const REQUIRED_FIELDS = ['spec-id', 'version', 'status', 'owner', 'last-reviewed', 'applies-to'];
 REQUIRED_FIELDS.forEach(field => {
   const pattern = new RegExp(`\\*\\*${field}:\\*\\*`);
   if (!pattern.test(content)) err(`Missing required frontmatter field: **${field}:**`);
 });
-
-// Page specs must declare the template they extend
-if (specType === 'page') {
-  if (!/\*\*extends:\*\*/.test(content)) {
-    err('Page specs must have required frontmatter field: **extends:** (the template spec-id this page implements)');
-  }
-}
 
 // Status must be valid
 const statusMatch = content.match(/\*\*status:\*\*\s*`([^`]+)`/);
@@ -63,12 +52,12 @@ if (versionMatch && !versionMatch[1].match(/^\d+\.\d+\.\d+$/)) {
 
 // spec-id must be namespaced
 const specIdMatch = content.match(/\*\*spec-id:\*\*\s*`([^`]+)`/);
-if (specIdMatch && !specIdMatch[1].match(/^[a-z][a-z0-9-]*\/[a-z][a-z0-9-]*\/[a-z0-9-]+$/)) {
+if (specIdMatch && !specIdMatch[1].match(/^[a-z]+\/[a-z]+\/[a-z0-9-]+$/)) {
   err(`Invalid spec-id format: "${specIdMatch[1]}" — must be namespace/category/pattern-name`);
 }
 
-// ── Required sections (type-conditional) ──────────────────────────────────────
-const PATTERN_SECTIONS = [
+// ── Required sections ─────────────────────────────────────────────────────────
+const REQUIRED_SECTIONS = [
   { heading: '## 1. Intent',                   key: 'intent' },
   { heading: '## 2. Scope',                    key: 'scope' },
   { heading: '### In scope',                   key: 'in-scope' },
@@ -78,37 +67,6 @@ const PATTERN_SECTIONS = [
   { heading: '### 4.1 File layout',            key: 'file-layout' },
   { heading: '### 4.2 Required inputs',        key: 'inputs-outputs' },
 ];
-
-const TEMPLATE_SECTIONS = [
-  { heading: '## 1. Intent',                   key: 'intent' },
-  { heading: '## 2. Scope',                    key: 'scope' },
-  { heading: '### In scope',                   key: 'in-scope' },
-  { heading: '### Out of scope',               key: 'out-of-scope' },
-  { heading: '## 3. Design System Tokens',     key: 'tokens' },
-  { heading: '## 4. Page Structure',           key: 'page-structure' },
-  { heading: '### 4.1 File layout',            key: 'file-layout' },
-  { heading: '### 4.2 Region map',             key: 'region-map' },
-  { heading: '## 5. Organism Composition',     key: 'composition' },
-  { heading: '## 6. Slot Configuration',       key: 'slots' },
-];
-
-const PAGE_SECTIONS = [
-  { heading: '## 1. Intent',                   key: 'intent' },
-  { heading: '## 2. Scope',                    key: 'scope' },
-  { heading: '### In scope',                   key: 'in-scope' },
-  { heading: '### Out of scope',               key: 'out-of-scope' },
-  { heading: '## 3. Slot Fulfillment',         key: 'slot-fulfillment' },
-];
-
-const SECTION_MAP = {
-  pattern:   PATTERN_SECTIONS,
-  template:  TEMPLATE_SECTIONS,
-  page:      PAGE_SECTIONS,
-  token:     PATTERN_SECTIONS,
-  component: PATTERN_SECTIONS,
-};
-
-const REQUIRED_SECTIONS = SECTION_MAP[specType] || PATTERN_SECTIONS;
 
 REQUIRED_SECTIONS.forEach(({ heading, key }) => {
   if (!content.includes(heading)) {
@@ -150,9 +108,8 @@ if (hexInProse) {
 
 // ── Checklist items ────────────────────────────────────────────────────────────
 const checklistItems = content.match(/- \[ \] /g) || [];
-const minChecklistItems = specType === 'page' ? 10 : 5;
-if (checklistItems.length < minChecklistItems) {
-  warn(`Agent checklist has only ${checklistItems.length} item(s) — ${specType === 'page' ? 'page specs must reproduce the template checklist, minimum 10 items' : 'consider adding more coverage'}`);
+if (checklistItems.length < 5) {
+  warn(`Agent checklist has only ${checklistItems.length} item(s) — consider adding more coverage`);
 }
 
 // ── Related specs ─────────────────────────────────────────────────────────────
