@@ -1,0 +1,12 @@
+/* Maps to: color.$status-success / warning / error / text-secondary */
+:host { display: flex; align-items: center; }
+
+.multiple {
+  font-weight: 700;
+  font-size: 14px;
+
+  &--success { color: var(--color-status-success); }
+  &--warning { color: var(--color-status-warning); }
+  &--error   { color: var(--color-status-error);   }
+  &--neutral { color: var(--color-text-secondary); }
+}

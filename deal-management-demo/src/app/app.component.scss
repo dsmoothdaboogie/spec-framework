@@ -1,0 +1,109 @@
+:host { display: block; }
+
+.shell {
+  display: grid;
+  grid-template-rows: 52px 52px 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── App header ─────────────────────────────────────────────────────────── */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background: #0d1b2a;
+  color: #fff;
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__logo {
+    font-size: 20px;
+    color: #4fc3f7;
+  }
+
+  &__name {
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  &__tag {
+    font-size: 11px;
+    background: rgba(79,195,247,0.2);
+    color: #4fc3f7;
+    padding: 2px 8px;
+    border-radius: 10px;
+    border: 1px solid rgba(79,195,247,0.3);
+  }
+
+  &__meta {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+}
+
+/* ── Persona tab nav ─────────────────────────────────────────────────────── */
+.persona-nav {
+  display: flex;
+  background: #fff;
+  border-bottom: 2px solid var(--color-border-subtle);
+  padding: 0 8px;
+  gap: 2px;
+  overflow-x: auto;
+}
+
+.persona-tab {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 16px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  gap: 1px;
+  transition: border-color 0.15s;
+  white-space: nowrap;
+
+  &__label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    transition: color 0.15s;
+  }
+
+  &__sub {
+    font-size: 10px;
+    color: var(--color-text-secondary);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    opacity: 0.7;
+  }
+
+  &--active {
+    border-bottom-color: var(--color-brand-primary);
+
+    .persona-tab__label {
+      color: var(--color-brand-primary);
+    }
+  }
+
+  &:hover:not(&--active) {
+    background: var(--color-surface-raised);
+  }
+}
+
+/* ── Grid viewport ───────────────────────────────────────────────────────── */
+.grid-viewport {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  > * { flex: 1; min-height: 0; }
+}

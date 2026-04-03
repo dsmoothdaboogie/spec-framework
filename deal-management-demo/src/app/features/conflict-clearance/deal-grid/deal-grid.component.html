@@ -1,0 +1,24 @@
+<!-- Per spec §10: no bulk bar, no toolbar selection count, no export button -->
+<div class="grid-container">
+  <div class="grid-toolbar">
+    <div class="grid-toolbar__left">
+      <h2 class="grid-title">Conflict Clearance — Review Queue</h2>
+      <span class="grid-subtitle">Read-only · Pending submissions shown first</span>
+    </div>
+    <!-- No bulk actions for this persona -->
+  </div>
+
+  @if (hasError()) {
+    <div class="state-message state-message--error">Failed to load submissions. Please retry.</div>
+  } @else if (isLoading()) {
+    <div class="state-message">Loading submissions…</div>
+  } @else {
+    <ag-grid-angular
+      style="width: 100%; height: 100%;"
+      [theme]="theme"
+      [rowData]="rowData()"
+      [columnDefs]="columnDefs"
+      [gridOptions]="gridOptions"
+    />
+  }
+</div>

@@ -1,0 +1,19 @@
+/* Maps to: color.$text-primary, color.$text-secondary, spacing.$s1 */
+:host { display: flex; align-items: center; }
+
+.fee-revenue {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+
+  &__bps {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--color-text-primary);
+  }
+
+  &__revenue {
+    font-size: 11px;
+    color: var(--color-text-secondary);
+  }
+}

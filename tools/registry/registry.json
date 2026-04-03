@@ -1,7 +1,7 @@
 {
   "$schema": "./registry.schema.json",
   "version": "1.1.0",
-  "lastUpdated": "2026-03-25",
+  "lastUpdated": "2026-04-03",
   "maintainer": "UI Architecture",
   "adapter": "material-v3",
   "specs": [
@@ -256,6 +256,248 @@
         "Angular Testing Library"
       ],
       "lastReviewed": "2026-03-20",
+      "deprecatedBy": null
+    },
+    {
+      "specId": "domain/entitlements/deal-full",
+      "title": "Entitlement: Deal Full",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "Compliance / UI Architecture",
+      "path": "specs/domain/entitlements/deal-full.entitlement.md",
+      "tags": [
+        "domain",
+        "entitlements",
+        "deal"
+      ],
+      "appliesTo": [],
+      "lastReviewed": "2026-04-03",
+      "related": [
+        "domain/entitlements/deal-restricted"
+      ],
+      "deprecatedBy": null
+    },
+    {
+      "specId": "domain/entitlements/deal-restricted",
+      "title": "Entitlement: Deal Restricted",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "Compliance / UI Architecture",
+      "path": "specs/domain/entitlements/deal-restricted.entitlement.md",
+      "tags": [
+        "domain",
+        "entitlements",
+        "deal"
+      ],
+      "appliesTo": [],
+      "lastReviewed": "2026-04-03",
+      "related": [
+        "domain/entitlements/deal-full"
+      ],
+      "deprecatedBy": null
+    },
+    {
+      "specId": "domain/personas/coverage-banker",
+      "title": "Persona: Coverage Banker",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "Product / UX",
+      "path": "specs/domain/personas/coverage-banker.persona.md",
+      "tags": [
+        "domain",
+        "personas",
+        "banking"
+      ],
+      "appliesTo": [],
+      "lastReviewed": "2026-04-03",
+      "related": [
+        "domain/entitlements/deal-full",
+        "domain/patterns/ag-grid-datatable/coverage-banker"
+      ],
+      "deprecatedBy": null
+    },
+    {
+      "specId": "domain/personas/syndicate-banker",
+      "title": "Persona: Syndicate Banker",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "Product / UX",
+      "path": "specs/domain/personas/syndicate-banker.persona.md",
+      "tags": [
+        "domain",
+        "personas",
+        "banking"
+      ],
+      "appliesTo": [],
+      "lastReviewed": "2026-04-03",
+      "related": [
+        "domain/entitlements/deal-full",
+        "domain/patterns/ag-grid-datatable/syndicate-banker"
+      ],
+      "deprecatedBy": null
+    },
+    {
+      "specId": "domain/personas/business-execution-lead",
+      "title": "Persona: Business Execution Lead",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "Product / UX",
+      "path": "specs/domain/personas/business-execution-lead.persona.md",
+      "tags": [
+        "domain",
+        "personas",
+        "banking"
+      ],
+      "appliesTo": [],
+      "lastReviewed": "2026-04-03",
+      "related": [
+        "domain/entitlements/deal-full",
+        "domain/patterns/ag-grid-datatable/business-execution-lead"
+      ],
+      "deprecatedBy": null
+    },
+    {
+      "specId": "domain/personas/conflict-clearance",
+      "title": "Persona: Conflict Clearance Officer",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "Product / UX / Legal",
+      "path": "specs/domain/personas/conflict-clearance.persona.md",
+      "tags": [
+        "domain",
+        "personas",
+        "banking",
+        "compliance"
+      ],
+      "appliesTo": [],
+      "lastReviewed": "2026-04-03",
+      "related": [
+        "domain/entitlements/deal-restricted",
+        "domain/patterns/ag-grid-datatable/conflict-clearance"
+      ],
+      "deprecatedBy": null
+    },
+    {
+      "specId": "ds/patterns/deal-grid-calculations",
+      "title": "Pattern: Deal Grid Calculations",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "UI Architecture / Product",
+      "path": "specs/ds/patterns/deal-grid-calculations.spec.md",
+      "tags": [
+        "ds",
+        "patterns",
+        "calculations",
+        "ag-grid"
+      ],
+      "appliesTo": [
+        "Angular 19+"
+      ],
+      "lastReviewed": "2026-04-03",
+      "related": [
+        "ds/patterns/ag-grid-datatable",
+        "ds/tokens/semantic"
+      ],
+      "deprecatedBy": null
+    },
+    {
+      "specId": "domain/patterns/ag-grid-datatable/coverage-banker",
+      "title": "Grid: Coverage Banker Deal Pipeline",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "UI Architecture / Product",
+      "path": "specs/domain/patterns/ag-grid-datatable/coverage-banker.spec.md",
+      "tags": [
+        "domain",
+        "patterns",
+        "ag-grid",
+        "banking"
+      ],
+      "appliesTo": [
+        "Angular 19+"
+      ],
+      "lastReviewed": "2026-04-03",
+      "related": [
+        "ds/patterns/ag-grid-datatable",
+        "ds/patterns/deal-grid-calculations",
+        "domain/personas/coverage-banker",
+        "domain/entitlements/deal-full"
+      ],
+      "deprecatedBy": null
+    },
+    {
+      "specId": "domain/patterns/ag-grid-datatable/syndicate-banker",
+      "title": "Grid: Syndicate Banker Book-Building Pipeline",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "UI Architecture / Product",
+      "path": "specs/domain/patterns/ag-grid-datatable/syndicate-banker.spec.md",
+      "tags": [
+        "domain",
+        "patterns",
+        "ag-grid",
+        "banking"
+      ],
+      "appliesTo": [
+        "Angular 19+"
+      ],
+      "lastReviewed": "2026-04-03",
+      "related": [
+        "ds/patterns/ag-grid-datatable",
+        "ds/patterns/deal-grid-calculations",
+        "domain/personas/syndicate-banker",
+        "domain/entitlements/deal-full"
+      ],
+      "deprecatedBy": null
+    },
+    {
+      "specId": "domain/patterns/ag-grid-datatable/business-execution-lead",
+      "title": "Grid: Business Execution Lead Deal Tracker",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "UI Architecture / Product",
+      "path": "specs/domain/patterns/ag-grid-datatable/business-execution-lead.spec.md",
+      "tags": [
+        "domain",
+        "patterns",
+        "ag-grid",
+        "banking"
+      ],
+      "appliesTo": [
+        "Angular 19+"
+      ],
+      "lastReviewed": "2026-04-03",
+      "related": [
+        "ds/patterns/ag-grid-datatable",
+        "ds/patterns/deal-grid-calculations",
+        "domain/personas/business-execution-lead",
+        "domain/entitlements/deal-full"
+      ],
+      "deprecatedBy": null
+    },
+    {
+      "specId": "domain/patterns/ag-grid-datatable/conflict-clearance",
+      "title": "Grid: Conflict Clearance Officer Review",
+      "version": "1.0.0",
+      "status": "active",
+      "owner": "UI Architecture / Legal",
+      "path": "specs/domain/patterns/ag-grid-datatable/conflict-clearance.spec.md",
+      "tags": [
+        "domain",
+        "patterns",
+        "ag-grid",
+        "banking",
+        "compliance"
+      ],
+      "appliesTo": [
+        "Angular 19+"
+      ],
+      "lastReviewed": "2026-04-03",
+      "related": [
+        "ds/patterns/ag-grid-datatable",
+        "domain/personas/conflict-clearance",
+        "domain/entitlements/deal-restricted"
+      ],
       "deprecatedBy": null
     }
   ],

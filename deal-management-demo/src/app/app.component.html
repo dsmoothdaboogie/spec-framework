@@ -1,0 +1,46 @@
+<div class="shell">
+
+  <!-- App header -->
+  <header class="app-header">
+    <div class="app-header__brand">
+      <span class="app-header__logo">⬡</span>
+      <span class="app-header__name">Deal Management</span>
+      <span class="app-header__tag">Spec-Driven Demo</span>
+    </div>
+    <div class="app-header__meta">
+      <span class="spec-link">spec-framework / domain/patterns/ag-grid-datatable</span>
+    </div>
+  </header>
+
+  <!-- Persona tab nav -->
+  <nav class="persona-nav">
+    @for (tab of tabs; track tab.id) {
+      <button
+        class="persona-tab"
+        [class.persona-tab--active]="activeTab() === tab.id"
+        (click)="setTab(tab.id)">
+        <span class="persona-tab__label">{{ tab.label }}</span>
+        <span class="persona-tab__sub">{{ tab.subtitle }}</span>
+      </button>
+    }
+  </nav>
+
+  <!-- Grid views — only one mounted at a time -->
+  <main class="grid-viewport">
+    @switch (activeTab()) {
+      @case ('coverage') {
+        <app-coverage-banker-grid />
+      }
+      @case ('syndicate') {
+        <app-syndicate-banker-grid />
+      }
+      @case ('bel') {
+        <app-bel-grid />
+      }
+      @case ('conflict') {
+        <app-conflict-clearance-grid />
+      }
+    }
+  </main>
+
+</div>
