@@ -24,15 +24,15 @@ console.log(`\n${BOLD}Spec Explorer${RESET}\n`);
 
 // ── Registry loader ──────────────────────────────────────────────────────────
 function loadRegistry() {
-  // Try explorer-cache first, fall back to registry.json
-  const cachePath    = path.join(ROOT, 'tools/registry/explorer-cache.json');
+  // Prefer registry.json (authoritative), fall back to explorer-cache
   const registryPath = path.join(ROOT, 'tools/registry/registry.json');
+  const cachePath    = path.join(ROOT, 'tools/registry/explorer-cache.json');
 
-  if (fs.existsSync(cachePath)) {
-    try { return JSON.parse(fs.readFileSync(cachePath, 'utf-8')); } catch (_) {}
-  }
   if (fs.existsSync(registryPath)) {
     try { return JSON.parse(fs.readFileSync(registryPath, 'utf-8')); } catch (_) {}
+  }
+  if (fs.existsSync(cachePath)) {
+    try { return JSON.parse(fs.readFileSync(cachePath, 'utf-8')); } catch (_) {}
   }
   return { specs: [] };
 }
