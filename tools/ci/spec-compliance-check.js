@@ -560,3 +560,153 @@ function runChecklistRules(bundle, checklistItems, universalResults) {
     return { item, ruleId: null, status: 'manual', evidence: null };
   });
 }
+
+// ── Reporters ─────────────────────────────────────────────────────────────────
+function reportPretty(allResults) {
+  console.log(`\n${C.bold}spec-compliance-check${C.reset}\n`);
+  console.log(`  ${C.dim}Scanning ${allResults.length} component(s) with @spec headers...${C.reset}\n`);
+
+  let totalPass = 0, totalFail = 0, totalManual = 0;
+  let filesWithFailures = 0;
+
+  for (const result of allResults) {
+    const rel = path.relative(process.cwd(), result.entry);
+    const hasFail = result.universal.some(r => r.status === 'fail') ||
+                    result.checklist.some(r => r.status === 'fail');
+    if (hasFail) filesWithFailures++;
+
+    console.log(`  ${C.bold}${rel}${C.reset}`);
+    console.log(`  ${C.dim}@spec ${result.header.specId} v${result.header.specVersion}${C.reset}`);
+    if (result.header.personaId) {
+      console.log(`  ${C.dim}@persona ${result.header.personaId} v${result.header.personaVersion}${C.reset}`);
+    }
+
+    console.log(`\n  ${C.bold}Universal Passes${C.reset}`);
+    for (const r of result.universal) {
+      if (r.status === 'pass') { console.log(`    ${C.green}\u2713${C.reset} ${r.label}`); totalPass++; }
+      else if (r.status === 'fail') { console.log(`    ${C.red}\u2717${C.reset} ${r.label}`); console.log(`      ${C.dim}\u2192 ${r.evidence}${C.reset}`); totalFail++; }
+      else { console.log(`    ${C.dim}\u2014 ${r.label} (skipped)${C.reset}`); }
+    }
+
+    if (result.checklist.length) {
+      console.log(`\n  ${C.bold}Spec Checklist (${result.checklist.length} items)${C.reset}`);
+      for (const r of result.checklist) {
+        if (r.status === 'pass') { console.log(`    ${C.green}\u2713${C.reset} ${r.item}`); totalPass++; }
+        else if (r.status === 'fail') { console.log(`    ${C.red}\u2717${C.reset} ${r.item}`); console.log(`      ${C.dim}\u2192 ${r.evidence}${C.reset}`); totalFail++; }
+        else { console.log(`    ${C.yellow}\u25CC${C.reset} ${r.item}`); console.log(`      ${C.dim}\u2192 manual review needed${C.reset}`); totalManual++; }
+      }
+    } else if (result.specNotFound) {
+      console.log(`\n  ${C.yellow}\u26A0 Spec "${result.header.specId}" not found \u2014 checklist rules skipped${C.reset}`);
+      console.log(`    ${C.dim}Use --spec-root to point to your spec-framework directory${C.reset}`);
+    }
+
+    const p = result.universal.filter(r => r.status === 'pass').length + result.checklist.filter(r => r.status === 'pass').length;
+    const f = result.universal.filter(r => r.status === 'fail').length + result.checklist.filter(r => r.status === 'fail').length;
+    const m = result.checklist.filter(r => r.status === 'manual').length;
+    console.log(`\n  ${C.dim}${p} pass \u00B7 ${f} fail \u00B7 ${m} manual${C.reset}\n`);
+  }
+
+  console.log(`${C.bold}Summary:${C.reset} ${allResults.length} file(s) scanned`);
+  if (filesWithFailures) console.log(`  ${C.red}\u2717 ${filesWithFailures} file(s) with failures${C.reset}`);
+  const clean = allResults.length - filesWithFailures;
+  if (clean) console.log(`  ${C.green}\u2713 ${clean} file(s) fully compliant${C.reset}`);
+  if (totalManual) console.log(`  ${C.yellow}\u25CC ${totalManual} item(s) need manual review${C.reset}`);
+  console.log('');
+
+  return { totalFail, totalManual };
+}
+
+function reportGitHub(allResults) {
+  let totalFail = 0, totalManual = 0;
+
+  for (const result of allResults) {
+    const rel = path.relative(process.cwd(), result.entry);
+    let fileManual = 0;
+
+    for (const r of result.universal) {
+      if (r.status === 'fail') { console.log(`::error file=${rel},title=Spec Compliance [${r.passId}]::${r.evidence}`); totalFail++; }
+    }
+    for (const r of result.checklist) {
+      if (r.status === 'fail') { console.log(`::error file=${rel},title=Spec Compliance [${r.ruleId}]::${r.evidence}`); totalFail++; }
+      else if (r.status === 'manual') { fileManual++; totalManual++; }
+    }
+    if (fileManual) console.log(`::notice file=${rel},title=Spec Compliance [manual]::${fileManual} checklist item(s) require manual review`);
+  }
+
+  const totalPass = allResults.reduce((sum, r) =>
+    sum + r.universal.filter(x => x.status === 'pass').length + r.checklist.filter(x => x.status === 'pass').length, 0);
+
+  if (totalFail) console.log(`::error title=Spec Compliance Summary::${totalFail} failure(s) across ${allResults.length} file(s)`);
+  else console.log(`::notice title=Spec Compliance Summary::All ${totalPass} checks passed across ${allResults.length} file(s)`);
+
+  return { totalFail, totalManual };
+}
+
+function reportJson(allResults) {
+  const totalPass = allResults.reduce((sum, r) =>
+    sum + r.universal.filter(x => x.status === 'pass').length + r.checklist.filter(x => x.status === 'pass').length, 0);
+  const totalFail = allResults.reduce((sum, r) =>
+    sum + r.universal.filter(x => x.status === 'fail').length + r.checklist.filter(x => x.status === 'fail').length, 0);
+  const totalManual = allResults.reduce((sum, r) =>
+    sum + r.checklist.filter(x => x.status === 'manual').length, 0);
+
+  const output = {
+    summary: { files: allResults.length, pass: totalPass, fail: totalFail, manual: totalManual, totalChecks: totalPass + totalFail + totalManual },
+    files: allResults.map(r => ({
+      file: path.relative(process.cwd(), r.entry),
+      spec: r.header.specId,
+      version: r.header.specVersion,
+      persona: r.header.personaId || null,
+      universal: r.universal.map(u => ({ passId: u.passId, status: u.status, ...(u.evidence ? { evidence: u.evidence } : {}) })),
+      checklist: r.checklist.map(c => ({ item: c.item, status: c.status, ...(c.ruleId ? { ruleId: c.ruleId } : {}), ...(c.evidence ? { evidence: c.evidence } : {}) })),
+    })),
+  };
+
+  console.log(JSON.stringify(output, null, 2));
+  return { totalFail, totalManual };
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+function main() {
+  const registry = loadRegistry();
+  const tsFiles  = CHANGED_ONLY ? getChangedFiles() : walkDir(process.cwd());
+  const bundles  = tsFiles.map(bundleComponent).filter(Boolean);
+
+  if (!bundles.length) {
+    if (FORMAT === 'pretty') {
+      console.log(`\n${C.bold}spec-compliance-check${C.reset}\n`);
+      console.log(`  ${C.dim}No components with @spec headers found.${C.reset}\n`);
+    } else if (FORMAT === 'json') {
+      console.log(JSON.stringify({ summary: { files: 0, pass: 0, fail: 0, manual: 0, totalChecks: 0 }, files: [] }, null, 2));
+    }
+    process.exit(0);
+  }
+
+  const allResults = bundles.map(bundle => {
+    const universal = runUniversalPasses(bundle);
+    let checklist = [];
+    let specNotFound = false;
+
+    const spec = resolveSpec(bundle.header.specId, registry);
+    if (spec) {
+      const items = parseChecklist(spec.content);
+      checklist = runChecklistRules(bundle, items, universal);
+    } else {
+      specNotFound = true;
+    }
+
+    return { entry: bundle.entry, header: bundle.header, universal, checklist, specNotFound };
+  });
+
+  const { totalFail, totalManual } = FORMAT === 'github' ? reportGitHub(allResults)
+                                   : FORMAT === 'json'   ? reportJson(allResults)
+                                   : reportPretty(allResults);
+
+  const shouldFail = FAIL_ON === 'error'   ? totalFail > 0
+                   : FAIL_ON === 'warning' ? (totalFail + totalManual) > 0
+                   : false;
+
+  process.exit(shouldFail ? 1 : 0);
+}
+
+main();
