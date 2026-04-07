@@ -277,3 +277,53 @@ function runUniversalPasses(bundle) {
     ...pass.run(bundle),
   }));
 }
+
+// ── Registry & spec resolution ────────────────────────────────────────────────
+function loadRegistry() {
+  if (!fs.existsSync(REGISTRY_PATH)) {
+    if (FORMAT === 'pretty') {
+      console.log(`  ${C.yellow}⚠ Registry not found at ${REGISTRY_PATH}${C.reset}`);
+      console.log(`    ${C.dim}Checklist rules will be skipped. Use --spec-root to point to your spec-framework.${C.reset}\n`);
+    }
+    return null;
+  }
+  try {
+    return JSON.parse(fs.readFileSync(REGISTRY_PATH, 'utf-8'));
+  } catch {
+    return null;
+  }
+}
+
+function resolveSpec(specId, registry) {
+  if (!registry) return null;
+  const entry = registry.specs.find(s => s.specId === specId);
+  if (!entry) return null;
+  const specPath = path.join(SPEC_ROOT, entry.path);
+  if (!fs.existsSync(specPath)) return null;
+  return {
+    ...entry,
+    content: fs.readFileSync(specPath, 'utf-8'),
+  };
+}
+
+// ── Checklist parser ──────────────────────────────────────────────────────────
+function parseChecklist(specContent) {
+  const lines = specContent.split('\n');
+  const items = [];
+  let inChecklist = false;
+
+  for (const line of lines) {
+    if (/^##\s+\d+\.\s+Agent\s+[Cc]hecklist/i.test(line)) {
+      inChecklist = true;
+      continue;
+    }
+    if (inChecklist && /^##\s/.test(line)) break;
+
+    if (inChecklist) {
+      const m = line.match(/^[-*]\s*\[[ x]\]\s+(.+)/i);
+      if (m) items.push(m[1].trim());
+    }
+  }
+
+  return items;
+}
