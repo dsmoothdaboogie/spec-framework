@@ -1,0 +1,14 @@
+@use '@company/spec-tokens/color' as color;
+@use '@company/spec-tokens/spacing' as spacing;
+
+.skeleton-grid {
+  padding: spacing.$grid-gutter;
+}
+
+.error-state {
+  color: #ff4444;
+}
+
+.empty-state h2 {
+  margin-bottom: spacing.$md;
+}

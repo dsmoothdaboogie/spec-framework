@@ -1,0 +1,27 @@
+@if (loading()) {
+  <div class="skeleton-grid">
+    <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]"></div>
+  </div>
+}
+
+@if (error()) {
+  <div class="error-state">
+    <p>{{ error() }}</p>
+    <button (click)="retry()" aria-label="Retry loading" aria-disabled="false">Try again</button>
+  </div>
+}
+
+@if (!loading() && !error() && data().length === 0) {
+  <div class="empty-state">
+    <h2>No deals found</h2>
+    <p>No data matches your current filters.</p>
+  </div>
+}
+
+@if (!loading() && !error() && data().length > 0) {
+  <ag-grid-angular
+    [rowData]="data()"
+    [columnDefs]="columnDefs"
+    aria-label="Deal pipeline grid">
+  </ag-grid-angular>
+}
