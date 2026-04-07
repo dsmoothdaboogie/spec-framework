@@ -19,7 +19,9 @@
     "ci:headers:changed": "node tools/ci/spec-header-check.js --changed-only",
     "ci:deps": "node tools/ci/spec-dependency-check.js",
     "ci:active-gate": "node tools/ci/spec-active-gate.js",
-    "ci:active-gate:changed": "node tools/ci/spec-active-gate.js --changed-only"
+    "ci:active-gate:changed": "node tools/ci/spec-active-gate.js --changed-only",
+    "compliance": "node tools/ci/spec-compliance-check.js",
+    "compliance:changed": "node tools/ci/spec-compliance-check.js --changed-only"
   },
   "engines": {
     "node": ">=18.0.0"
