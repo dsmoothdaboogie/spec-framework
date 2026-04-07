@@ -70,22 +70,25 @@ spec-framework/
 │   ├── linter/
 │   │   └── spec-lint.js           # Validates spec files against meta-spec rules
 │   ├── hooks/
-│   │   └── pre-commit             # Runs linter on changed specs before commit
+│   │   ├── pre-commit             # Auto-syncs registry on spec changes
+│   │   └── install-hooks.js       # Installs git hooks
 │   ├── ci/
-│   │   ├── spec-header-check.js   # CI: validates spec frontmatter headers
-│   │   └── spec-dependency-check.js # CI: validates spec cross-references
+│   │   ├── spec-header-check.js     # CI: validates @spec provenance headers
+│   │   ├── spec-dependency-check.js  # CI: flags specs affected by DS package changes
+│   │   ├── spec-active-gate.js       # CI: blocks merge if active specs fail linting
+│   │   └── spec-compliance-check.js  # CI: validates generated code against spec checklists
 │   └── explorer/
 │       └── server.js              # Local web UI for browsing specs
 │
 └── docs/
     ├── SPEC.template.md           # Authoring guide for organism-level pattern specs
-    ├── TEMPLATE-SPEC.template.md  # Authoring guide for template specs (page layouts)
-    ├── PAGE-SPEC.template.md      # Authoring guide for page specs (persona implementations)
+    ├── COMPOSITION-SPEC.template.md # Authoring guide for composition specs
+    ├── WORKFLOW-GUIDE.md          # How to use specs with AI agents and CI
     ├── PERSONA.template.md        # Authoring guide for persona docs
     ├── AGENT.system-prompt.md     # Standard system prompt for AI agents consuming specs
     ├── AGENT-INTEGRATION.md       # Setup guide: Copilot, Cursor, Claude, Devin
     ├── GOVERNANCE.md              # Lifecycle, versioning, review process, roles
-    └── DS-SWAP-GUIDE.md           # How to swap the underlying design system library
+    └── DS-SWAP-GUIDE.md          # How to swap the underlying design system library
 ```
 
 ---
@@ -150,9 +153,33 @@ Short version:
 | What you're writing | Template to use |
 |---|---|
 | Organism-level UI pattern | `docs/SPEC.template.md` |
-| Page layout contract | `docs/TEMPLATE-SPEC.template.md` |
-| Persona implementation of a template | `docs/PAGE-SPEC.template.md` |
+| Domain composition (persona-specific) | `docs/COMPOSITION-SPEC.template.md` |
 | User persona | `docs/PERSONA.template.md` |
+
+---
+
+## CI tools
+
+These tools run in your CI pipeline to catch spec drift:
+
+| Tool | What it does | When to run |
+|---|---|---|
+| `spec-lint` | Validates spec files are well-formed | On spec file changes |
+| `spec-active-gate` | Ensures all active specs pass linting | Pre-merge gate |
+| `spec-header-check` | Validates `@spec` headers in generated code are current | On code changes |
+| `spec-dependency-check` | Flags specs affected by DS package version changes | On `package.json` changes |
+| `spec-compliance-check` | Validates generated code follows the spec's checklist | On code changes |
+
+All tools support `--format github` for GitHub Actions annotations and `--format json` for machine-readable output.
+
+```bash
+# Run all CI checks locally
+node tools/linter/spec-lint.js specs/ds/patterns/ag-grid-datatable.spec.md
+node tools/ci/spec-active-gate.js
+node tools/ci/spec-header-check.js
+node tools/ci/spec-dependency-check.js
+node tools/ci/spec-compliance-check.js
+```
 
 ---
 
