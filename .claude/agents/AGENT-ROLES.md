@@ -50,14 +50,20 @@ spec-framework/
 # Search the registry
 node tools/registry/registry-cli.js search "<keyword>"
 
-# Retrieve a spec by ID
+# Retrieve a spec by ID (shows specType, layer, dependsOn, requiredBy)
 node tools/registry/registry-cli.js get domain/patterns/ag-grid-datatable/coverage-banker
+
+# Check blast radius of changing a spec
+node tools/registry/registry-cli.js blast-radius ds/patterns/ag-grid-datatable
 
 # Validate registry entries
 node tools/registry/registry-cli.js validate
 
-# Lint a spec for structural completeness
+# Lint a spec (auto-detects spec type: pattern vs composition)
 node tools/linter/spec-lint.js specs/domain/patterns/ag-grid-datatable/coverage-banker.spec.md
+
+# CI: verify all active specs pass linting
+node tools/ci/spec-active-gate.js
 ```
 
 ---

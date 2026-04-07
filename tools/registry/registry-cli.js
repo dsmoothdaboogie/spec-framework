@@ -36,9 +36,17 @@ function printSpec(spec, verbose = false) {
   console.log(`  ${spec.title}`);
   if (verbose) {
     console.log(`  Owner:       ${spec.owner}`);
-    console.log(`  Applies to:  ${spec.appliesTo.join(', ')}`);
+    if (spec.specType)  console.log(`  Spec type:   ${spec.specType}`);
+    if (spec.layer != null) console.log(`  Layer:       ${spec.layer}`);
+    console.log(`  Applies to:  ${(spec.appliesTo || []).join(', ') || '—'}`);
     console.log(`  Tags:        ${spec.tags.join(', ')}`);
     console.log(`  Path:        ${spec.path}`);
+    if (spec.dependsOn?.length) {
+      console.log(`  Depends on:  ${spec.dependsOn.map(d => `${d.specId}@${d.version || '?'}`).join(', ')}`);
+    }
+    if (spec.requiredBy?.length) {
+      console.log(`  Required by: ${spec.requiredBy.join(', ')}`);
+    }
     if (spec.related?.length) {
       console.log(`  Related:     ${spec.related.join(', ')}`);
     }
@@ -128,6 +136,54 @@ switch (command) {
     break;
   }
 
+  case 'blast-radius': {
+    const targetId = args[0];
+    if (!targetId) { console.error('Usage: blast-radius <spec-id>'); process.exit(1); }
+
+    const target = registry.specs.find(s => s.specId === targetId);
+    if (!target) {
+      console.error(`\nSpec not found: ${targetId}\n`);
+      process.exit(1);
+    }
+
+    // Direct dependents from requiredBy
+    const directDeps = target.requiredBy || [];
+
+    // Transitive: specs that depend on the direct dependents
+    const transitive = new Set();
+    function walk(specId) {
+      const spec = registry.specs.find(s => s.specId === specId);
+      if (!spec || !spec.requiredBy) return;
+      for (const depId of spec.requiredBy) {
+        if (!transitive.has(depId) && depId !== targetId) {
+          transitive.add(depId);
+          walk(depId);
+        }
+      }
+    }
+    directDeps.forEach(walk);
+
+    console.log(`\n${BOLD}Blast radius: ${targetId}${RESET} v${target.version}\n`);
+
+    if (!directDeps.length) {
+      console.log(`  No specs depend on this spec.\n`);
+    } else {
+      console.log(`  ${BOLD}Direct dependents (${directDeps.length}):${RESET}`);
+      directDeps.forEach(id => {
+        const s = registry.specs.find(sp => sp.specId === id);
+        const label = s ? `${DIM}${s.specType || '?'} · ${s.status}${RESET}` : '';
+        console.log(`    → ${id} ${label}`);
+      });
+
+      if (transitive.size) {
+        console.log(`\n  ${BOLD}Transitive dependents (${transitive.size}):${RESET}`);
+        [...transitive].forEach(id => console.log(`    → ${id}`));
+      }
+      console.log('');
+    }
+    break;
+  }
+
   default:
     console.log(`
 ${BOLD}spec-registry${RESET} — Spec Framework CLI
@@ -137,5 +193,6 @@ Commands:
   search <query>                            Search by title, id, or tag
   get <spec-id>                             Show full spec details
   validate                                  Validate registry integrity
+  blast-radius <spec-id>                    Show all specs affected by a change
 `);
 }

@@ -1,13 +1,15 @@
 # Composition Spec: AG Grid — Coverage Banker
 **spec-id:** `domain/patterns/ag-grid-datatable/coverage-banker`
-**version:** `1.0.0`
+**version:** `1.1.0`
 **status:** `active`
+**spec-type:** `composition`
 **layer:** `3`
 **owner:** UI Architecture / Product
-**last-reviewed:** 2026-04-03
+**last-reviewed:** 2026-04-06
 **base-pattern:** `ds/patterns/ag-grid-datatable` v2.0.0
 **persona:** `domain/personas/coverage-banker` v1.0.0
 **entitlement:** `domain/entitlements/deal-full` v1.0.0
+**compliance-signoff:** `J. Martinez / Head of Compliance / 2026-03-15`
 
 ---
 
@@ -120,7 +122,35 @@ Client-side data (mock data in demo). Default sort: `expectedCloseDate` ascendin
 
 ---
 
-## 8. Empty state
+## 8. Null / zero value rendering rules
+
+| Column | Null / undefined | Zero | Negative |
+|--------|-----------------|------|----------|
+| Deal Name | — (should never be null) | — | — |
+| Issuer | Render "—" | — | — |
+| Deal Size | Render "—" | Render "$0" | — |
+| Gross Spread | Render "—" | Render "0 bps" | — |
+| Est. Revenue | Render "—" | Render "$0" | Render as negative (red text) |
+| Days to Close | Render "—" (withdrawn/no close date) | Render "Today" | Render as overdue with error styling |
+| Mandate Date | Render "—" | — | — |
+| Coverage Banker | Render "Unassigned" | — | — |
+
+---
+
+## 9. Loading state
+
+```typescript
+{
+  type: 'skeleton',
+  rows: 8,
+  // Render 8 skeleton rows matching column widths from §2
+  // Use base pattern §8 skeleton row component
+}
+```
+
+---
+
+## 10. Empty state
 
 ```typescript
 {
@@ -132,31 +162,66 @@ Client-side data (mock data in demo). Default sort: `expectedCloseDate` ascendin
 
 ---
 
-## 9. Agent checklist
+## 11. Error state
 
-- [ ] All 8 spec sections read before generating
+```typescript
+{
+  icon: '⚠',
+  title: 'Unable to load deals',
+  description: 'Something went wrong loading your pipeline. Please try again.',
+  retryAction: true,
+}
+```
+
+---
+
+## 12. Acceptance criteria
+
+- [ ] **AC-1:** When the grid loads, columns appear in the exact order defined in §2 (checkbox, Deal Name, Issuer, Type, Stage, Deal Size, Gross Spread, Est. Revenue, Days to Close, Mandate Date, Coverage Banker, Actions).
+- [ ] **AC-2:** When a user has `deal-full` entitlement, Gross Spread (Col 7) and Est. Revenue (Col 8) are visible. When entitlement is `deal-restricted`, both columns are hidden — no empty column, no error.
+- [ ] **AC-3:** When `expectedCloseDate` is null (e.g., withdrawn deal), Days to Close renders "—" — not "0", not blank, not an error.
+- [ ] **AC-4:** When `daysToClose <= 7`, the cell renders with error styling. When `daysToClose <= 30 AND > 7`, warning styling. When `daysToClose > 30`, normal styling.
+- [ ] **AC-5:** Default sort is `expectedCloseDate` ascending, default filters exclude Origination and Closed/Withdrawn stages.
+- [ ] **AC-6:** Bulk "Export CSV" exports only deals owned by the current user — not all visible rows.
+- [ ] **AC-7:** Row action "Advance stage" is disabled (not hidden) for deals in Closed or Withdrawn stage, with `aria-disabled="true"`.
+- [ ] **AC-8:** When data is loading, 8 skeleton rows render. When loading fails, error state with retry button appears.
+
+---
+
+## 13. Agent checklist
+
+> Before outputting generated code, verify every item below:
+
+- [ ] All 15 spec sections read before generating
 - [ ] Pre-built renderers used — no new renderer created
 - [ ] Column order matches §2 exactly
+- [ ] All `cellRendererParams` match §2 — no missing or extra params
 - [ ] `dealName` pinned left, `actions` pinned right
 - [ ] Stage badge uses color map from §2
 - [ ] `FeeRevenueRendererComponent` for grossSpreadBps (shows inline revenue)
 - [ ] `estimatedRevenue` uses `valueGetter` per §7 — not a stored field
 - [ ] `DaysCountdownRendererComponent` thresholds: warn=30d, error=7d
-- [ ] Row actions match §4 — no delete, canAdvanceStage check present
-- [ ] Bulk actions match §5
-- [ ] Default sort: expectedCloseDate asc
+- [ ] Null/zero rendering matches §8 for every nullable column
+- [ ] Loading state (skeleton, 8 rows) implemented per §9
+- [ ] Empty state implemented per §10
+- [ ] Error state with retry implemented per §11
+- [ ] All acceptance criteria from §12 are satisfied
+- [ ] Row actions match §4 — disabled logic present with `aria-disabled`
+- [ ] Bulk actions match §5 — export scope is own-deals-only
+- [ ] Default sort: expectedCloseDate asc, default filters per §3
 
 ---
 
-## 10. Versioning & Change Log
+## 14. Versioning & Change Log
 
 | Version | Date | Change | Author |
 |---|---|---|---|
 | 1.0.0 | 2026-04-03 | Initial | UI Architecture / Product |
+| 1.1.0 | 2026-04-06 | Added loading/error states, null rules, acceptance criteria, compliance-signoff | UI Architecture |
 
 ---
 
-## 11. Related Specs
+## 15. Related Specs
 
 - `ds/patterns/ag-grid-datatable` — base pattern
 - `ds/patterns/deal-grid-calculations` — calculation functions + pre-built renderers

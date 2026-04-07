@@ -10,7 +10,6 @@
 const http = require('http');
 const fs   = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
 
 const ROOT    = path.join(__dirname, '../..');
 const PORT    = process.env.PORT || 4040;
@@ -21,27 +20,27 @@ const CYAN  = '\x1b[36m';
 const DIM   = '\x1b[2m';
 const RESET = '\x1b[0m';
 
-// ── Run sync on startup ───────────────────────────────────────────────────────
 console.log(`\n${BOLD}Spec Explorer${RESET}\n`);
-console.log(`${DIM}Syncing registry...${RESET}`);
-try {
-  execSync('node tools/registry/registry-sync.js', { cwd: ROOT, stdio: 'pipe' });
-  console.log(`${GREEN}✓ Registry synced${RESET}`);
-} catch (e) {
-  console.warn(`Registry sync warning: ${e.message}`);
+
+// ── Registry loader ──────────────────────────────────────────────────────────
+function loadRegistry() {
+  // Try explorer-cache first, fall back to registry.json
+  const cachePath    = path.join(ROOT, 'tools/registry/explorer-cache.json');
+  const registryPath = path.join(ROOT, 'tools/registry/registry.json');
+
+  if (fs.existsSync(cachePath)) {
+    try { return JSON.parse(fs.readFileSync(cachePath, 'utf-8')); } catch (_) {}
+  }
+  if (fs.existsSync(registryPath)) {
+    try { return JSON.parse(fs.readFileSync(registryPath, 'utf-8')); } catch (_) {}
+  }
+  return { specs: [] };
 }
 
-// ── API handlers ──────────────────────────────────────────────────────────────
-function getExplorerCache() {
-  const cachePath = path.join(ROOT, 'tools/registry/explorer-cache.json');
-  if (!fs.existsSync(cachePath)) return null;
-  return JSON.parse(fs.readFileSync(cachePath, 'utf-8'));
-}
-
+// ── API handlers ─────────────────────────────────────────────────────────────
 function getSpecContent(specId) {
-  const cache = getExplorerCache();
-  if (!cache) return null;
-  const entry = cache.specs.find(s => s.specId === specId);
+  const registry = loadRegistry();
+  const entry = registry.specs.find(s => s.specId === specId);
   if (!entry) return null;
   const filePath = path.join(ROOT, entry.path);
   if (!fs.existsSync(filePath)) return null;
@@ -64,7 +63,6 @@ function getAgentBlock(agentId) {
   const fullPath = path.join(ROOT, filePath);
   if (!fs.existsSync(fullPath)) return null;
   const content = fs.readFileSync(fullPath, 'utf-8');
-  // Extract just the SPEC FRAMEWORK block
   const startMarker = '<!-- SPEC FRAMEWORK START';
   const endMarker   = '<!-- SPEC FRAMEWORK END';
   const start = content.lastIndexOf(startMarker);
@@ -76,18 +74,15 @@ function getAgentBlock(agentId) {
   return content;
 }
 
-// ── HTTP server ───────────────────────────────────────────────────────────────
+// ── HTTP server ──────────────────────────────────────────────────────────────
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
-
-  // CORS for local dev
   res.setHeader('Access-Control-Allow-Origin', '*');
 
-  // ── API routes ──────────────────────────────────────────────────────────────
   if (url.pathname === '/api/registry') {
-    const cache = getExplorerCache();
+    const data = loadRegistry();
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(cache || { specs: [] }));
+    res.end(JSON.stringify(data));
     return;
   }
 
@@ -107,20 +102,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  if (url.pathname === '/api/sync') {
-    try {
-      execSync('node tools/registry/registry-sync.js', { cwd: ROOT, stdio: 'pipe' });
-      const cache = getExplorerCache();
-      res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ ok: true, specs: cache?.specs?.length || 0 }));
-    } catch (e) {
-      res.statusCode = 500;
-      res.end(JSON.stringify({ ok: false, error: e.message }));
-    }
-    return;
-  }
-
-  // ── Serve explorer UI ───────────────────────────────────────────────────────
+  // Serve explorer UI
   if (url.pathname === '/' || url.pathname === '/index.html') {
     const uiPath = path.join(__dirname, 'index.html');
     res.setHeader('Content-Type', 'text/html');
@@ -133,14 +115,14 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => {
+  const registry = loadRegistry();
   console.log(`${GREEN}✓ Explorer running at ${CYAN}http://localhost:${PORT}${RESET}`);
-  console.log(`${DIM}Serving ${getExplorerCache()?.specs?.length || 0} spec(s)${RESET}\n`);
+  console.log(`${DIM}Serving ${registry.specs?.length || 0} spec(s)${RESET}\n`);
 
-  // Auto-open browser
   const open = process.platform === 'darwin' ? 'open'
              : process.platform === 'win32'  ? 'start'
              : 'xdg-open';
   try {
-    execSync(`${open} http://localhost:${PORT}`, { stdio: 'ignore' });
+    require('child_process').execSync(`${open} http://localhost:${PORT}`, { stdio: 'ignore' });
   } catch (_) {}
 });

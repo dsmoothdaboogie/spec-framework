@@ -4,6 +4,7 @@
 **status:** `active`
 **layer:** `3`
 **owner:** UI Architecture / Legal
+**spec-type:** `composition`
 **last-reviewed:** 2026-04-03
 **base-pattern:** `ds/patterns/ag-grid-datatable` v2.0.0
 **persona:** `domain/personas/conflict-clearance` v1.0.0
@@ -102,7 +103,18 @@ suppressRowClickSelection: true,
 
 ---
 
-## 9. Empty state
+## 9. Loading state
+
+```typescript
+{
+  type: 'skeleton',
+  rows: 8,
+}
+```
+
+---
+
+## 10. Empty state
 
 ```typescript
 {
@@ -114,7 +126,20 @@ suppressRowClickSelection: true,
 
 ---
 
-## 10. Agent checklist
+## 11. Error state
+
+```typescript
+{
+  icon: '⚠',
+  title: 'Unable to load deals',
+  description: 'Something went wrong loading your pipeline. Please try again.',
+  retryAction: true,
+}
+```
+
+---
+
+## 12. Agent checklist
 
 - [ ] `DS_CHECKBOX_COL` — absent from columnDefs (not disabled, absent)
 - [ ] Actions column — absent from columnDefs
@@ -131,7 +156,7 @@ suppressRowClickSelection: true,
 
 ---
 
-## 11. Versioning & Change Log
+## 13. Versioning & Change Log
 
 | Version | Date | Change | Author |
 |---|---|---|---|
@@ -139,7 +164,7 @@ suppressRowClickSelection: true,
 
 ---
 
-## 12. Related Specs
+## 14. Related Specs
 
 - `ds/patterns/deal-grid-calculations`
 - `domain/personas/conflict-clearance`

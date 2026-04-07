@@ -7,16 +7,16 @@
     "version": { "type": "string" },
     "lastUpdated": { "type": "string", "format": "date" },
     "maintainer": { "type": "string" },
+    "adapter": { "type": "string" },
     "specs": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["specId", "title", "version", "status", "owner", "path", "tags", "appliesTo", "lastReviewed"],
+        "required": ["specId", "title", "version", "status", "owner", "path", "tags", "lastReviewed", "specType"],
         "properties": {
           "specId": {
             "type": "string",
-            "pattern": "^[a-z]+/[a-z]+/[a-z0-9-]+$",
-            "description": "Namespaced spec ID: namespace/category/pattern-name"
+            "description": "Namespaced spec ID: namespace/category/pattern-name[/variant]"
           },
           "title": { "type": "string" },
           "version": {
@@ -26,6 +26,17 @@
           "status": {
             "type": "string",
             "enum": ["draft", "active", "deprecated"]
+          },
+          "specType": {
+            "type": "string",
+            "enum": ["pattern", "composition", "framework", "persona", "entitlement", "token", "component"],
+            "description": "Spec type determines which linter ruleset applies"
+          },
+          "layer": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3,
+            "description": "Spec layer: 0=framework, 1=tokens/components, 2=patterns, 3=composition"
           },
           "owner": { "type": "string" },
           "path": { "type": "string" },
@@ -39,9 +50,31 @@
             "items": { "type": "string" }
           },
           "lastReviewed": { "type": "string", "format": "date" },
+          "dependsOn": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["specId"],
+              "properties": {
+                "specId": { "type": "string" },
+                "version": {
+                  "type": "string",
+                  "pattern": "^\\d+\\.\\d+\\.\\d+$",
+                  "description": "Pinned version of the dependency"
+                }
+              }
+            },
+            "description": "Specs this spec depends on (reads from / composes)"
+          },
+          "requiredBy": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Spec IDs that depend on this spec — enables blast-radius analysis"
+          },
           "related": {
             "type": "array",
-            "items": { "type": "string" }
+            "items": { "type": "string" },
+            "description": "Deprecated — use dependsOn/requiredBy for typed edges. Kept for backwards compat."
           },
           "deprecatedBy": {
             "oneOf": [

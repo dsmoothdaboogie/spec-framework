@@ -4,6 +4,7 @@
 **status:** `active`
 **layer:** `3`
 **owner:** UI Architecture / Compliance
+**spec-type:** `composition`
 **last-reviewed:** 2026-03-20
 **base-pattern:** `ds/patterns/ag-grid-datatable` v2.0.0
 **persona:** `domain/personas/compliance-viewer` v1.0.0
@@ -101,7 +102,18 @@ This is the only permitted override. Document it with a comment in the generated
 
 ---
 
-## 8. Empty state
+## 8. Loading state
+
+```typescript
+{
+  type: 'skeleton',
+  rows: 8,
+}
+```
+
+---
+
+## 9. Empty state
 
 ```typescript
 noRowsOverlayComponentParams = {
@@ -114,7 +126,20 @@ noRowsOverlayComponentParams = {
 
 ---
 
-## 9. Agent checklist
+## 10. Error state
+
+```typescript
+{
+  icon: '⚠',
+  title: 'Unable to load deals',
+  description: 'Something went wrong loading your pipeline. Please try again.',
+  retryAction: true,
+}
+```
+
+---
+
+## 11. Agent checklist
 
 - [ ] Base pattern spec read — all structural rules applied
 - [ ] Persona definition read — read-only, full MNPI context understood
@@ -131,7 +156,7 @@ noRowsOverlayComponentParams = {
 
 ---
 
-## 10. Versioning & Change Log
+## 12. Versioning & Change Log
 
 | Version | Date | Change | Author |
 |---|---|---|---|
@@ -139,7 +164,7 @@ noRowsOverlayComponentParams = {
 
 ---
 
-## 11. Related Specs
+## 13. Related Specs
 
 - `ds/patterns/ag-grid-datatable` — base pattern
 - `domain/personas/compliance-viewer` — persona

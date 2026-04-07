@@ -1,5 +1,6 @@
 # Persona: Coverage Banker
 **persona-id:** `domain/personas/coverage-banker`
+**spec-id:** `domain/personas/coverage-banker`
 **version:** `1.0.0`
 **status:** `active`
 **layer:** `3`

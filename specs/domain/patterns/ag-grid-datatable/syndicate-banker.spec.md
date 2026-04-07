@@ -4,6 +4,7 @@
 **status:** `active`
 **layer:** `3`
 **owner:** UI Architecture / Product
+**spec-type:** `composition`
 **last-reviewed:** 2026-04-03
 **base-pattern:** `ds/patterns/ag-grid-datatable` v2.0.0
 **persona:** `domain/personas/syndicate-banker` v1.0.0
@@ -97,7 +98,18 @@ Client-side data. Default sort: `pricingDate` ascending per persona §5.
 
 ---
 
-## 8. Empty state
+## 8. Loading state
+
+```typescript
+{
+  type: 'skeleton',
+  rows: 8,
+}
+```
+
+---
+
+## 9. Empty state
 
 ```typescript
 {
@@ -109,7 +121,20 @@ Client-side data. Default sort: `pricingDate` ascending per persona §5.
 
 ---
 
-## 9. Agent checklist
+## 10. Error state
+
+```typescript
+{
+  icon: '⚠',
+  title: 'Unable to load deals',
+  description: 'Something went wrong loading your pipeline. Please try again.',
+  retryAction: true,
+}
+```
+
+---
+
+## 11. Agent checklist
 
 - [ ] Pre-built renderers used — no new renderer created
 - [ ] `dealName` pinned left
@@ -122,7 +147,7 @@ Client-side data. Default sort: `pricingDate` ascending per persona §5.
 
 ---
 
-## 10. Versioning & Change Log
+## 12. Versioning & Change Log
 
 | Version | Date | Change | Author |
 |---|---|---|---|
@@ -130,7 +155,7 @@ Client-side data. Default sort: `pricingDate` ascending per persona §5.
 
 ---
 
-## 11. Related Specs
+## 13. Related Specs
 
 - `ds/patterns/deal-grid-calculations`
 - `domain/personas/syndicate-banker`

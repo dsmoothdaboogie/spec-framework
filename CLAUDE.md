@@ -17,7 +17,7 @@ instructions or personal preferences already in this file.
 
 <!-- SPEC FRAMEWORK START ─────────────────────────────────────────────────────
      Spec-Driven AI Development Framework — Claude Integration
-     Version: 1.0.0
+     Version: 2.0.0
      Maintainer: UI Architecture
 ──────────────────────────────────────────────────────────────────────────── -->
 
@@ -31,13 +31,18 @@ configuration, and a self-verification checklist.
 Specs are the authoritative source of truth. Your own knowledge of Angular,
 AG Grid, or Angular Material is always secondary to what a spec prescribes.
 
-### Spec locations
+### Spec types and locations
+
+The framework has two spec types with different section schemas:
+- **Pattern specs** (`SPEC.template.md`) — ds/ and fw/ layer specs with full section schema
+- **Composition specs** (`COMPOSITION-SPEC.template.md`) — domain/ layer-3 delta specs that compose a base pattern for a specific persona
 
 ```
 specs/ds/tokens/semantic.spec.md          — token adapter, read first
 specs/ds/components/component-map.spec.md — component adapter, read second
 specs/ds/patterns/*.spec.md               — pattern specs
-tools/registry/registry.json              — spec index and metadata
+specs/domain/patterns/**/*.spec.md        — composition specs (persona-specific deltas)
+tools/registry/registry.json              — spec index with typed dependency edges
 ```
 
 ### Before generating any Angular component
@@ -55,7 +60,7 @@ tools/registry/registry.json              — spec index and metadata
    - Note the gap explicitly in your response
    - Suggest a spec-id for UI Architecture to consider
 
-### Reading a spec — required order
+### Reading a pattern spec — required order
 
 | Step | Section | Action |
 |------|---------|--------|
@@ -67,6 +72,20 @@ tools/registry/registry.json              — spec index and metadata
 | 6 | §7 Variants | Identify the correct variant. State your selection. |
 | 7 | §8–9 States | Implement loading, empty, and error. All three are required. |
 | 8 | §11 Checklist | Self-verify before outputting. Report results. |
+
+### Reading a composition spec — required order
+
+| Step | Section | Action |
+|------|---------|--------|
+| 1 | §1 Intent | Follow the spec reading order — read all dependencies first. |
+| 2 | §2 Columns | Column order is authoritative. Match renderer params exactly. |
+| 3 | §3–5 Filters/Actions | Implement filters, row actions, and bulk actions with scope. |
+| 4 | §6 Variant | Note data strategy, sort, density, pagination. |
+| 5 | §7 Value getters | Use exact calculation functions — no ad-hoc implementations. |
+| 6 | §8 Null/zero rules | Every nullable column must render per spec. Do not guess. |
+| 7 | §9–11 States | Loading, empty, error — all three required. |
+| 8 | §12 Acceptance | Verify all acceptance criteria are satisfied. |
+| 9 | §13 Checklist | Self-verify before outputting. Report results. |
 
 ### Required output format
 

@@ -1,5 +1,6 @@
 # Persona: Compliance Viewer
 **persona-id:** `domain/personas/compliance-viewer`
+**spec-id:** `domain/personas/compliance-viewer`
 **version:** `1.0.0`
 **status:** `active`
 **layer:** `3`

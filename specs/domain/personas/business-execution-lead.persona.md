@@ -1,5 +1,6 @@
 # Persona: Business Execution Lead (BEL)
 **persona-id:** `domain/personas/business-execution-lead`
+**spec-id:** `domain/personas/business-execution-lead`
 **version:** `1.0.0`
 **status:** `active`
 **layer:** `3`

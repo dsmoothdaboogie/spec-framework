@@ -4,6 +4,8 @@
 **status:** `active`
 **layer:** `3`
 **owner:** UI Architecture / Product
+**spec-type:** `composition`
+**compliance-signoff:** `J. Martinez / Head of Compliance / 2026-03-15`
 **last-reviewed:** 2026-03-20
 **base-pattern:** `ds/patterns/ag-grid-datatable` v2.0.0
 **persona:** `domain/personas/deal-origination-banker` v1.0.0
@@ -104,7 +106,18 @@ Default sort: `lastUpdated` descending (from persona §5).
 
 ---
 
-## 7. Empty state
+## 7. Loading state
+
+```typescript
+{
+  type: 'skeleton',
+  rows: 8,
+}
+```
+
+---
+
+## 8. Empty state
 
 ```typescript
 noRowsOverlayComponentParams = {
@@ -117,7 +130,20 @@ noRowsOverlayComponentParams = {
 
 ---
 
-## 8. Agent checklist
+## 9. Error state
+
+```typescript
+{
+  icon: '⚠',
+  title: 'Unable to load deals',
+  description: 'Something went wrong loading your pipeline. Please try again.',
+  retryAction: true,
+}
+```
+
+---
+
+## 10. Agent checklist
 
 - [ ] Base pattern spec read — all structural rules applied
 - [ ] Persona definition read — workflow context understood
@@ -129,12 +155,14 @@ noRowsOverlayComponentParams = {
 - [ ] Bulk actions match §5
 - [ ] Server-side mode used per §6
 - [ ] Default sort: `lastUpdated` desc
-- [ ] Empty state matches §7
+- [ ] Loading state matches §7
+- [ ] Empty state matches §8
+- [ ] Error state matches §9
 - [ ] `@spec` header includes persona and entitlement
 
 ---
 
-## 9. Versioning & Change Log
+## 11. Versioning & Change Log
 
 | Version | Date | Change | Author |
 |---|---|---|---|
@@ -142,7 +170,7 @@ noRowsOverlayComponentParams = {
 
 ---
 
-## 10. Related Specs
+## 12. Related Specs
 
 - `ds/patterns/ag-grid-datatable` — base pattern
 - `domain/personas/deal-origination-banker` — persona

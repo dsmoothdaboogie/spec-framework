@@ -1,5 +1,6 @@
 # Persona: Conflict Clearance Officer
 **persona-id:** `domain/personas/conflict-clearance`
+**spec-id:** `domain/personas/conflict-clearance`
 **version:** `1.0.0`
 **status:** `active`
 **layer:** `3`

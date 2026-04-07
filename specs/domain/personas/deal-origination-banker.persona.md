@@ -1,5 +1,6 @@
 # Persona: Deal Origination Banker
 **persona-id:** `domain/personas/deal-origination-banker`
+**spec-id:** `domain/personas/deal-origination-banker`
 **version:** `1.0.0`
 **status:** `active`
 **layer:** `3`

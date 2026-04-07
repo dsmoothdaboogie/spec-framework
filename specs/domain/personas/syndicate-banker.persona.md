@@ -1,5 +1,6 @@
 # Persona: Syndicate Banker
 **persona-id:** `domain/personas/syndicate-banker`
+**spec-id:** `domain/personas/syndicate-banker`
 **version:** `1.0.0`
 **status:** `active`
 **layer:** `3`

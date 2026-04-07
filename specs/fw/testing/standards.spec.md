@@ -17,7 +17,24 @@ Defines the minimum required test coverage and testing patterns for all generate
 
 ---
 
-## 2. Required coverage by file type
+## 2. Scope
+
+### In scope
+- Unit test patterns for Angular 19 standalone components, services, and stores
+- Integration test patterns for component + store interaction
+- Required test coverage thresholds by file type
+- Mock data and test fixture conventions
+- Angular Testing Library patterns (preferred over TestBed for component tests)
+
+### Out of scope
+- E2E / Playwright tests → `fw/testing/e2e-standards` (reserved)
+- Visual regression tests → `ds/storybook/standards`
+- API contract / integration tests → backend testing standards (not in spec framework)
+- Performance benchmarks → no spec yet
+
+---
+
+## 3. Required coverage by file type
 
 | File type | Minimum required tests |
 |---|---|
@@ -28,7 +45,7 @@ Defines the minimum required test coverage and testing patterns for all generate
 
 ---
 
-## 3. Component test pattern
+## 4. Component test pattern
 
 ```typescript
 // [feature].component.spec.ts
@@ -79,7 +96,7 @@ describe('[Feature]Component', () => {
 
 ---
 
-## 4. Store test pattern
+## 5. Store test pattern
 
 ```typescript
 // [feature].store.spec.ts
@@ -135,7 +152,7 @@ describe('[Feature]Store', () => {
 
 ---
 
-## 5. Persona/composition test requirements
+## 6. Persona/composition test requirements
 
 Components generated from a domain composition spec must include column visibility tests:
 
@@ -158,7 +175,7 @@ describe('column visibility — [persona]', () => {
 
 ---
 
-## 6. Agent checklist
+## 7. Agent checklist
 
 - [ ] Spec file exists for every generated component, store, and service
 - [ ] Renders test present
