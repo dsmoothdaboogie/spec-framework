@@ -328,6 +328,33 @@
     padding: 8px 0;
   }
 
+  /* Layer section headers (All view) */
+  .layer-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px 6px;
+    margin-top: 4px;
+  }
+  .layer-section-header:first-child { margin-top: 0; }
+  .layer-section-bar {
+    width: 3px;
+    height: 14px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .layer-section-label {
+    font: 600 11px var(--sans);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-2);
+  }
+  .layer-section-count {
+    font: 10px var(--mono);
+    color: var(--text-4);
+    margin-left: auto;
+  }
+
   /* Spec group */
   .group { margin-bottom: 2px; }
 
@@ -1511,22 +1538,6 @@ function renderSidebar() {
 
   document.getElementById('spec-count').textContent = filtered.length;
 
-  // Group by namespace (first 2 path segments)
-  const groups = {};
-  for (const s of filtered) {
-    const parts = s.specId.split('/');
-    const ns = parts.length > 2 ? parts.slice(0, 2).join('/') : parts[0];
-    if (!groups[ns]) groups[ns] = [];
-    groups[ns].push(s);
-  }
-
-  // Sort groups by layer
-  const sortedKeys = Object.keys(groups).sort((a, b) => {
-    const la = groups[a][0]?.layer ?? 99;
-    const lb = groups[b][0]?.layer ?? 99;
-    return la - lb;
-  });
-
   const list = document.getElementById('spec-list');
   list.innerHTML = '';
 
@@ -1535,38 +1546,69 @@ function renderSidebar() {
     return;
   }
 
-  for (const ns of sortedKeys) {
-    const specs = groups[ns];
-    const layer = specs[0]?.layer ?? 0;
-    const layerColor = LAYERS[layer]?.color || 'var(--text-4)';
+  // Group specs by layer, then by namespace within each layer
+  const byLayer = {};
+  for (const s of filtered) {
+    const l = s.layer ?? 0;
+    if (!byLayer[l]) byLayer[l] = {};
+    const parts = s.specId.split('/');
+    const ns = parts.length > 2 ? parts.slice(0, 2).join('/') : parts[0];
+    if (!byLayer[l][ns]) byLayer[l][ns] = [];
+    byLayer[l][ns].push(s);
+  }
 
-    const group = document.createElement('div');
-    group.className = 'group';
-    group.innerHTML = `
-      <div class="group-header">
-        <div class="group-dot" style="background:${layerColor}"></div>
-        <span class="group-label">${ns}</span>
-        <span class="group-count">${specs.length}</span>
-      </div>
-      <div class="group-items"></div>`;
+  const sortedLayers = Object.keys(byLayer).sort((a, b) => a - b);
+  const showLayerHeaders = activeLayer === 'all' && sortedLayers.length > 1;
 
-    const items = group.querySelector('.group-items');
-    for (const s of specs) {
-      const shortName = s.specId.split('/').pop();
-      const row = document.createElement('div');
-      row.className = `spec-row${activeSpecId === s.specId ? ' active' : ''}`;
-      row.onclick = () => selectSpec(s.specId);
-      row.innerHTML = `
-        <div class="spec-row-status ${s.status}"></div>
-        <div class="spec-row-info">
-          <div class="spec-row-name">${shortName}</div>
-          <div class="spec-row-meta">v${s.version} · ${s.owner || '—'}</div>
-        </div>
-        <span class="spec-row-type type-${s.specType || 'pattern'}">${s.specType || '?'}</span>`;
-      items.appendChild(row);
+  for (const layer of sortedLayers) {
+    const layerInfo = LAYERS[layer] || { label: `Layer ${layer}`, color: 'var(--text-4)' };
+    const namespaces = byLayer[layer];
+    const sortedNs = Object.keys(namespaces).sort();
+
+    // Add layer section header when showing all layers
+    if (showLayerHeaders) {
+      const layerCount = Object.values(namespaces).reduce((sum, arr) => sum + arr.length, 0);
+      const header = document.createElement('div');
+      header.className = 'layer-section-header';
+      header.innerHTML = `
+        <div class="layer-section-bar" style="background:${layerInfo.color}"></div>
+        <span class="layer-section-label">${layerInfo.label}</span>
+        <span class="layer-section-count">${layerCount}</span>`;
+      list.appendChild(header);
     }
 
-    list.appendChild(group);
+    for (const ns of sortedNs) {
+      const specs = namespaces[ns];
+      const layerColor = layerInfo.color;
+
+      const group = document.createElement('div');
+      group.className = 'group';
+      group.innerHTML = `
+        <div class="group-header">
+          <div class="group-dot" style="background:${layerColor}"></div>
+          <span class="group-label">${ns}</span>
+          <span class="group-count">${specs.length}</span>
+        </div>
+        <div class="group-items"></div>`;
+
+      const items = group.querySelector('.group-items');
+      for (const s of specs) {
+        const shortName = s.specId.split('/').pop();
+        const row = document.createElement('div');
+        row.className = `spec-row${activeSpecId === s.specId ? ' active' : ''}`;
+        row.onclick = () => selectSpec(s.specId);
+        row.innerHTML = `
+          <div class="spec-row-status ${s.status}"></div>
+          <div class="spec-row-info">
+            <div class="spec-row-name">${shortName}</div>
+            <div class="spec-row-meta">v${s.version} · ${s.owner || '—'}</div>
+          </div>
+          <span class="spec-row-type type-${s.specType || 'pattern'}">${s.specType || '?'}</span>`;
+        items.appendChild(row);
+      }
+
+      list.appendChild(group);
+    }
   }
 }
 
