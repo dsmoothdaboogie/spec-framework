@@ -44,3 +44,90 @@ const IGNORE_PATTERNS = [
 function shouldIgnore(filePath) {
   return IGNORE_PATTERNS.some(p => filePath.includes(p));
 }
+
+// ── Header parser ─────────────────────────────────────────────────────────────
+function parseHeader(content) {
+  let specId = null, specVersion = null;
+  let personaId = null, personaVersion = null;
+
+  for (const line of content.split('\n')) {
+    if (!specId) {
+      const m = line.match(/@spec\s+(\S+)\s+v?([\d.]+)/);
+      if (m) { specId = m[1]; specVersion = m[2]; }
+    }
+    if (!personaId) {
+      const m = line.match(/@persona\s+(\S+)\s+v?([\d.]+)/);
+      if (m) { personaId = m[1]; personaVersion = m[2]; }
+    }
+    if (specId && personaId) break;
+  }
+
+  return specId ? { specId, specVersion, personaId, personaVersion } : null;
+}
+
+// ── File discovery ────────────────────────────────────────────────────────────
+function walkDir(dir) {
+  const files = [];
+  if (!fs.existsSync(dir)) return files;
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (shouldIgnore(full)) continue;
+    if (entry.isDirectory()) files.push(...walkDir(full));
+    else if (entry.name.endsWith('.ts') && !entry.name.endsWith('.spec.ts')) files.push(full);
+  }
+  return files;
+}
+
+function getChangedFiles() {
+  try {
+    const output = execSync('git diff --name-only HEAD~1 HEAD 2>/dev/null || git diff --name-only --cached', {
+      cwd: process.cwd(), encoding: 'utf-8',
+    });
+    return output.trim().split('\n')
+      .filter(f => f && f.endsWith('.ts') && !f.endsWith('.spec.ts'))
+      .map(f => path.resolve(f))
+      .filter(f => fs.existsSync(f) && !shouldIgnore(f));
+  } catch {
+    return [];
+  }
+}
+
+// ── Component bundling ────────────────────────────────────────────────────────
+function bundleComponent(tsPath) {
+  const content = fs.readFileSync(tsPath, 'utf-8');
+  const header = parseHeader(content);
+  if (!header) return null;
+
+  const dir  = path.dirname(tsPath);
+  const base = path.basename(tsPath, '.ts');
+
+  const htmlPath = path.join(dir, base + '.html');
+  const scssPath = path.join(dir, base + '.scss');
+  const cssPath  = path.join(dir, base + '.css');
+  const specPath = path.join(dir, base + '.spec.ts');
+
+  const stylePath = fs.existsSync(scssPath) ? scssPath
+                  : fs.existsSync(cssPath)  ? cssPath
+                  : null;
+
+  const inlineTemplate = /template\s*:\s*`/.test(content) || /template\s*:\s*'/.test(content);
+
+  const files = {
+    ts:    { path: tsPath, content },
+    html:  null,
+    style: null,
+    spec:  null,
+  };
+
+  if (!inlineTemplate && fs.existsSync(htmlPath)) {
+    files.html = { path: htmlPath, content: fs.readFileSync(htmlPath, 'utf-8') };
+  }
+  if (stylePath) {
+    files.style = { path: stylePath, content: fs.readFileSync(stylePath, 'utf-8') };
+  }
+  if (fs.existsSync(specPath)) {
+    files.spec = { path: specPath, content: fs.readFileSync(specPath, 'utf-8') };
+  }
+
+  return { entry: tsPath, files, header, inlineTemplate };
+}
