@@ -327,3 +327,236 @@ function parseChecklist(specContent) {
 
   return items;
 }
+
+// ── Checklist rule library ────────────────────────────────────────────────────
+
+const CHECKLIST_RULES = [
+  // ── Angular conventions (dedup with universal passes) ───────────────────────
+  { id: 'onpush', pattern: /ChangeDetectionStrategy\.OnPush/i, universalPassId: 'onpush' },
+  { id: 'standalone-component', pattern: /standalone\s+component/i, universalPassId: 'standalone' },
+  { id: 'no-input-decorator', pattern: /no\s+`?@Input`?|input\(\)\s*\/\s*input\.required/i, universalPassId: 'signal-inputs' },
+  { id: 'no-output-decorator', pattern: /no\s+`?@Output`?|output\(\)/i, universalPassId: 'signal-outputs' },
+  { id: 'inject-fn', pattern: /inject\(\)|no\s+constructor\s+(injection|DI)/i, universalPassId: 'inject-pattern' },
+  { id: 'control-flow-syntax', pattern: /`?@if`?\s*\/\s*`?@for`?|no\s+\*ng(If|For)|structural\s+directive/i, universalPassId: 'control-flow' },
+
+  // ── Import restrictions ─────────────────────────────────────────────────────
+  { id: 'no-material-imports', pattern: /no\s+direct\s+Material|DS\s+components?\s+only|no\s+.*@angular\/material/i, universalPassId: 'ds-imports' },
+  {
+    id: 'no-new-renderer',
+    pattern: /pre-?built\s+renderer|no\s+new\s+renderer/i,
+    check(bundle) {
+      const ts = bundle.files.ts.content;
+      if (/@Component[\s\S]*?CellRenderer|cellRenderer.*?Component.*?=.*?class/i.test(ts)) {
+        return { status: 'fail', evidence: 'Appears to define a new cell renderer — use pre-built renderers' };
+      }
+      return { status: 'pass' };
+    },
+  },
+
+  // ── Token / styling ─────────────────────────────────────────────────────────
+  { id: 'no-hex-colors', pattern: /no\s+hardcoded|zero\s+hardcoded|semantic\s+token/i, universalPassId: 'token-usage' },
+  {
+    id: 'ds-tokens-used',
+    pattern: /all\s+DS\s+tokens\s+used|DS\s+tokens/i,
+    check(bundle) {
+      if (!bundle.files.style) return { status: 'skip', evidence: 'No style file' };
+      const style = bundle.files.style.content;
+      if (/@use\s+['"].*token/i.test(style) || /var\(--/.test(style)) return { status: 'pass' };
+      return { status: 'fail', evidence: 'No token imports or CSS custom properties found in styles' };
+    },
+  },
+  {
+    id: 'all-colors-css-props',
+    pattern: /CSS\s+custom\s+properties|zero\s+hardcoded\s+hex/i,
+    check(bundle) {
+      if (!bundle.files.style) return { status: 'skip', evidence: 'No style file' };
+      const lines = bundle.files.style.content.split('\n');
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (line.trim().startsWith('//') || line.trim().startsWith('/*') || /@use\s/.test(line)) continue;
+        if (/#[0-9a-fA-F]{3,8}\b/.test(line) && !/url\(/.test(line)) {
+          return { status: 'fail', evidence: `Hardcoded hex color in style (line ${i + 1})` };
+        }
+      }
+      return { status: 'pass' };
+    },
+  },
+
+  // ── State coverage ──────────────────────────────────────────────────────────
+  {
+    id: 'loading-state',
+    pattern: /loading\s+state|skeleton/i,
+    check(bundle) {
+      const all = getTemplateContent(bundle) + '\n' + bundle.files.ts.content;
+      if (/loading|skeleton|shimmer|isLoading|\.loading/i.test(all)) return { status: 'pass' };
+      return { status: 'fail', evidence: 'No loading/skeleton state found' };
+    },
+  },
+  {
+    id: 'empty-state',
+    pattern: /empty\s+state/i,
+    check(bundle) {
+      const all = getTemplateContent(bundle) + '\n' + bundle.files.ts.content;
+      if (/empty|no.?data|no.?results|no.?items|isEmpty|\.empty/i.test(all)) return { status: 'pass' };
+      return { status: 'fail', evidence: 'No empty state found' };
+    },
+  },
+  {
+    id: 'error-state',
+    pattern: /error\s+state|error.*retry/i,
+    check(bundle) {
+      const all = getTemplateContent(bundle) + '\n' + bundle.files.ts.content;
+      if (/error|\.error|isError|hasError/i.test(all)) {
+        if (/retry|reload|try.?again/i.test(all)) return { status: 'pass' };
+        return { status: 'fail', evidence: 'Error state found but no retry mechanism detected' };
+      }
+      return { status: 'fail', evidence: 'No error state found' };
+    },
+  },
+
+  // ── Accessibility ───────────────────────────────────────────────────────────
+  {
+    id: 'aria-disabled',
+    pattern: /aria-disabled/i,
+    check(bundle) {
+      const tpl = getTemplateContent(bundle);
+      if (/aria-disabled/.test(tpl)) return { status: 'pass' };
+      return { status: 'fail', evidence: 'No aria-disabled attributes found in template' };
+    },
+  },
+  {
+    id: 'aria-label',
+    pattern: /aria-label(?!led)/i,
+    check(bundle) {
+      const tpl = getTemplateContent(bundle);
+      if (/aria-label/.test(tpl)) return { status: 'pass' };
+      return { status: 'fail', evidence: 'No aria-label attributes found in template' };
+    },
+  },
+  {
+    id: 'heading-hierarchy',
+    pattern: /heading\s+hierarchy|<h[1-6]>/i,
+    check(bundle) {
+      const tpl = getTemplateContent(bundle);
+      if (/<h[1-6][\s>]/.test(tpl)) return { status: 'pass' };
+      return { status: 'fail', evidence: 'No heading elements found in template' };
+    },
+  },
+
+  // ── Column / grid specifics ─────────────────────────────────────────────────
+  {
+    id: 'column-pinned-left',
+    pattern: /pinned\s+left/i,
+    check(bundle) {
+      const ts = bundle.files.ts.content;
+      if (/pinned\s*:\s*['"]left['"]/.test(ts)) return { status: 'pass' };
+      return { status: 'fail', evidence: 'No column with pinned: "left" found' };
+    },
+  },
+  {
+    id: 'column-pinned-right',
+    pattern: /pinned\s+right/i,
+    check(bundle) {
+      const ts = bundle.files.ts.content;
+      if (/pinned\s*:\s*['"]right['"]/.test(ts)) return { status: 'pass' };
+      return { status: 'fail', evidence: 'No column with pinned: "right" found' };
+    },
+  },
+  {
+    id: 'value-getter',
+    pattern: /valueGetter|value\s+getter/i,
+    check(bundle) {
+      const ts = bundle.files.ts.content;
+      if (/valueGetter/.test(ts)) return { status: 'pass' };
+      return { status: 'fail', evidence: 'No valueGetter found — spec requires computed columns' };
+    },
+  },
+  {
+    id: 'default-sort',
+    pattern: /default\s+sort/i,
+    check(bundle) {
+      const ts = bundle.files.ts.content;
+      if (/sort\s*:\s*['"]|defaultColDef.*sort|sortModel|initialSort/i.test(ts)) return { status: 'pass' };
+      return { status: 'fail', evidence: 'No default sort configuration found' };
+    },
+  },
+
+  // ── Null / zero handling ────────────────────────────────────────────────────
+  {
+    id: 'null-dash-placeholder',
+    pattern: /null.*render|null.*[\u2014\u2013-]|dash\s+placeholder/i,
+    check(bundle) {
+      const all = bundle.files.ts.content + '\n' + getTemplateContent(bundle);
+      if (/['\u0060"\u2018]\u2014['\u0060"\u2019]|['\u0060"]\u2014['\u0060"]|\?\?\s*['"\u0060][\u2014\u2013-]/.test(all) || /\u2014/.test(all)) {
+        return { status: 'pass' };
+      }
+      return { status: 'fail', evidence: 'No null\u2192dash placeholder pattern found' };
+    },
+  },
+  {
+    id: 'null-zero-rules',
+    pattern: /null\s*\/\s*zero.*render|nullable\s+column/i,
+    check(bundle) {
+      const ts = bundle.files.ts.content;
+      if (/\?\?|=== null|!= null|== null|\.value\s*\?/.test(ts)) return { status: 'pass' };
+      return { status: 'fail', evidence: 'No null/zero value handling detected' };
+    },
+  },
+
+  // ── File structure ──────────────────────────────────────────────────────────
+  {
+    id: 'file-layout',
+    pattern: /file\s+layout|file\s+scaffold/i,
+    check(bundle) {
+      if (bundle.files.html || bundle.inlineTemplate) return { status: 'pass' };
+      return { status: 'fail', evidence: 'No template file found and no inline template detected' };
+    },
+  },
+  {
+    id: 'inputs-outputs-present',
+    pattern: /required\s+inputs?\/?outputs?\s+present|inputs?\s+and\s+outputs?/i,
+    check(bundle) {
+      const ts = bundle.files.ts.content;
+      if (/input[<(]|output[<(]/.test(ts)) return { status: 'pass' };
+      return { status: 'fail', evidence: 'No input() or output() declarations found' };
+    },
+  },
+];
+
+// ── Checklist matching engine ─────────────────────────────────────────────────
+function runChecklistRules(bundle, checklistItems, universalResults) {
+  const universalMap = {};
+  for (const r of universalResults) {
+    universalMap[r.passId] = r;
+  }
+
+  return checklistItems.map(item => {
+    for (const rule of CHECKLIST_RULES) {
+      if (rule.pattern.test(item)) {
+        // Dedup: if rule references a universal pass, reuse its result
+        if (rule.universalPassId && universalMap[rule.universalPassId]) {
+          const ur = universalMap[rule.universalPassId];
+          return {
+            item,
+            ruleId: rule.id,
+            status: ur.status === 'skip' ? 'manual' : ur.status,
+            evidence: ur.evidence || null,
+          };
+        }
+        // Run the rule's own check
+        if (rule.check) {
+          const result = rule.check(bundle);
+          return {
+            item,
+            ruleId: rule.id,
+            status: result.status === 'skip' ? 'manual' : result.status,
+            evidence: result.evidence || null,
+          };
+        }
+      }
+    }
+
+    // No match — manual review needed
+    return { item, ruleId: null, status: 'manual', evidence: null };
+  });
+}
