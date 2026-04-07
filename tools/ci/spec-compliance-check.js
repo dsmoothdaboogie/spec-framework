@@ -131,3 +131,149 @@ function bundleComponent(tsPath) {
 
   return { entry: tsPath, files, header, inlineTemplate };
 }
+
+// ── Universal passes ──────────────────────────────────────────────────────────
+// Angular convention checks from fw/angular/component-patterns.
+// Each pass receives a ComponentBundle and returns a result object.
+
+function getTemplateContent(bundle) {
+  if (bundle.files.html) return bundle.files.html.content;
+  if (bundle.inlineTemplate) {
+    const m = bundle.files.ts.content.match(/template\s*:\s*[`']([\s\S]*?)[`']/);
+    return m ? m[1] : '';
+  }
+  return '';
+}
+
+const UNIVERSAL_PASSES = [
+  {
+    id: 'onpush',
+    label: 'ChangeDetectionStrategy.OnPush',
+    run(bundle) {
+      const ts = bundle.files.ts.content;
+      if (/changeDetection\s*:\s*ChangeDetectionStrategy\.OnPush/.test(ts)) return { status: 'pass' };
+      return { status: 'fail', evidence: 'Missing ChangeDetectionStrategy.OnPush in @Component decorator' };
+    },
+  },
+  {
+    id: 'standalone',
+    label: 'standalone: true',
+    run(bundle) {
+      const ts = bundle.files.ts.content;
+      if (/standalone\s*:\s*true/.test(ts)) return { status: 'pass' };
+      return { status: 'fail', evidence: 'Missing standalone: true in @Component decorator' };
+    },
+  },
+  {
+    id: 'signal-inputs',
+    label: 'input() / input.required() — no @Input()',
+    run(bundle) {
+      const ts = bundle.files.ts.content;
+      if (/@Input\s*\(/.test(ts)) {
+        const line = ts.split('\n').findIndex(l => /@Input\s*\(/.test(l)) + 1;
+        return { status: 'fail', evidence: `Found @Input() decorator (line ${line}) — use input() signal instead` };
+      }
+      return { status: 'pass' };
+    },
+  },
+  {
+    id: 'signal-outputs',
+    label: 'output() — no @Output() / EventEmitter',
+    run(bundle) {
+      const ts = bundle.files.ts.content;
+      if (/@Output\s*\(/.test(ts)) {
+        const line = ts.split('\n').findIndex(l => /@Output\s*\(/.test(l)) + 1;
+        return { status: 'fail', evidence: `Found @Output() decorator (line ${line}) — use output() signal instead` };
+      }
+      if (/new\s+EventEmitter/.test(ts)) {
+        const line = ts.split('\n').findIndex(l => /new\s+EventEmitter/.test(l)) + 1;
+        return { status: 'fail', evidence: `Found new EventEmitter (line ${line}) — use output() signal instead` };
+      }
+      return { status: 'pass' };
+    },
+  },
+  {
+    id: 'inject-pattern',
+    label: 'inject() — no constructor DI',
+    run(bundle) {
+      const ts = bundle.files.ts.content;
+      const ctorMatch = ts.match(/constructor\s*\(([^)]*)\)/);
+      if (ctorMatch && ctorMatch[1].trim().length > 0) {
+        const params = ctorMatch[1].trim();
+        if (/(?:private|protected|public|readonly)\s+\w+/.test(params)) {
+          const line = ts.split('\n').findIndex(l => /constructor\s*\(/.test(l)) + 1;
+          return { status: 'fail', evidence: `Found constructor DI (line ${line}) — use inject() instead` };
+        }
+      }
+      return { status: 'pass' };
+    },
+  },
+  {
+    id: 'control-flow',
+    label: '@if / @for — no *ngIf / *ngFor',
+    run(bundle) {
+      const tpl = getTemplateContent(bundle);
+      if (!tpl) return { status: 'skip', evidence: 'No template found' };
+      if (/\*ngIf/.test(tpl)) return { status: 'fail', evidence: 'Found *ngIf — use @if instead' };
+      if (/\*ngFor/.test(tpl)) return { status: 'fail', evidence: 'Found *ngFor — use @for instead' };
+      return { status: 'pass' };
+    },
+  },
+  {
+    id: 'ds-imports',
+    label: 'No direct @angular/material or @angular/cdk imports',
+    run(bundle) {
+      const ts = bundle.files.ts.content;
+      const lines = ts.split('\n');
+      for (let i = 0; i < lines.length; i++) {
+        if (/from\s+['"]@angular\/material/.test(lines[i])) {
+          return { status: 'fail', evidence: `Direct @angular/material import (line ${i + 1}) — use DS wrapper` };
+        }
+        if (/from\s+['"]@angular\/cdk/.test(lines[i])) {
+          return { status: 'fail', evidence: `Direct @angular/cdk import (line ${i + 1}) — use DS wrapper` };
+        }
+      }
+      return { status: 'pass' };
+    },
+  },
+  {
+    id: 'token-usage',
+    label: 'No hardcoded hex colors or raw px in styles',
+    run(bundle) {
+      if (!bundle.files.style) return { status: 'skip', evidence: 'No style file found' };
+      const style = bundle.files.style.content;
+      const lines = style.split('\n');
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (line.trim().startsWith('//') || line.trim().startsWith('/*') || /@use\s/.test(line)) continue;
+        if (/#[0-9a-fA-F]{3,8}\b/.test(line) && !/url\(/.test(line)) {
+          return { status: 'fail', evidence: `Hardcoded hex color (line ${i + 1}) — use semantic token` };
+        }
+      }
+      return { status: 'pass' };
+    },
+  },
+  {
+    id: 'state-coverage',
+    label: 'Loading, empty, and error states present',
+    run(bundle) {
+      const tpl = getTemplateContent(bundle);
+      const ts = bundle.files.ts.content;
+      const all = tpl + '\n' + ts;
+      const missing = [];
+      if (!/loading|skeleton|shimmer|isLoading|\.loading/i.test(all)) missing.push('loading');
+      if (!/empty|no.?data|no.?results|no.?items|isEmpty|\.empty/i.test(all)) missing.push('empty');
+      if (!/error|\.error|isError|hasError|retry/i.test(all)) missing.push('error');
+      if (missing.length) return { status: 'fail', evidence: `Missing state(s): ${missing.join(', ')}` };
+      return { status: 'pass' };
+    },
+  },
+];
+
+function runUniversalPasses(bundle) {
+  return UNIVERSAL_PASSES.map(pass => ({
+    passId: pass.id,
+    label: pass.label,
+    ...pass.run(bundle),
+  }));
+}
