@@ -310,13 +310,20 @@ Incremental, one primitive at a time:
 
 ### Phase 2: Dashboard (we build)
 
+> **Scope decision (2026-04-08):** Option B — build dashboards for 5 existing
+> personas (Coverage, Syndicate, BEL, Conflict, Compliance Viewer). Write all 6
+> dashboard composition specs (including Deal Origination Banker), but only
+> implement code for 5. Deal Origination Banker code is the Phase 3 agent test.
+
 1. Write dashboard base spec + page template spec
-2. Write 6 dashboard composition specs
-3. Build 5 widget components
-4. Add dashboard mock data + store computed metrics
-5. Update app shell with sub-navigation
-6. Build dashboard views for 5 personas (Coverage, Syndicate, BEL, Conflict, Compliance — note: Compliance Viewer grid also needs to be built as it doesn't exist in the demo yet)
-7. Update primitives.json with widget entries
+2. Write 6 dashboard composition specs (all personas)
+3. Write compliance-viewer grid composition spec
+4. Build 5 widget components
+5. Add dashboard mock data + store computed metrics
+6. Update app shell with sub-navigation (Dashboard | Grid per persona)
+7. Build Compliance Viewer grid (new persona — read-only, MNPI/info-barrier focus)
+8. Build dashboard views for 5 personas (Coverage, Syndicate, BEL, Conflict, Compliance)
+9. Update primitives.json with widget entries
 
 ### Phase 3: Agent Test (agent builds)
 
@@ -327,16 +334,23 @@ Incremental, one primitive at a time:
 
 ## Scope Boundaries
 
-**In scope:**
-- 4 generic cell renderer primitives
+**In scope (Phase 1 — completed):**
+- 2 generic cell renderer primitives (StatusBadge, ValueDisplay)
 - 7 deal wrapper refactors
+
+**In scope (Phase 2):**
 - 5 dashboard widget components
-- 2 new base pattern specs
+- 2 new base pattern specs (dashboard, deal-pipeline-page)
 - 6 new dashboard composition specs
-- App shell sub-navigation
+- 1 new grid composition spec (compliance-viewer)
+- Compliance Viewer persona (grid + dashboard)
+- App shell sub-navigation (Dashboard | Grid)
 - Store computed metrics + extended mock data
-- Primitives registry update
-- Agent-generated deal-origination-banker
+- Primitives registry update (widget entries)
+
+**In scope (Phase 3):**
+- Agent-generated deal-origination-banker (grid + dashboard)
+- Compliance checker validation of full loop
 
 **Out of scope:**
 - Real backend / API integration
