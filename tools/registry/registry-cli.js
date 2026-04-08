@@ -13,6 +13,7 @@ const fs = require('fs');
 const path = require('path');
 
 const REGISTRY_PATH = path.join(__dirname, 'registry.json');
+const PRIMITIVES_PATH = path.join(__dirname, 'primitives.json');
 const registry = JSON.parse(fs.readFileSync(REGISTRY_PATH, 'utf-8'));
 
 const [,, command, ...args] = process.argv;
@@ -25,6 +26,32 @@ const STATUS_COLORS = {
 const RESET = '\x1b[0m';
 const DIM = '\x1b[2m';
 const BOLD = '\x1b[1m';
+
+function loadPrimitives() {
+  if (!fs.existsSync(PRIMITIVES_PATH)) return null;
+  try { return JSON.parse(fs.readFileSync(PRIMITIVES_PATH, 'utf-8')); } catch { return null; }
+}
+
+function getAllPrimitives(primData) {
+  if (!primData?.primitives) return [];
+  return Object.values(primData.primitives).flat();
+}
+
+function printPrimitive(prim, verbose = false) {
+  const statusColor = prim.status === 'deprecated' ? '\x1b[31m' : prim.status === 'beta' ? '\x1b[33m' : '\x1b[32m';
+  console.log(`${BOLD}${prim.key}${RESET} [${statusColor}${prim.status || 'stable'}${RESET}]`);
+  console.log(`  ${prim.description}`);
+  if (verbose) {
+    console.log(`  Import:      ${prim.importPath}`);
+    if (prim.exportName) console.log(`  Export:      ${prim.exportName}`);
+    console.log(`  Spec ref:    ${prim.specRef}`);
+    if (prim.tags?.length) console.log(`  Tags:        ${prim.tags.join(', ')}`);
+    if (prim.paramsSchema) {
+      console.log(`  Params:      ${JSON.stringify(prim.paramsSchema, null, 2).split('\n').join('\n               ')}`);
+    }
+  }
+  console.log('');
+}
 
 function colorStatus(status) {
   return `${STATUS_COLORS[status] || ''}${status}${RESET}`;
@@ -184,6 +211,117 @@ switch (command) {
     break;
   }
 
+  case 'primitives': {
+    const subCmd = args[0];
+    const primData = loadPrimitives();
+
+    if (!primData) {
+      console.error(`\n${BOLD}✗ primitives.json not found${RESET}\n`);
+      process.exit(1);
+    }
+
+    const all = getAllPrimitives(primData);
+
+    switch (subCmd) {
+      case 'list': {
+        const catFilter = args.includes('--category') ? args[args.indexOf('--category') + 1] : null;
+        const statusFilter = args.includes('--status') ? args[args.indexOf('--status') + 1] : null;
+        let filtered = all;
+        if (catFilter) filtered = filtered.filter(p => p.category === catFilter);
+        if (statusFilter) filtered = filtered.filter(p => (p.status || 'stable') === statusFilter);
+
+        console.log(`\n${BOLD}Primitive Registry${RESET} ${DIM}v${primData.version} · adapter: ${primData.adapter}${RESET}`);
+        console.log(`${DIM}${filtered.length} primitive(s)${catFilter ? ` in category "${catFilter}"` : ''}${RESET}\n`);
+        filtered.forEach(p => printPrimitive(p));
+        break;
+      }
+
+      case 'get': {
+        const key = args[1];
+        if (!key) { console.error('Usage: primitives get <key>'); process.exit(1); }
+        const prim = all.find(p => p.key === key);
+        if (!prim) {
+          console.error(`\nPrimitive not found: ${key}\n`);
+          console.log(`${DIM}Available keys: ${all.map(p => p.key).join(', ')}${RESET}\n`);
+          process.exit(1);
+        }
+        console.log('');
+        printPrimitive(prim, true);
+        break;
+      }
+
+      case 'catalog': {
+        // Machine-readable export for AI agents
+        console.log(JSON.stringify(primData, null, 2));
+        break;
+      }
+
+      case 'validate': {
+        const errors = [];
+        const keys = new Set();
+
+        // Check for duplicate keys
+        for (const prim of all) {
+          if (keys.has(prim.key)) errors.push(`Duplicate key: ${prim.key}`);
+          keys.add(prim.key);
+
+          // Validate key format
+          if (!/^(columnType|renderer|editor|filter|formatter|gridPreset|constant):[a-zA-Z][a-zA-Z0-9]*$/.test(prim.key)) {
+            errors.push(`Invalid key format: ${prim.key}`);
+          }
+
+          // Validate category matches key prefix
+          const prefix = prim.key.split(':')[0];
+          if (prefix !== prim.category) {
+            errors.push(`${prim.key}: key prefix "${prefix}" doesn't match category "${prim.category}"`);
+          }
+
+          // Required fields
+          if (!prim.description) errors.push(`${prim.key}: missing description`);
+          if (!prim.importPath) errors.push(`${prim.key}: missing importPath`);
+          if (!prim.specRef) errors.push(`${prim.key}: missing specRef`);
+
+          // Validate specRef points to a known spec
+          const specId = prim.specRef.split(' ')[0];
+          if (!registry.specs.find(s => s.specId === specId)) {
+            errors.push(`${prim.key}: specRef "${specId}" not found in registry`);
+          }
+        }
+
+        // Category counts
+        const catCounts = {};
+        for (const prim of all) {
+          catCounts[prim.category] = (catCounts[prim.category] || 0) + 1;
+        }
+
+        if (errors.length) {
+          console.error(`\n${BOLD}Primitive validation failed:${RESET}`);
+          errors.forEach(e => console.error(`  ✗ ${e}`));
+          console.log('');
+          process.exit(1);
+        } else {
+          console.log(`\n✓ Primitives valid — ${all.length} primitive(s) OK`);
+          console.log(`${DIM}  ${Object.entries(catCounts).map(([k, v]) => `${k}: ${v}`).join(', ')}${RESET}\n`);
+        }
+        break;
+      }
+
+      default:
+        console.log(`
+${BOLD}primitives${RESET} — Grid Primitive Registry
+
+Subcommands:
+  list [--category <cat>] [--status <status>]   List primitives
+  get <key>                                      Show full primitive details
+  catalog                                        Export full registry as JSON (for agents)
+  validate                                       Validate primitive registry integrity
+
+Categories: columnType, renderer, editor, filter, formatter, gridPreset, constant
+`);
+    }
+    break;
+  }
+
   default:
     console.log(`
 ${BOLD}spec-registry${RESET} — Spec Framework CLI
@@ -194,5 +332,6 @@ Commands:
   get <spec-id>                             Show full spec details
   validate                                  Validate registry integrity
   blast-radius <spec-id>                    Show all specs affected by a change
+  primitives <subcommand>                   Grid primitive registry (list, get, catalog, validate)
 `);
 }
