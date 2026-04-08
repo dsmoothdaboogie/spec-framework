@@ -564,6 +564,86 @@
         "specRef": "ds/patterns/ag-grid-datatable §6.1",
         "status": "stable"
       }
+    ],
+    "widgets": [
+      {
+        "key": "widget:metricCard",
+        "category": "widgets",
+        "description": "Single KPI card with formatted value, label, and optional trend indicator",
+        "importPath": "src/app/shared/widgets/metric-card/metric-card.component",
+        "exportName": "MetricCardComponent",
+        "specRef": "ds/patterns/dashboard §5",
+        "status": "active",
+        "tags": ["dashboard", "kpi", "metric"],
+        "paramsSchema": {
+          "label": { "type": "string", "required": true },
+          "value": { "type": "number | string", "required": true },
+          "format": { "type": "'number' | 'currency' | 'percent'", "default": "'number'" },
+          "trend": { "type": "'up' | 'down' | 'flat'" },
+          "clickable": { "type": "boolean", "default": "false" }
+        }
+      },
+      {
+        "key": "widget:miniGrid",
+        "category": "widgets",
+        "description": "Compact AG Grid with limited rows and optional 'View all' link",
+        "importPath": "src/app/shared/widgets/mini-grid/mini-grid.component",
+        "exportName": "MiniGridComponent",
+        "specRef": "ds/patterns/dashboard §5",
+        "status": "active",
+        "tags": ["dashboard", "grid", "compact"],
+        "paramsSchema": {
+          "columnDefs": { "type": "ColDef[]", "required": true },
+          "rowData": { "type": "any[]", "required": true },
+          "maxRows": { "type": "number", "default": "5" },
+          "title": { "type": "string" },
+          "viewAllLabel": { "type": "string", "default": "'View all'" }
+        }
+      },
+      {
+        "key": "widget:statusDistribution",
+        "category": "widgets",
+        "description": "Horizontal segmented bar showing count distribution with legend",
+        "importPath": "src/app/shared/widgets/status-distribution/status-distribution.component",
+        "exportName": "StatusDistributionComponent",
+        "specRef": "ds/patterns/dashboard §5",
+        "status": "active",
+        "tags": ["dashboard", "distribution", "bar"],
+        "paramsSchema": {
+          "segments": { "type": "StatusSegment[]", "required": true },
+          "title": { "type": "string" }
+        }
+      },
+      {
+        "key": "widget:activityFeed",
+        "category": "widgets",
+        "description": "Chronological list of activity events with timestamps and actors",
+        "importPath": "src/app/shared/widgets/activity-feed/activity-feed.component",
+        "exportName": "ActivityFeedComponent",
+        "specRef": "ds/patterns/dashboard §5",
+        "status": "active",
+        "tags": ["dashboard", "activity", "feed", "timeline"],
+        "paramsSchema": {
+          "items": { "type": "ActivityEvent[]", "required": true },
+          "maxItems": { "type": "number", "default": "10" },
+          "title": { "type": "string" }
+        }
+      },
+      {
+        "key": "widget:alertList",
+        "category": "widgets",
+        "description": "Prioritized list of alerts with severity indicators",
+        "importPath": "src/app/shared/widgets/alert-list/alert-list.component",
+        "exportName": "AlertListComponent",
+        "specRef": "ds/patterns/dashboard §5",
+        "status": "active",
+        "tags": ["dashboard", "alerts", "priority"],
+        "paramsSchema": {
+          "items": { "type": "AlertItem[]", "required": true },
+          "maxItems": { "type": "number", "default": "5" },
+          "title": { "type": "string" }
+        }
+      }
     ]
   }
 }
