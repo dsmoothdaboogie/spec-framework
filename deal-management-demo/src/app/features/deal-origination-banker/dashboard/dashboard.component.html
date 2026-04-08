@@ -1,0 +1,90 @@
+<!-- @spec domain/patterns/dashboard/deal-origination-banker v1.0.0 -->
+<!-- 8 widgets per §2 — layout: Row 1 (4 metrics) | Row 2 (2-col) | Row 3 (2-col) -->
+<div class="dashboard">
+
+  <!-- Loading state (ds/patterns/dashboard §7.1) -->
+  @if (store.isLoading()) {
+    <div class="dashboard__loading" aria-busy="true" aria-label="Loading dashboard">
+      Loading dashboard data…
+    </div>
+
+  <!-- Error state (ds/patterns/dashboard §7.3) -->
+  } @else if (store.hasError()) {
+    <div class="dashboard__error" role="alert">
+      Unable to load dashboard data. Please refresh the page.
+    </div>
+
+  <!-- Data loaded — all 8 widgets -->
+  } @else {
+
+    <!-- Row 1: Metric cards (composition spec §2, metrics-1 through metrics-4) -->
+    <div class="dashboard__row dashboard__row--metrics">
+
+      <!-- metrics-1: Pipeline Value — totalPipelineValue, currency, trend up -->
+      <app-metric-card
+        label="Pipeline Value"
+        [value]="store.totalPipelineValue()"
+        format="currency"
+        trend="up"
+      />
+
+      <!-- metrics-2: Active Deals — activeDealCount, number -->
+      <app-metric-card
+        label="Active Deals"
+        [value]="store.activeDealCount()"
+        format="number"
+      />
+
+      <!-- metrics-3: Avg Deal Size — avgDealSize, currency -->
+      <app-metric-card
+        label="Avg Deal Size"
+        [value]="store.avgDealSize()"
+        format="currency"
+      />
+
+      <!-- metrics-4: Total Deals — totalDealCount, number -->
+      <app-metric-card
+        label="Total Deals"
+        [value]="store.totalDealCount()"
+        format="number"
+      />
+    </div>
+
+    <!-- Row 2: Status distribution + MiniGrid (two-col) -->
+    <div class="dashboard__row dashboard__row--two-col">
+
+      <!-- main-1: Deals by Stage (statusDistribution) -->
+      <app-status-distribution
+        title="Deals by Stage"
+        [segments]="store.dealsByStage()"
+      />
+
+      <!-- main-2: Top Deals by Size (miniGrid — max 5 rows per §2) -->
+      <app-mini-grid
+        title="Top Deals by Size"
+        [columnDefs]="topDealsColumns"
+        [rowData]="store.topDealsBySize()"
+        [maxRows]="5"
+      />
+    </div>
+
+    <!-- Row 3: Activity feed + Alert list (two-col) -->
+    <div class="dashboard__row dashboard__row--two-col">
+
+      <!-- detail-1: Recent Activity (activityFeed — max 8 items per §2) -->
+      <app-activity-feed
+        title="Recent Activity"
+        [items]="store.activityFeed()"
+        [maxItems]="8"
+      />
+
+      <!-- detail-2: Alerts (alertList — max 5 items per §2) -->
+      <app-alert-list
+        title="Alerts"
+        [items]="store.alerts()"
+        [maxItems]="5"
+      />
+    </div>
+
+  }
+</div>
