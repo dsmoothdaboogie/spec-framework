@@ -1,0 +1,22 @@
+<div class="alert-list">
+  @if (title()) {
+    <h3 class="alert-list__title">{{ title() }}</h3>
+  }
+  @if (visibleItems().length === 0) {
+    <p class="alert-list__empty">No alerts.</p>
+  } @else {
+    <ul class="alert-list__list">
+      @for (item of visibleItems(); track item.id) {
+        <li class="alert-list__item" [attr.data-severity]="item.severity">
+          <div class="alert-list__header">
+            <span class="alert-list__severity" [attr.data-severity]="item.severity">
+              {{ item.severity }}
+            </span>
+            <span class="alert-list__item-title">{{ item.title }}</span>
+          </div>
+          <p class="alert-list__desc">{{ item.description }}</p>
+        </li>
+      }
+    </ul>
+  }
+</div>
