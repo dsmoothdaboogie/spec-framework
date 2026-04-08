@@ -102,6 +102,18 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  if (url.pathname === '/api/primitives') {
+    const primPath = path.join(ROOT, 'tools/registry/primitives.json');
+    if (fs.existsSync(primPath)) {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(fs.readFileSync(primPath, 'utf-8'));
+    } else {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ primitives: {} }));
+    }
+    return;
+  }
+
   // Serve explorer UI
   if (url.pathname === '/' || url.pathname === '/index.html') {
     const uiPath = path.join(__dirname, 'index.html');
@@ -116,8 +128,12 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, () => {
   const registry = loadRegistry();
+  const primData = fs.existsSync(path.join(ROOT, 'tools/registry/primitives.json'))
+    ? JSON.parse(fs.readFileSync(path.join(ROOT, 'tools/registry/primitives.json'), 'utf-8'))
+    : null;
+  const primCount = primData ? Object.values(primData.primitives || {}).flat().length : 0;
   console.log(`${GREEN}✓ Explorer running at ${CYAN}http://localhost:${PORT}${RESET}`);
-  console.log(`${DIM}Serving ${registry.specs?.length || 0} spec(s)${RESET}\n`);
+  console.log(`${DIM}Serving ${registry.specs?.length || 0} spec(s), ${primCount} primitive(s)${RESET}\n`);
 
   const open = process.platform === 'darwin' ? 'open'
              : process.platform === 'win32'  ? 'start'

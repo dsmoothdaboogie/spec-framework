@@ -1303,6 +1303,115 @@
     color: #fff;
   }
 
+  /* ── Primitives view ── */
+  #primitives-view {
+    padding: 24px;
+    overflow-y: auto;
+    height: 100%;
+  }
+  .prim-header {
+    margin-bottom: 20px;
+  }
+  .prim-header h2 {
+    font: 600 16px var(--sans);
+    color: var(--text-0);
+    margin-bottom: 8px;
+  }
+  .prim-header p {
+    font: 12px var(--sans);
+    color: var(--text-3);
+  }
+  .prim-filters {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .prim-filter {
+    padding: 4px 12px;
+    border-radius: 100px;
+    border: 1px solid var(--border-2);
+    background: var(--bg-2);
+    color: var(--text-2);
+    font: 11px var(--mono);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+  .prim-filter:hover { border-color: var(--border-3); color: var(--text-1); }
+  .prim-filter.active { background: var(--accent-bg2); border-color: var(--accent-dim); color: var(--accent); }
+  .prim-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 12px;
+  }
+  .prim-card {
+    background: var(--bg-2);
+    border: 1px solid var(--border-1);
+    border-radius: var(--radius);
+    padding: 14px;
+    transition: border-color var(--transition);
+    cursor: pointer;
+  }
+  .prim-card:hover { border-color: var(--border-2); }
+  .prim-card-key {
+    font: 500 12px var(--mono);
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .prim-card-desc {
+    font: 12px var(--sans);
+    color: var(--text-2);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .prim-card-meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .prim-card-tag {
+    font: 10px var(--mono);
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--bg-4);
+    color: var(--text-3);
+  }
+  .prim-card-status {
+    font: 10px var(--mono);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .prim-card-status.stable { background: var(--green-bg); color: var(--green); }
+  .prim-card-status.beta { background: var(--amber-bg); color: var(--amber); }
+  .prim-card-status.deprecated { background: var(--red-bg); color: var(--red); }
+  .prim-card-detail {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-1);
+    display: none;
+  }
+  .prim-card.expanded .prim-card-detail { display: block; }
+  .prim-detail-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 4px;
+    font: 11px var(--mono);
+  }
+  .prim-detail-label { color: var(--text-4); min-width: 70px; }
+  .prim-detail-value { color: var(--text-2); }
+  .prim-schema-block {
+    margin-top: 8px;
+    padding: 8px;
+    background: var(--bg-3);
+    border-radius: var(--radius-sm);
+    font: 11px var(--mono);
+    color: var(--text-2);
+    white-space: pre-wrap;
+    overflow-x: auto;
+    max-height: 200px;
+  }
+
   /* ── Utility ── */
   .hidden { display: none !important; }
 </style>
@@ -1325,6 +1434,7 @@
     <button class="view-toggle active" data-view="browse" onclick="switchView('browse')">Browse</button>
     <button class="view-toggle" data-view="graph" onclick="switchView('graph')">Graph</button>
     <button class="view-toggle" data-view="lifecycle" onclick="switchView('lifecycle')">Lifecycle</button>
+    <button class="view-toggle" data-view="primitives" onclick="switchView('primitives')">Primitives</button>
   </div>
 
   <div class="header-sep"></div>
@@ -1420,6 +1530,8 @@
 
     <!-- Lifecycle view -->
     <div id="lifecycle-view" class="hidden"></div>
+    <!-- Primitives view -->
+    <div id="primitives-view" class="hidden"></div>
   </div>
 </div>
 
@@ -1867,13 +1979,16 @@ function switchView(view) {
   document.querySelectorAll('.view-toggle').forEach(b => b.classList.toggle('active', b.dataset.view === view));
 
   document.getElementById('sidebar').classList.toggle('hidden', view !== 'browse');
+  document.getElementById('rail').classList.toggle('hidden', view === 'primitives');
   document.getElementById('empty-state').classList.toggle('hidden', view !== 'browse' || !!activeSpecId);
   document.getElementById('spec-view').classList.toggle('visible', view === 'browse' && !!activeSpecObj);
   document.getElementById('graph-view').classList.toggle('hidden', view !== 'graph');
   document.getElementById('lifecycle-view').classList.toggle('hidden', view !== 'lifecycle');
+  document.getElementById('primitives-view').classList.toggle('hidden', view !== 'primitives');
 
   if (view === 'graph') renderGraphView();
   if (view === 'lifecycle') renderLifecycleView();
+  if (view === 'primitives') renderPrimitivesView();
 }
 
 // ── Graph view ───────────────────────────────────────────────────────────────
@@ -2099,6 +2214,58 @@ document.addEventListener('keydown', e => {
     document.getElementById('search').focus();
   }
 });
+
+// ── Primitives view ──────────────────────────────────────────────────────────
+let primitivesData = null;
+let activePrimCategory = 'all';
+
+async function renderPrimitivesView() {
+  const el = document.getElementById('primitives-view');
+
+  if (!primitivesData) {
+    try { primitivesData = await api('/api/primitives'); } catch { primitivesData = { primitives: {} }; }
+  }
+
+  const allPrims = Object.values(primitivesData.primitives || {}).flat();
+  const categories = [...new Set(allPrims.map(p => p.category))].sort();
+  const filtered = activePrimCategory === 'all' ? allPrims : allPrims.filter(p => p.category === activePrimCategory);
+
+  el.innerHTML = `
+    <div class="prim-header">
+      <h2>Grid Primitives</h2>
+      <p>${allPrims.length} primitives across ${categories.length} categories · adapter: ${primitivesData.adapter || '?'} · v${primitivesData.version || '?'}</p>
+    </div>
+    <div class="prim-filters">
+      <button class="prim-filter ${activePrimCategory === 'all' ? 'active' : ''}" onclick="filterPrimitives('all')">All (${allPrims.length})</button>
+      ${categories.map(cat => {
+        const count = allPrims.filter(p => p.category === cat).length;
+        return `<button class="prim-filter ${activePrimCategory === cat ? 'active' : ''}" onclick="filterPrimitives('${cat}')">${cat} (${count})</button>`;
+      }).join('')}
+    </div>
+    <div class="prim-grid">
+      ${filtered.map(p => `
+        <div class="prim-card" onclick="this.classList.toggle('expanded')">
+          <div class="prim-card-key">${esc(p.key)}</div>
+          <div class="prim-card-desc">${esc(p.description)}</div>
+          <div class="prim-card-meta">
+            <span class="prim-card-status ${p.status || 'stable'}">${p.status || 'stable'}</span>
+            ${(p.tags || []).map(t => `<span class="prim-card-tag">${esc(t)}</span>`).join('')}
+          </div>
+          <div class="prim-card-detail">
+            <div class="prim-detail-row"><span class="prim-detail-label">Import</span><span class="prim-detail-value">${esc(p.importPath)}</span></div>
+            ${p.exportName ? `<div class="prim-detail-row"><span class="prim-detail-label">Export</span><span class="prim-detail-value">${esc(p.exportName)}</span></div>` : ''}
+            <div class="prim-detail-row"><span class="prim-detail-label">Spec ref</span><span class="prim-detail-value">${esc(p.specRef)}</span></div>
+            ${p.paramsSchema ? `<div class="prim-schema-block">${esc(JSON.stringify(p.paramsSchema, null, 2))}</div>` : ''}
+          </div>
+        </div>
+      `).join('')}
+    </div>`;
+}
+
+function filterPrimitives(category) {
+  activePrimCategory = category;
+  renderPrimitivesView();
+}
 
 // Boot
 boot();
