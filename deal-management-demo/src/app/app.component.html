@@ -8,7 +8,7 @@
       <span class="app-header__tag">Spec-Driven Demo</span>
     </div>
     <div class="app-header__meta">
-      <span class="spec-link">spec-framework / domain/patterns/ag-grid-datatable</span>
+      <span class="spec-link">spec-framework / domain/patterns</span>
     </div>
   </header>
 
@@ -25,20 +25,59 @@
     }
   </nav>
 
-  <!-- Grid views — only one mounted at a time -->
-  <main class="grid-viewport">
+  <!-- Sub-navigation: Dashboard | Grid -->
+  <nav class="sub-nav">
+    <button
+      class="sub-nav__btn"
+      [class.sub-nav__btn--active]="activeView() === 'dashboard'"
+      (click)="setView('dashboard')">
+      Dashboard
+    </button>
+    <button
+      class="sub-nav__btn"
+      [class.sub-nav__btn--active]="activeView() === 'grid'"
+      (click)="setView('grid')">
+      Grid
+    </button>
+  </nav>
+
+  <!-- Content viewport — only one view mounted at a time -->
+  <main class="content-viewport">
     @switch (activeTab()) {
       @case ('coverage') {
-        <app-coverage-banker-grid />
+        @if (activeView() === 'dashboard') {
+          <app-coverage-banker-dashboard />
+        } @else {
+          <app-coverage-banker-grid />
+        }
       }
       @case ('syndicate') {
-        <app-syndicate-banker-grid />
+        @if (activeView() === 'dashboard') {
+          <app-syndicate-banker-dashboard />
+        } @else {
+          <app-syndicate-banker-grid />
+        }
       }
       @case ('bel') {
-        <app-bel-grid />
+        @if (activeView() === 'dashboard') {
+          <app-bel-dashboard />
+        } @else {
+          <app-bel-grid />
+        }
       }
       @case ('conflict') {
-        <app-conflict-clearance-grid />
+        @if (activeView() === 'dashboard') {
+          <app-conflict-clearance-dashboard />
+        } @else {
+          <app-conflict-clearance-grid />
+        }
+      }
+      @case ('compliance') {
+        @if (activeView() === 'dashboard') {
+          <app-compliance-viewer-dashboard />
+        } @else {
+          <app-compliance-viewer-grid />
+        }
       }
     }
   </main>
