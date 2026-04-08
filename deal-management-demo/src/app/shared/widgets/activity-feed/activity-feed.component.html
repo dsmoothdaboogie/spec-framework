@@ -1,0 +1,22 @@
+<div class="activity-feed">
+  @if (title()) {
+    <h3 class="activity-feed__title">{{ title() }}</h3>
+  }
+  @if (visibleItems().length === 0) {
+    <p class="activity-feed__empty">No recent activity.</p>
+  } @else {
+    <ul class="activity-feed__list">
+      @for (item of visibleItems(); track item.id) {
+        <li class="activity-feed__item">
+          <span class="activity-feed__time">{{ item.timestamp | date:'MMM d, h:mm a' }}</span>
+          <span class="activity-feed__desc">
+            @if (item.actor) {
+              <strong>{{ item.actor }}</strong>
+            }
+            {{ item.description }}
+          </span>
+        </li>
+      }
+    </ul>
+  }
+</div>
