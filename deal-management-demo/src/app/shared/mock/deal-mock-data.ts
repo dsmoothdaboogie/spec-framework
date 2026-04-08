@@ -1,4 +1,5 @@
 import { Deal } from '../types/deal.types';
+import type { ActivityEvent, AlertItem } from '../types/dashboard.types';
 
 const today = new Date('2026-04-03');
 const daysAgo = (n: number) => new Date(today.getTime() - n * 86400000);
@@ -425,4 +426,28 @@ export const MOCK_DEALS: Deal[] = [
     mnpiFlag: true,
     infoBarrier: 'Wall B',
   },
+];
+
+export const MOCK_ACTIVITY: ActivityEvent[] = [
+  { id: 'A001', timestamp: daysAgo(0), description: 'updated pricing for Meridian Tech Follow-on', actor: 'Sarah Mitchell', dealId: 'D002' },
+  { id: 'A002', timestamp: daysAgo(0), description: 'moved Brightfield Pharma LevFin to Marketing', actor: 'Emma Rodriguez', dealId: 'D005' },
+  { id: 'A003', timestamp: daysAgo(1), description: 'flagged conflict on Coastal Energy M&A', actor: 'James Thornton', dealId: 'D003' },
+  { id: 'A004', timestamp: daysAgo(1), description: 'completed milestone 6/8 for Apex Financial Group IPO', actor: 'Sarah Mitchell', dealId: 'D001' },
+  { id: 'A005', timestamp: daysAgo(2), description: 'submitted conflict review for Vantage Capital LevFin', actor: 'Anna Kowalski', dealId: 'D009' },
+  { id: 'A006', timestamp: daysAgo(2), description: 'updated allocation for Pinnacle Retail IPO', actor: 'David Chen', dealId: 'D011' },
+  { id: 'A007', timestamp: daysAgo(3), description: 'escalated Iron Peak Mining LevFin — conflict flagged', actor: 'James Thornton', dealId: 'D012' },
+  { id: 'A008', timestamp: daysAgo(3), description: 'mandate received for Vantage Capital LevFin', actor: 'Emma Rodriguez', dealId: 'D009' },
+  { id: 'A009', timestamp: daysAgo(4), description: 'withdrew Harbour Bridge M&A — client decision', actor: 'Sarah Mitchell', dealId: 'D010' },
+  { id: 'A010', timestamp: daysAgo(5), description: 'created SkyBridge Infrastructure ECM deal', actor: 'Sarah Mitchell', dealId: 'D006' },
+];
+
+export const MOCK_ALERTS: AlertItem[] = [
+  { id: 'AL001', severity: 'error', title: 'Conflict flagged', description: 'Coastal Energy M&A has an unresolved conflict — counterparty relationship under review.', dealId: 'D003' },
+  { id: 'AL002', severity: 'error', title: 'Conflict flagged', description: 'Iron Peak Mining LevFin — existing lending relationship with competitor. Escalated.', dealId: 'D012' },
+  { id: 'AL003', severity: 'warning', title: 'Close date approaching', description: 'Meridian Tech Follow-on expected to close in 4 days. Pricing date in 2 days.', dealId: 'D002' },
+  { id: 'AL004', severity: 'warning', title: 'Pending conflict review', description: 'NorthStar REIT DCM conflict review not yet started.', dealId: 'D004' },
+  { id: 'AL005', severity: 'warning', title: 'Pending conflict review', description: 'SkyBridge Infrastructure ECM conflict review not yet started.', dealId: 'D006' },
+  { id: 'AL006', severity: 'warning', title: 'Pending conflict review', description: 'Vantage Capital LevFin conflict review submitted, awaiting resolution.', dealId: 'D009' },
+  { id: 'AL007', severity: 'info', title: 'Low milestone progress', description: 'Iron Peak Mining LevFin at 22% milestone completion (2/9) and in Due Diligence for 35 days.', dealId: 'D012' },
+  { id: 'AL008', severity: 'info', title: 'Low book coverage', description: 'Brightfield Pharma LevFin book coverage at 1.8x — below 2.0x threshold.', dealId: 'D005' },
 ];
