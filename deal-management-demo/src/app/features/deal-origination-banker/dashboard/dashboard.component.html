@@ -11,7 +11,14 @@
   <!-- Error state (ds/patterns/dashboard §7.3) -->
   } @else if (store.hasError()) {
     <div class="dashboard__error" role="alert">
-      Unable to load dashboard data. Please refresh the page.
+      Unable to load dashboard data.
+      <button class="dashboard__retry" (click)="store.loadDeals()">Retry</button>
+    </div>
+
+  <!-- Empty state (ds/patterns/dashboard §7.2) -->
+  } @else if (store.isEmpty()) {
+    <div class="dashboard__empty">
+      No deals in your pipeline. Deals you own or are assigned to will appear here.
     </div>
 
   <!-- Data loaded — all 8 widgets -->

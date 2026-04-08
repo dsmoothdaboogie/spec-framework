@@ -86,7 +86,7 @@ function resolveRowActions(row: Deal): DsRowAction[] {
 
 // ─── BASE_COL per ds/patterns/ag-grid-datatable §6.1 ───────────────────────
 
-const BASE_COL: ColDef = {
+const BASE_COL: Partial<ColDef<Deal>> = {
   sortable: true,
   resizable: true,
   minWidth: 100,

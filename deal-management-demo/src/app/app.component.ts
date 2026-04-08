@@ -9,8 +9,10 @@ import { SyndicateBankerDashboardComponent } from './features/syndicate-banker/d
 import { BusinessExecutionLeadDashboardComponent } from './features/business-execution-lead/dashboard/dashboard.component';
 import { ConflictClearanceDashboardComponent } from './features/conflict-clearance/dashboard/dashboard.component';
 import { ComplianceViewerDashboardComponent } from './features/compliance-viewer/dashboard/dashboard.component';
+import { DealOriginationBankerGridComponent } from './features/deal-origination-banker/deal-grid/deal-grid.component';
+import { DealOriginationBankerDashboardComponent } from './features/deal-origination-banker/dashboard/dashboard.component';
 
-type PersonaTab = 'coverage' | 'syndicate' | 'bel' | 'conflict' | 'compliance';
+type PersonaTab = 'coverage' | 'syndicate' | 'bel' | 'conflict' | 'compliance' | 'origination';
 type ActiveView = 'dashboard' | 'grid';
 
 interface Tab {
@@ -34,6 +36,8 @@ interface Tab {
     BusinessExecutionLeadDashboardComponent,
     ConflictClearanceDashboardComponent,
     ComplianceViewerDashboardComponent,
+    DealOriginationBankerGridComponent,
+    DealOriginationBankerDashboardComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
@@ -48,6 +52,7 @@ export class AppComponent {
     { id: 'bel',         label: 'Business Execution Lead', subtitle: 'deal-full entitlement' },
     { id: 'conflict',    label: 'Conflict Clearance',      subtitle: 'deal-restricted entitlement' },
     { id: 'compliance',  label: 'Compliance Viewer',       subtitle: 'mnpi-full entitlement' },
+    { id: 'origination', label: 'Deal Origination Banker', subtitle: 'mnpi-standard entitlement' },
   ];
 
   setTab(id: PersonaTab): void {

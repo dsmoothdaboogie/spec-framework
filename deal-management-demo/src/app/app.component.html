@@ -79,6 +79,13 @@
           <app-compliance-viewer-grid />
         }
       }
+      @case ('origination') {
+        @if (activeView() === 'dashboard') {
+          <app-deal-origination-banker-dashboard />
+        } @else {
+          <app-deal-origination-banker-grid />
+        }
+      }
     }
   </main>
 
