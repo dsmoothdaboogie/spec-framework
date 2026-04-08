@@ -26,7 +26,16 @@
     align-items: center;
     justify-content: center;
     padding: 40px;
-    color: var(--color-error, #dc2626);
+    color: var(--color-error);
+    font-size: 14px;
+  }
+
+  &__empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: var(--color-text-secondary);
     font-size: 14px;
   }
 }

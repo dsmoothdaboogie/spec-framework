@@ -24,6 +24,7 @@ export class ComplianceViewerGridComponent implements OnInit {
 
   readonly isLoading = this.store.isLoading;
   readonly hasError = this.store.hasError;
+  readonly isEmpty = this.store.isEmpty;
   readonly rowData = this.store.items;
 
   // Strict read-only: no row selection, no checkbox, no actions (per spec §4, §5, §7)
