@@ -1,0 +1,6 @@
+<div class="value-display" [attr.data-variant]="variant()">
+  <span class="primary" [class.bold]="bold()">{{ primaryText() }}</span>
+  @if (secondaryText()) {
+    <span class="secondary">{{ secondaryText() }}</span>
+  }
+</div>
