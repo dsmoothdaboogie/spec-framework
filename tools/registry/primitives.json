@@ -1,0 +1,569 @@
+{
+  "$schema": "./primitives.schema.json",
+  "version": "1.0.0",
+  "adapter": "ag-grid",
+  "adapterAliases": {
+    "mt-datatable": {
+      "ColDef": "MtColumnDefs",
+      "GridOptions": "MtGridOptions",
+      "tag": "<mt-datatable>",
+      "importSource": "@citi-icg-172888/ng-icgds/datatable"
+    }
+  },
+  "primitives": {
+    "columnTypes": [
+      {
+        "key": "columnType:text",
+        "category": "columnType",
+        "description": "Standard text column with text filter, sortable, resizable",
+        "importPath": "@company/ds/ag-grid",
+        "exportName": "BASE_COL",
+        "specRef": "ds/patterns/ag-grid-datatable §6.2",
+        "status": "stable",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "maxWidth": { "type": "number" },
+            "wrapText": { "type": "boolean", "default": false },
+            "filterOptions": { "type": "array", "items": { "type": "string" }, "default": ["contains"] }
+          }
+        }
+      },
+      {
+        "key": "columnType:number",
+        "category": "columnType",
+        "description": "Numeric column with right-alignment, number filter, sum aggregation",
+        "importPath": "@company/ds/ag-grid",
+        "exportName": "DS_NUMBER_FORMATTER",
+        "specRef": "ds/patterns/ag-grid-datatable §6.2",
+        "status": "stable",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "decimals": { "type": "number", "default": 2, "minimum": 0, "maximum": 10 },
+            "aggFunc": { "type": "string", "enum": ["sum", "avg", "min", "max", "count"], "default": "sum" }
+          }
+        }
+      },
+      {
+        "key": "columnType:date",
+        "category": "columnType",
+        "description": "Date column with date filter and configurable format",
+        "importPath": "@company/ds/ag-grid",
+        "exportName": "DS_DATE_FORMATTER",
+        "specRef": "ds/patterns/ag-grid-datatable §6.2",
+        "status": "stable",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "format": { "type": "string", "default": "DD MMM YYYY" },
+            "timezone": { "type": "string", "enum": ["utc", "et", "local"], "default": "local" }
+          }
+        }
+      },
+      {
+        "key": "columnType:currency",
+        "category": "columnType",
+        "description": "Currency column with locale-aware formatting",
+        "importPath": "@company/ds/ag-grid",
+        "exportName": "DS_CURRENCY_FORMATTER",
+        "specRef": "ds/patterns/ag-grid-datatable §6.2",
+        "status": "stable",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "currency": { "type": "string", "default": "USD" },
+            "decimals": { "type": "number", "default": 2 },
+            "showSymbol": { "type": "boolean", "default": true }
+          }
+        }
+      },
+      {
+        "key": "columnType:boolean",
+        "category": "columnType",
+        "description": "Boolean column rendered as checkbox or yes/no text",
+        "importPath": "@company/ds/ag-grid",
+        "specRef": "ds/patterns/ag-grid-datatable §6.2",
+        "status": "beta",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "display": { "type": "string", "enum": ["checkbox", "yesNo", "trueFalse"], "default": "checkbox" }
+          }
+        }
+      },
+      {
+        "key": "columnType:status",
+        "category": "columnType",
+        "description": "Status column with badge renderer and set filter",
+        "importPath": "@company/ds/ag-grid",
+        "exportName": "DsBadgeCellRendererComponent",
+        "specRef": "ds/patterns/ag-grid-datatable §6.2",
+        "status": "stable",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "statusValues": { "type": "array", "items": { "type": "string" } },
+            "colorMap": { "type": "object", "additionalProperties": { "type": "string" } }
+          }
+        }
+      }
+    ],
+    "renderers": [
+      {
+        "key": "renderer:statusBadge",
+        "category": "renderer",
+        "description": "Renders a colored badge based on cell value",
+        "importPath": "@company/ds/ag-grid",
+        "exportName": "DsBadgeCellRendererComponent",
+        "specRef": "ds/components/component-map §8",
+        "status": "stable",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "variant": { "type": "string", "enum": ["success", "warning", "error", "info", "neutral"] },
+            "colorMap": { "type": "object", "additionalProperties": { "type": "string", "enum": ["green", "red", "amber", "blue", "grey"] } },
+            "defaultColor": { "type": "string", "default": "grey" }
+          },
+          "required": ["variant"]
+        }
+      },
+      {
+        "key": "renderer:rowActions",
+        "category": "renderer",
+        "description": "Row action menu with configurable actions",
+        "importPath": "@company/ds/ag-grid",
+        "exportName": "DsRowActionsCellRendererComponent",
+        "specRef": "ds/components/component-map §8",
+        "status": "stable",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "actions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": { "type": "string" },
+                  "icon": { "type": "string" },
+                  "action": { "type": "string" },
+                  "disabled": { "type": "boolean" }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "key": "renderer:checkbox",
+        "category": "renderer",
+        "description": "Renders a checkbox. Can be read-only or interactive",
+        "importPath": "@company/ds/ag-grid",
+        "exportName": "DsCheckboxCellRendererComponent",
+        "specRef": "ds/components/component-map §8",
+        "status": "stable",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "readOnly": { "type": "boolean", "default": false },
+            "triState": { "type": "boolean", "default": false }
+          }
+        }
+      },
+      {
+        "key": "renderer:actionIcon",
+        "category": "renderer",
+        "description": "Renders action icon buttons (view, edit, delete) in a cell",
+        "importPath": "@company/ds/ag-grid",
+        "exportName": "ActionIconRendererComponent",
+        "specRef": "ds/patterns/ag-grid-datatable §6.2",
+        "status": "beta",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "actions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": { "type": "string", "enum": ["view", "edit", "delete", "assign", "download", "custom"] },
+                  "icon": { "type": "string" },
+                  "tooltip": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "key": "renderer:link",
+        "category": "renderer",
+        "description": "Renders cell value as a clickable link with configurable route template",
+        "importPath": "@company/ds/ag-grid",
+        "exportName": "LinkRendererComponent",
+        "specRef": "ds/patterns/ag-grid-datatable §6.2",
+        "status": "beta",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "routeTemplate": { "type": "string", "description": "Route template with {fieldName} placeholders" },
+            "external": { "type": "boolean", "default": false },
+            "target": { "type": "string", "enum": ["_self", "_blank"], "default": "_self" }
+          },
+          "required": ["routeTemplate"]
+        }
+      },
+      {
+        "key": "renderer:tooltip",
+        "category": "renderer",
+        "description": "Renders cell value with hover tooltip showing full content",
+        "importPath": "@company/ds/ag-grid",
+        "exportName": "TooltipRendererComponent",
+        "specRef": "ds/patterns/ag-grid-datatable §6.2",
+        "status": "beta",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "tooltipField": { "type": "string" },
+            "maxLength": { "type": "number", "default": 50 }
+          }
+        }
+      },
+      {
+        "key": "renderer:defaultText",
+        "category": "renderer",
+        "description": "Default text renderer with optional truncation and copy-to-clipboard",
+        "importPath": "@company/ds/ag-grid",
+        "exportName": "DefaultTextRendererComponent",
+        "specRef": "ds/patterns/ag-grid-datatable §6.2",
+        "status": "beta",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "copyable": { "type": "boolean", "default": false },
+            "maxLength": { "type": "number" }
+          }
+        }
+      },
+      {
+        "key": "renderer:dealSize",
+        "category": "renderer",
+        "description": "Formats deal size with M/B suffix and size category badge",
+        "importPath": "@company/ds/ag-grid",
+        "exportName": "DealSizeRendererComponent",
+        "specRef": "ds/patterns/deal-grid-calculations §5",
+        "status": "stable",
+        "tags": ["deal-domain"]
+      },
+      {
+        "key": "renderer:dealStage",
+        "category": "renderer",
+        "description": "Maps DealStage values to badge variants",
+        "importPath": "@company/ds/ag-grid",
+        "exportName": "DealStageRendererComponent",
+        "specRef": "ds/patterns/deal-grid-calculations §5",
+        "status": "stable",
+        "tags": ["deal-domain"],
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "variant": { "type": "string", "enum": ["success", "warning", "error", "info", "neutral"] }
+          }
+        }
+      },
+      {
+        "key": "renderer:feeRevenue",
+        "category": "renderer",
+        "description": "Displays basis points with inline calculated revenue",
+        "importPath": "@company/ds/ag-grid",
+        "exportName": "FeeRevenueRendererComponent",
+        "specRef": "ds/patterns/deal-grid-calculations §5",
+        "status": "stable",
+        "tags": ["deal-domain", "fee-sensitive"]
+      },
+      {
+        "key": "renderer:daysCountdown",
+        "category": "renderer",
+        "description": "Countdown to target date with warning/error thresholds",
+        "importPath": "@company/ds/ag-grid",
+        "exportName": "DaysCountdownRendererComponent",
+        "specRef": "ds/patterns/deal-grid-calculations §5",
+        "status": "stable",
+        "tags": ["deal-domain"],
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "warningThreshold": { "type": "number", "default": 30 },
+            "errorThreshold": { "type": "number", "default": 7 }
+          }
+        }
+      },
+      {
+        "key": "renderer:coverageMultiple",
+        "category": "renderer",
+        "description": "Formats coverage multiple with one decimal place",
+        "importPath": "@company/ds/ag-grid",
+        "exportName": "CoverageMultipleRendererComponent",
+        "specRef": "ds/patterns/deal-grid-calculations §5",
+        "status": "stable",
+        "tags": ["deal-domain"]
+      },
+      {
+        "key": "renderer:milestoneProgress",
+        "category": "renderer",
+        "description": "Progress bar showing milestone completion percentage",
+        "importPath": "@company/ds/ag-grid",
+        "exportName": "MilestoneProgressRendererComponent",
+        "specRef": "ds/patterns/deal-grid-calculations §5",
+        "status": "stable",
+        "tags": ["deal-domain"]
+      },
+      {
+        "key": "renderer:conflictStatus",
+        "category": "renderer",
+        "description": "Conflict status badge with color-mapped variants",
+        "importPath": "@company/ds/ag-grid",
+        "exportName": "ConflictStatusRendererComponent",
+        "specRef": "ds/patterns/deal-grid-calculations §5",
+        "status": "stable",
+        "tags": ["deal-domain", "compliance"]
+      }
+    ],
+    "editors": [
+      {
+        "key": "editor:number",
+        "category": "editor",
+        "description": "Numeric input editor with min/max/decimal constraints",
+        "importPath": "@company/ds/ag-grid/editors",
+        "exportName": "NumberEditorComponent",
+        "specRef": "ds/patterns/ag-grid-datatable §6.2",
+        "status": "beta",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "decimals": { "type": "number", "default": 2 },
+            "min": { "type": "number" },
+            "max": { "type": "number" },
+            "step": { "type": "number", "default": 1 },
+            "allowNegative": { "type": "boolean", "default": true }
+          }
+        }
+      },
+      {
+        "key": "editor:select",
+        "category": "editor",
+        "description": "Dropdown select editor with static or dynamic options",
+        "importPath": "@company/ds/ag-grid/editors",
+        "exportName": "SelectEditorComponent",
+        "specRef": "ds/patterns/ag-grid-datatable §6.2",
+        "status": "beta",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": { "type": "string" },
+                  "value": { "type": "string" }
+                }
+              }
+            },
+            "optionsSource": { "type": "string" },
+            "placeholder": { "type": "string", "default": "Select..." },
+            "clearable": { "type": "boolean", "default": false }
+          }
+        }
+      },
+      {
+        "key": "editor:multiSelect",
+        "category": "editor",
+        "description": "Multi-select dropdown editor",
+        "importPath": "@company/ds/ag-grid/editors",
+        "exportName": "MultiSelectEditorComponent",
+        "specRef": "ds/patterns/ag-grid-datatable §6.2",
+        "status": "beta",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": { "type": "string" },
+                  "value": { "type": "string" }
+                }
+              }
+            },
+            "optionsSource": { "type": "string" },
+            "maxSelections": { "type": "number" },
+            "placeholder": { "type": "string" }
+          }
+        }
+      },
+      {
+        "key": "editor:percent",
+        "category": "editor",
+        "description": "Percentage input editor (stores as decimal, displays as %)",
+        "importPath": "@company/ds/ag-grid/editors",
+        "exportName": "PercentEditorComponent",
+        "specRef": "ds/patterns/ag-grid-datatable §6.2",
+        "status": "beta",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "decimals": { "type": "number", "default": 2 },
+            "min": { "type": "number", "default": 0 },
+            "max": { "type": "number", "default": 100 }
+          }
+        }
+      },
+      {
+        "key": "editor:text",
+        "category": "editor",
+        "description": "Text input editor with optional validation",
+        "importPath": "@company/ds/ag-grid/editors",
+        "exportName": "TextEditorComponent",
+        "specRef": "ds/patterns/ag-grid-datatable §6.2",
+        "status": "beta",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "maxLength": { "type": "number" },
+            "pattern": { "type": "string" },
+            "placeholder": { "type": "string" }
+          }
+        }
+      },
+      {
+        "key": "editor:date",
+        "category": "editor",
+        "description": "Date picker editor",
+        "importPath": "@company/ds/ag-grid/editors",
+        "exportName": "DateEditorComponent",
+        "specRef": "ds/patterns/ag-grid-datatable §6.2",
+        "status": "beta",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "format": { "type": "string", "default": "YYYY-MM-DD" },
+            "minDate": { "type": "string" },
+            "maxDate": { "type": "string" },
+            "disablePast": { "type": "boolean" },
+            "disableFuture": { "type": "boolean" }
+          }
+        }
+      }
+    ],
+    "filters": [
+      {
+        "key": "filter:text",
+        "category": "filter",
+        "description": "Standard text filter with contains/equals options",
+        "importPath": "@company/ds/ag-grid",
+        "specRef": "ds/patterns/ag-grid-datatable §6.2",
+        "status": "beta",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "filterOptions": { "type": "array", "items": { "type": "string" } },
+            "suppressAndOrCondition": { "type": "boolean", "default": true },
+            "buttons": { "type": "array", "items": { "type": "string" }, "default": ["apply", "reset"] }
+          }
+        }
+      },
+      {
+        "key": "filter:multiColumn",
+        "category": "filter",
+        "description": "Combined text + set filter for complex search",
+        "importPath": "@company/ds/ag-grid",
+        "specRef": "ds/patterns/ag-grid-datatable §6.2",
+        "status": "beta",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "textFilterOptions": { "type": "array", "items": { "type": "string" } },
+            "setFilterButtons": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      }
+    ],
+    "formatters": [
+      {
+        "key": "formatter:date",
+        "category": "formatter",
+        "description": "Formats dates with configurable format string",
+        "importPath": "@company/ds/ag-grid",
+        "exportName": "DS_DATE_FORMATTER",
+        "specRef": "ds/patterns/ag-grid-datatable §6.2",
+        "status": "stable"
+      },
+      {
+        "key": "formatter:currency",
+        "category": "formatter",
+        "description": "Formats numbers as currency with locale support",
+        "importPath": "@company/ds/ag-grid",
+        "exportName": "DS_CURRENCY_FORMATTER",
+        "specRef": "ds/patterns/ag-grid-datatable §6.2",
+        "status": "stable"
+      },
+      {
+        "key": "formatter:number",
+        "category": "formatter",
+        "description": "Formats numbers with configurable decimal places",
+        "importPath": "@company/ds/ag-grid",
+        "exportName": "DS_NUMBER_FORMATTER",
+        "specRef": "ds/patterns/ag-grid-datatable §6.2",
+        "status": "stable"
+      },
+      {
+        "key": "formatter:bps",
+        "category": "formatter",
+        "description": "Formats basis points (bps) values",
+        "importPath": "@company/shared/calculations",
+        "exportName": "formatBps",
+        "specRef": "ds/patterns/deal-grid-calculations §3",
+        "status": "stable",
+        "tags": ["deal-domain"]
+      }
+    ],
+    "gridPresets": [
+      {
+        "key": "gridPreset:dashboard",
+        "category": "gridPreset",
+        "description": "Standard dashboard grid: read-only, single selection, no sidebar",
+        "importPath": "@company/ds/ag-grid",
+        "specRef": "ds/patterns/ag-grid-datatable §5",
+        "status": "beta",
+        "paramsSchema": {
+          "type": "object",
+          "properties": {
+            "size": { "type": "string", "enum": ["sm", "md", "lg"], "default": "md" }
+          }
+        }
+      }
+    ],
+    "constants": [
+      {
+        "key": "constant:checkboxCol",
+        "category": "constant",
+        "description": "Checkbox selection column definition",
+        "importPath": "@company/ds/ag-grid",
+        "exportName": "DS_CHECKBOX_COL",
+        "specRef": "ds/patterns/ag-grid-datatable §6.1",
+        "status": "stable"
+      },
+      {
+        "key": "constant:baseCol",
+        "category": "constant",
+        "description": "Base column defaults: sortable, resizable, minWidth 100",
+        "importPath": "@company/ds/ag-grid",
+        "exportName": "BASE_COL",
+        "specRef": "ds/patterns/ag-grid-datatable §6.1",
+        "status": "stable"
+      }
+    ]
+  }
+}

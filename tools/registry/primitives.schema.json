@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Primitives Registry Schema",
+  "description": "Machine-readable registry of grid UI primitives: column types, renderers, editors, filters, formatters, grid presets, and constants.",
+  "type": "object",
+  "required": ["$schema", "version", "adapter", "primitives"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "adapter": {
+      "type": "string",
+      "description": "Primary grid adapter (e.g. ag-grid)"
+    },
+    "adapterAliases": {
+      "type": "object",
+      "description": "Alias mappings for alternate adapter surfaces (e.g. mt-datatable)",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": { "type": "string" }
+      }
+    },
+    "primitives": {
+      "type": "object",
+      "required": ["columnTypes", "renderers", "editors", "filters", "formatters", "gridPresets", "constants"],
+      "properties": {
+        "columnTypes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/primitive" }
+        },
+        "renderers": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/primitive" }
+        },
+        "editors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/primitive" }
+        },
+        "filters": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/primitive" }
+        },
+        "formatters": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/primitive" }
+        },
+        "gridPresets": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/primitive" }
+        },
+        "constants": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/primitive" }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "definitions": {
+    "primitive": {
+      "type": "object",
+      "required": ["key", "category", "description", "importPath", "specRef"],
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^(columnType|renderer|editor|filter|formatter|gridPreset|constant):[a-zA-Z][a-zA-Z0-9]*$"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["columnType", "renderer", "editor", "filter", "formatter", "gridPreset", "constant"]
+        },
+        "description": { "type": "string" },
+        "importPath": { "type": "string" },
+        "specRef": { "type": "string" },
+        "exportName": { "type": "string" },
+        "paramsSchema": {
+          "type": "object",
+          "description": "Nested JSON Schema describing accepted parameters"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "status": {
+          "type": "string",
+          "enum": ["stable", "beta", "deprecated"],
+          "default": "stable"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
