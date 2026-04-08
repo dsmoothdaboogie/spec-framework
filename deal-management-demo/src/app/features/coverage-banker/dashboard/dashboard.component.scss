@@ -1,0 +1,33 @@
+:host { display: block; }
+
+.dashboard {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 1400px;
+
+  &__loading, &__error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    font-size: 14px;
+    color: var(--color-text-secondary, #64748b);
+  }
+
+  &__error { color: var(--color-error, #dc2626); }
+
+  &__row {
+    display: grid;
+    gap: 16px;
+  }
+
+  &__row--metrics {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  &__row--two-col {
+    grid-template-columns: 1fr 1fr;
+  }
+}
