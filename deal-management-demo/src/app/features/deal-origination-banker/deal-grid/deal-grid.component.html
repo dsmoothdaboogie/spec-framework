@@ -1,0 +1,64 @@
+<!-- @spec domain/patterns/ag-grid-datatable/deal-origination-banker v1.0.0 -->
+<div class="grid-container">
+
+  <!-- Toolbar -->
+  <div class="grid-toolbar">
+    <div class="grid-toolbar__left">
+      <h2 class="grid-title">Deal Origination — Pipeline</h2>
+      <span class="grid-subtitle">Origination-focused view · sorted by last updated</span>
+    </div>
+
+    <!-- Bulk action bar — visible when rows are selected (composition spec §5) -->
+    @if (selectedCount() > 0) {
+      <div class="bulk-bar" role="toolbar" [attr.aria-label]="selectedCount() + ' rows selected'">
+        <span class="bulk-bar__count">{{ selectedCount() }} selected</span>
+        @for (action of bulkActions; track action.id) {
+          <button class="btn btn--secondary" (click)="onBulkAction(action.id)">
+            {{ action.label }}
+          </button>
+        }
+        <button class="btn btn--ghost" (click)="clearSelection()">Clear</button>
+      </div>
+    }
+  </div>
+
+  <!-- Error state (composition spec §9) -->
+  @if (hasError()) {
+    <div class="state-message state-message--error" role="alert">
+      <span class="state-message__icon" aria-hidden="true">⚠</span>
+      <strong>Unable to load deals</strong>
+      <p>Something went wrong loading your pipeline. Please try again.</p>
+      <button class="btn btn--secondary" (click)="ngOnInit()">Retry</button>
+    </div>
+
+  <!-- Loading state — skeleton rows (composition spec §7) -->
+  } @else if (isLoading()) {
+    <div class="skeleton-container" aria-busy="true" aria-label="Loading deals">
+      @for (row of [1,2,3,4,5,6,7,8]; track row) {
+        <div class="skeleton-row">
+          <div class="skeleton-cell skeleton-cell--sm"></div>
+          <div class="skeleton-cell skeleton-cell--lg"></div>
+          <div class="skeleton-cell skeleton-cell--md"></div>
+          <div class="skeleton-cell skeleton-cell--lg"></div>
+          <div class="skeleton-cell skeleton-cell--md"></div>
+          <div class="skeleton-cell skeleton-cell--lg"></div>
+          <div class="skeleton-cell skeleton-cell--md"></div>
+        </div>
+      }
+    </div>
+
+  <!-- Grid — data loaded -->
+  } @else {
+    <ag-grid-angular
+      class="ds-ag-theme"
+      style="width: 100%; height: 100%;"
+      [attr.aria-label]="'Deal origination pipeline'"
+      [theme]="theme"
+      [rowData]="rowData()"
+      [columnDefs]="columnDefs"
+      [gridOptions]="gridOptions"
+      (selectionChanged)="onSelectionChanged($event)"
+    />
+  }
+
+</div>

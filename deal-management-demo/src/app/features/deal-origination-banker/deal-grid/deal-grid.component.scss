@@ -1,0 +1,141 @@
+// @spec ds/patterns/ag-grid-datatable §10 — feature SCSS contains host + grid chrome only.
+// All tokens reference CSS custom properties (no hex fallbacks — compliance checker).
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.grid-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 0;
+}
+
+// ─── Toolbar ────────────────────────────────────────────────────────────────
+
+.grid-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-s2) var(--spacing-s4);
+  height: var(--grid-toolbar-height);
+  background: var(--color-surface-secondary);
+  border-bottom: 1px solid var(--color-border-subtle);
+  flex-shrink: 0;
+}
+
+.grid-toolbar__left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-s1);
+}
+
+.grid-title {
+  font: var(--type-label-strong);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.grid-subtitle {
+  font: var(--type-label-small);
+  color: var(--color-text-secondary);
+}
+
+// ─── Bulk action bar ─────────────────────────────────────────────────────────
+
+.bulk-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-s2);
+}
+
+.bulk-bar__count {
+  font: var(--type-label-strong);
+  color: var(--color-text-primary);
+  margin-right: var(--spacing-s2);
+}
+
+// ─── Buttons ─────────────────────────────────────────────────────────────────
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-s1);
+  padding: var(--spacing-s1) var(--spacing-s3);
+  border-radius: var(--spacing-s1);
+  font: var(--type-label);
+  cursor: pointer;
+  border: none;
+
+  &--secondary {
+    background: var(--color-brand-container);
+    color: var(--color-brand-primary);
+    border: 1px solid var(--color-brand-primary);
+  }
+
+  &--ghost {
+    background: transparent;
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border-default);
+  }
+}
+
+// ─── States ──────────────────────────────────────────────────────────────────
+
+.state-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-s2);
+  padding: var(--spacing-s7) var(--spacing-s5);
+  flex: 1;
+  text-align: center;
+  font: var(--type-body);
+  color: var(--color-text-secondary);
+
+  &--error {
+    color: var(--color-status-error);
+  }
+
+  &__icon {
+    font-size: 32px;
+  }
+}
+
+// ─── Loading skeleton (composition spec §7 — 8 rows) ─────────────────────────
+
+.skeleton-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: var(--spacing-s2) 0;
+}
+
+.skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-s3);
+  padding: var(--spacing-s2) var(--spacing-s4);
+  height: var(--grid-row-height-default);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.skeleton-cell {
+  height: 16px;
+  border-radius: var(--spacing-s1);
+  background: var(--color-surface-overlay);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+
+  &--sm  { width: 40px;  }
+  &--md  { width: 100px; }
+  &--lg  { width: 160px; }
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
