@@ -538,6 +538,62 @@
       ],
       "requiredBy": [],
       "deprecatedBy": null
+    },
+    {
+      "specId": "ds/patterns/dashboard",
+      "version": "1.0.0",
+      "status": "active",
+      "path": "specs/ds/patterns/dashboard.spec.md",
+      "dependencies": ["ds/tokens/semantic", "ds/components/component-map"]
+    },
+    {
+      "specId": "ds/templates/deal-pipeline-page",
+      "version": "1.0.0",
+      "status": "active",
+      "path": "specs/ds/templates/deal-pipeline-page.spec.md",
+      "dependencies": ["ds/patterns/dashboard", "ds/patterns/ag-grid-datatable"]
+    },
+    {
+      "specId": "domain/patterns/dashboard/coverage-banker",
+      "version": "1.0.0",
+      "status": "active",
+      "path": "specs/domain/patterns/dashboard/coverage-banker.spec.md",
+      "dependencies": ["ds/patterns/dashboard", "ds/templates/deal-pipeline-page"]
+    },
+    {
+      "specId": "domain/patterns/dashboard/syndicate-banker",
+      "version": "1.0.0",
+      "status": "active",
+      "path": "specs/domain/patterns/dashboard/syndicate-banker.spec.md",
+      "dependencies": ["ds/patterns/dashboard", "ds/templates/deal-pipeline-page"]
+    },
+    {
+      "specId": "domain/patterns/dashboard/business-execution-lead",
+      "version": "1.0.0",
+      "status": "active",
+      "path": "specs/domain/patterns/dashboard/business-execution-lead.spec.md",
+      "dependencies": ["ds/patterns/dashboard", "ds/templates/deal-pipeline-page"]
+    },
+    {
+      "specId": "domain/patterns/dashboard/conflict-clearance",
+      "version": "1.0.0",
+      "status": "active",
+      "path": "specs/domain/patterns/dashboard/conflict-clearance.spec.md",
+      "dependencies": ["ds/patterns/dashboard", "ds/templates/deal-pipeline-page"]
+    },
+    {
+      "specId": "domain/patterns/dashboard/compliance-viewer",
+      "version": "1.0.0",
+      "status": "active",
+      "path": "specs/domain/patterns/dashboard/compliance-viewer.spec.md",
+      "dependencies": ["ds/patterns/dashboard", "ds/templates/deal-pipeline-page"]
+    },
+    {
+      "specId": "domain/patterns/dashboard/deal-origination-banker",
+      "version": "1.0.0",
+      "status": "active",
+      "path": "specs/domain/patterns/dashboard/deal-origination-banker.spec.md",
+      "dependencies": ["ds/patterns/dashboard", "ds/templates/deal-pipeline-page"]
     }
   ],
   "namespaces": {
