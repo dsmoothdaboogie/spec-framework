@@ -268,6 +268,45 @@ const UNIVERSAL_PASSES = [
       return { status: 'pass' };
     },
   },
+  {
+    id: 'primitive-imports',
+    label: 'Grid primitives reference registered entries',
+    run(bundle) {
+      const primPath = path.join(SPEC_ROOT, 'tools/registry/primitives.json');
+      if (!fs.existsSync(primPath)) return { status: 'skip', evidence: 'primitives.json not found' };
+
+      let primData;
+      try { primData = JSON.parse(fs.readFileSync(primPath, 'utf-8')); } catch { return { status: 'skip', evidence: 'primitives.json parse error' }; }
+
+      const knownExports = new Set();
+      for (const cat of Object.values(primData.primitives || {})) {
+        for (const p of cat) {
+          if (p.exportName) knownExports.add(p.exportName);
+        }
+      }
+
+      const ts = bundle.files.ts.content;
+      const unknowns = [];
+
+      // Check cellRenderer references
+      const rendererPattern = /cellRenderer\s*:\s*(\w+Component)\b/g;
+      let m;
+      while ((m = rendererPattern.exec(ts)) !== null) {
+        if (!knownExports.has(m[1])) unknowns.push(m[1]);
+      }
+
+      // Check DS formatter references
+      const formatterPattern = /valueFormatter\s*:\s*(DS_\w+)\b/g;
+      while ((m = formatterPattern.exec(ts)) !== null) {
+        if (!knownExports.has(m[1])) unknowns.push(m[1]);
+      }
+
+      if (unknowns.length) {
+        return { status: 'fail', evidence: `Unregistered primitive(s): ${unknowns.join(', ')}` };
+      }
+      return { status: 'pass' };
+    },
+  },
 ];
 
 function runUniversalPasses(bundle) {
@@ -520,6 +559,13 @@ const CHECKLIST_RULES = [
       if (/input[<(]|output[<(]/.test(ts)) return { status: 'pass' };
       return { status: 'fail', evidence: 'No input() or output() declarations found' };
     },
+  },
+
+  // ── Primitive registry ──────────────────────────────────────────────────
+  {
+    id: 'registered-primitives',
+    pattern: /registered\s+primitive|primitive\s+registry|primitives\.json/i,
+    universalPassId: 'primitive-imports',
   },
 ];
 
