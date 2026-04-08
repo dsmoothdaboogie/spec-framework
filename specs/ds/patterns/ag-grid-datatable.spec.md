@@ -380,3 +380,35 @@ Apply `ds-ag-theme` class to `ag-grid-angular`. Never apply AG Grid built-in the
 - `ds/patterns/ag-grid-editable` — future
 - AG Grid v31: https://ag-grid.com/angular-data-grid/
 - Angular Material v17: https://material.angular.io
+
+---
+
+## 15. DS Adapter — mt-datatable Equivalents
+
+> **Agent instruction:** Check the project's `package.json` for `@citi-icg-172888/ng-icgds/datatable`. If present, use mt-datatable types. If only `ag-grid-community` is present, use AG Grid types directly. The primitives registry `adapterAliases` field in `tools/registry/primitives.json` contains the complete mapping.
+
+The `mt-datatable` component is the design system's wrapper around AG Grid. Same engine, different type names and template tag. When generating code for repos that use mt-datatable:
+
+| AG Grid (this spec) | mt-datatable equivalent |
+|---|---|
+| `ColDef` | `MtColumnDefs` |
+| `GridOptions` | `MtGridOptions` |
+| `GridApi` | `MtGridOptions` (accessed via grid instance) |
+| `<ag-grid-angular>` | `<mt-datatable>` |
+| `import { ... } from 'ag-grid-community'` | `import { ... } from '@citi-icg-172888/ng-icgds/datatable'` |
+| `import { AgGridAngular } from 'ag-grid-angular'` | `import { MtDatatableModule } from '@citi-icg-172888/ng-icgds/datatable'` |
+
+### What stays the same
+
+- All column type conventions from §6 (BASE_COL, DS_CHECKBOX_COL, formatters, renderers)
+- All cell renderer components and their `cellRendererParams` interfaces
+- Grid options defaults from §5 (rowHeight, headerHeight, etc.)
+- Loading, empty, and error state patterns from §8–§9
+- All semantic token references from §3
+
+### What changes
+
+- Type imports: `ColDef` → `MtColumnDefs`, `GridOptions` → `MtGridOptions`
+- Template tag: `<ag-grid-angular>` → `<mt-datatable>`
+- Module import: `AgGridAngular` → `MtDatatableModule`
+- Some grid API access patterns may differ — consult the mt-datatable wrapper docs
