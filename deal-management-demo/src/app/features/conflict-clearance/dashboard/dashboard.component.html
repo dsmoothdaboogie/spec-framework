@@ -1,0 +1,21 @@
+<div class="dashboard">
+  @if (store.isLoading()) {
+    <div class="dashboard__loading">Loading dashboard...</div>
+  } @else if (store.hasError()) {
+    <div class="dashboard__error">Unable to load dashboard data.</div>
+  } @else {
+    <div class="dashboard__row dashboard__row--metrics">
+      <app-metric-card label="Pending Reviews" [value]="store.pendingConflicts()" format="number" />
+      <app-metric-card label="Flagged Conflicts" [value]="store.flaggedConflicts()" format="number" />
+      <app-metric-card label="Total Deals" [value]="store.totalDealCount()" format="number" />
+      <app-metric-card label="Active Deals" [value]="store.activeDealCount()" format="number" />
+    </div>
+    <div class="dashboard__row dashboard__row--two-col">
+      <app-status-distribution title="Conflict Status Distribution" [segments]="store.dealsByConflictStatus()" />
+      <app-alert-list title="Conflict Alerts" [items]="store.alerts()" [maxItems]="5" />
+    </div>
+    <div class="dashboard__row">
+      <app-activity-feed title="Recent Conflict Activity" [items]="store.activityFeed()" [maxItems]="8" />
+    </div>
+  }
+</div>
