@@ -525,59 +525,155 @@
     },
     {
       "specId": "ds/patterns/dashboard",
+      "title": "Pattern Spec: Dashboard",
       "version": "1.0.0",
       "status": "active",
+      "specType": "pattern",
+      "layer": 2,
+      "owner": "UI Architecture",
       "path": "specs/ds/patterns/dashboard.spec.md",
-      "dependencies": ["ds/tokens/semantic", "ds/components/component-map"]
+      "tags": ["ds", "patterns", "dashboard", "widgets"],
+      "appliesTo": ["Angular 19+"],
+      "lastReviewed": "2026-04-08",
+      "dependsOn": [
+        { "specId": "ds/tokens/semantic", "version": "1.0.0" },
+        { "specId": "ds/components/component-map", "version": "1.0.0" }
+      ],
+      "requiredBy": [],
+      "deprecatedBy": null
     },
     {
       "specId": "ds/templates/deal-pipeline-page",
+      "title": "Template Spec: Deal Pipeline Page",
       "version": "1.0.0",
       "status": "active",
+      "specType": "template",
+      "layer": 2,
+      "owner": "UI Architecture",
       "path": "specs/ds/templates/deal-pipeline-page.spec.md",
-      "dependencies": ["ds/patterns/dashboard", "ds/patterns/ag-grid-datatable"]
+      "tags": ["ds", "templates", "page", "navigation", "dashboard"],
+      "appliesTo": ["Angular 19+"],
+      "lastReviewed": "2026-04-08",
+      "dependsOn": [
+        { "specId": "ds/patterns/dashboard", "version": "1.0.0" },
+        { "specId": "ds/patterns/ag-grid-datatable", "version": "2.0.0" }
+      ],
+      "requiredBy": [],
+      "deprecatedBy": null
     },
     {
       "specId": "domain/patterns/dashboard/coverage-banker",
+      "title": "Composition Spec: Dashboard — Coverage Banker",
       "version": "1.0.0",
       "status": "active",
+      "specType": "composition",
+      "layer": 3,
+      "owner": "UI Architecture",
       "path": "specs/domain/patterns/dashboard/coverage-banker.spec.md",
-      "dependencies": ["ds/patterns/dashboard", "ds/templates/deal-pipeline-page"]
+      "tags": ["domain", "dashboard", "coverage-banker", "composition"],
+      "appliesTo": ["Angular 19+"],
+      "lastReviewed": "2026-04-08",
+      "dependsOn": [
+        { "specId": "ds/patterns/dashboard", "version": "1.0.0" },
+        { "specId": "ds/templates/deal-pipeline-page", "version": "1.0.0" }
+      ],
+      "requiredBy": [],
+      "deprecatedBy": null
     },
     {
       "specId": "domain/patterns/dashboard/syndicate-banker",
+      "title": "Composition Spec: Dashboard — Syndicate Banker",
       "version": "1.0.0",
       "status": "active",
+      "specType": "composition",
+      "layer": 3,
+      "owner": "UI Architecture",
       "path": "specs/domain/patterns/dashboard/syndicate-banker.spec.md",
-      "dependencies": ["ds/patterns/dashboard", "ds/templates/deal-pipeline-page"]
+      "tags": ["domain", "dashboard", "syndicate-banker", "composition"],
+      "appliesTo": ["Angular 19+"],
+      "lastReviewed": "2026-04-08",
+      "dependsOn": [
+        { "specId": "ds/patterns/dashboard", "version": "1.0.0" },
+        { "specId": "ds/templates/deal-pipeline-page", "version": "1.0.0" }
+      ],
+      "requiredBy": [],
+      "deprecatedBy": null
     },
     {
       "specId": "domain/patterns/dashboard/business-execution-lead",
+      "title": "Composition Spec: Dashboard — Business Execution Lead",
       "version": "1.0.0",
       "status": "active",
+      "specType": "composition",
+      "layer": 3,
+      "owner": "UI Architecture",
       "path": "specs/domain/patterns/dashboard/business-execution-lead.spec.md",
-      "dependencies": ["ds/patterns/dashboard", "ds/templates/deal-pipeline-page"]
+      "tags": ["domain", "dashboard", "business-execution-lead", "composition"],
+      "appliesTo": ["Angular 19+"],
+      "lastReviewed": "2026-04-08",
+      "dependsOn": [
+        { "specId": "ds/patterns/dashboard", "version": "1.0.0" },
+        { "specId": "ds/templates/deal-pipeline-page", "version": "1.0.0" }
+      ],
+      "requiredBy": [],
+      "deprecatedBy": null
     },
     {
       "specId": "domain/patterns/dashboard/conflict-clearance",
+      "title": "Composition Spec: Dashboard — Conflict Clearance",
       "version": "1.0.0",
       "status": "active",
+      "specType": "composition",
+      "layer": 3,
+      "owner": "UI Architecture / Legal",
       "path": "specs/domain/patterns/dashboard/conflict-clearance.spec.md",
-      "dependencies": ["ds/patterns/dashboard", "ds/templates/deal-pipeline-page"]
+      "tags": ["domain", "dashboard", "conflict-clearance", "composition"],
+      "appliesTo": ["Angular 19+"],
+      "lastReviewed": "2026-04-08",
+      "dependsOn": [
+        { "specId": "ds/patterns/dashboard", "version": "1.0.0" },
+        { "specId": "ds/templates/deal-pipeline-page", "version": "1.0.0" }
+      ],
+      "requiredBy": [],
+      "deprecatedBy": null
     },
     {
       "specId": "domain/patterns/dashboard/compliance-viewer",
+      "title": "Composition Spec: Dashboard — Compliance Viewer",
       "version": "1.0.0",
       "status": "active",
+      "specType": "composition",
+      "layer": 3,
+      "owner": "UI Architecture / Compliance",
       "path": "specs/domain/patterns/dashboard/compliance-viewer.spec.md",
-      "dependencies": ["ds/patterns/dashboard", "ds/templates/deal-pipeline-page"]
+      "tags": ["domain", "dashboard", "compliance-viewer", "composition"],
+      "appliesTo": ["Angular 19+"],
+      "lastReviewed": "2026-04-08",
+      "dependsOn": [
+        { "specId": "ds/patterns/dashboard", "version": "1.0.0" },
+        { "specId": "ds/templates/deal-pipeline-page", "version": "1.0.0" }
+      ],
+      "requiredBy": [],
+      "deprecatedBy": null
     },
     {
       "specId": "domain/patterns/dashboard/deal-origination-banker",
+      "title": "Composition Spec: Dashboard — Deal Origination Banker",
       "version": "1.0.0",
       "status": "active",
+      "specType": "composition",
+      "layer": 3,
+      "owner": "UI Architecture",
       "path": "specs/domain/patterns/dashboard/deal-origination-banker.spec.md",
-      "dependencies": ["ds/patterns/dashboard", "ds/templates/deal-pipeline-page"]
+      "tags": ["domain", "dashboard", "deal-origination-banker", "composition"],
+      "appliesTo": ["Angular 19+"],
+      "lastReviewed": "2026-04-08",
+      "dependsOn": [
+        { "specId": "ds/patterns/dashboard", "version": "1.0.0" },
+        { "specId": "ds/templates/deal-pipeline-page", "version": "1.0.0" }
+      ],
+      "requiredBy": [],
+      "deprecatedBy": null
     }
   ],
   "namespaces": {
