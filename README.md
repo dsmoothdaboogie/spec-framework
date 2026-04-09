@@ -139,22 +139,224 @@ When implementing a feature, agents read specs bottom-up: tokens → components 
 
 ---
 
-## Contributing a spec
+## Guide: Using a spec to build something
 
-See [GOVERNANCE.md](docs/GOVERNANCE.md) for the full process.
+You need to build a UI component (a grid, a dashboard, a page) and want to know if there's already a spec for it.
 
-Short version:
+### Step 1: Search the registry
 
-1. Choose the right authoring guide from `docs/` based on what you're writing
-2. Copy the template, fill it in, run the linter
-3. Add an entry to `registry.json`
-4. Open a PR — UI Architecture reviews before merging to `active`
+```bash
+# Search by keyword
+node tools/registry/registry-cli.js search "data table"
+node tools/registry/registry-cli.js search "dashboard"
 
-| What you're writing | Template to use |
+# Browse all active specs
+node tools/registry/registry-cli.js list --status active
+
+# Or use the visual explorer
+node tools/explorer/server.js
+# Open http://localhost:3000 in your browser
+```
+
+If you find a spec with `status: active`, use it. If no spec exists, see "Creating a new spec" below.
+
+### Step 2: Read the spec and its dependencies
+
+Every spec tells you what to read first. Look for the **Agent instruction** block in section 1 — it lists the reading order.
+
+**Example:** To build a Coverage Banker grid, the composition spec says read these in order:
+
+```
+1. fw/angular/component-patterns     ← Angular conventions (signals, OnPush, etc.)
+2. ds/tokens/semantic                 ← Token names to use in SCSS
+3. ds/components/component-map        ← Component names to use in templates
+4. ds/patterns/ag-grid-datatable      ← Base grid pattern (structure, states, options)
+5. This composition spec              ← What's different for this persona
+```
+
+The base pattern spec tells you **how** the pattern works. The composition spec tells you **what** this specific persona sees (which columns, which widgets, which actions).
+
+### Step 3: Generate the code
+
+**Option A — With an AI agent (recommended):**
+
+If you have Claude, Copilot, or another AI agent configured with the `CLAUDE.md` instructions, just ask it:
+
+```
+Build the Coverage Banker dashboard from spec domain/patterns/dashboard/coverage-banker
+```
+
+The agent will:
+- Read all dependency specs in order
+- Generate the component files
+- Stamp `@spec` headers for traceability
+- Output a compliance report showing what it checked
+
+**Option B — Manually:**
+
+Follow the spec section by section. The spec is designed to be read in order:
+
+| Section | What to do |
 |---|---|
-| Organism-level UI pattern | `docs/SPEC.template.md` |
-| Domain composition (persona-specific) | `docs/COMPOSITION-SPEC.template.md` |
-| User persona | `docs/PERSONA.template.md` |
+| Scope | Confirm your use case is covered |
+| Tokens | Note every token — use these in your SCSS, never raw values |
+| Structure | Create the file scaffold |
+| Configuration | Copy the config object verbatim |
+| Columns / Widgets | Implement in the exact order listed |
+| States | Implement loading, empty, and error — all three are required |
+| Checklist | Self-verify every item before submitting |
+
+### Step 4: Verify compliance
+
+```bash
+# Check your generated code against the spec
+node tools/ci/spec-compliance-check.js --changed-only
+
+# Expected output: ✓ pass for each automated check
+# ◌ manual items = things you need to verify by eye
+```
+
+Fix any failures, then commit. The CI pipeline will run the same checks on your PR.
+
+### Step 5: Commit with @spec headers
+
+Your generated files should have a provenance header so CI can trace them back:
+
+```typescript
+// @spec    ds/patterns/ag-grid-datatable v2.0.0
+// @persona domain/patterns/ag-grid-datatable/coverage-banker v1.0.0
+```
+
+This is how `spec-header-check` knows which spec your code was built from — and can flag it if the spec gets a new version later.
+
+---
+
+## Guide: Creating a new spec
+
+You need a pattern that doesn't have a spec yet, or you need a new persona-specific composition of an existing pattern.
+
+### First: figure out what kind of spec you need
+
+| I want to... | Spec type | Template | Where it goes |
+|---|---|---|---|
+| Define a new reusable UI pattern (grid, dashboard, form) | Pattern spec | `docs/SPEC.template.md` | `specs/ds/patterns/` |
+| Customize an existing pattern for a specific persona | Composition spec | `docs/COMPOSITION-SPEC.template.md` | `specs/domain/patterns/{pattern}/{persona}.spec.md` |
+| Define a page layout that combines patterns | Template spec | `docs/SPEC.template.md` | `specs/ds/templates/` |
+| Define a user persona | Persona doc | `docs/PERSONA.template.md` | `specs/domain/personas/` |
+
+**Most of the time, you're writing a composition spec.** The base patterns (`ag-grid-datatable`, `dashboard`) already exist. You just need to define the delta for your persona — which columns, which widgets, which actions.
+
+### Step 1: Copy the right template
+
+```bash
+# For a new composition spec (most common)
+cp docs/COMPOSITION-SPEC.template.md specs/domain/patterns/dashboard/my-persona.spec.md
+
+# For a new base pattern
+cp docs/SPEC.template.md specs/ds/patterns/my-pattern.spec.md
+```
+
+### Step 2: Fill in the frontmatter
+
+Every spec starts with metadata. Fill in these fields:
+
+```markdown
+**spec-id:** `domain/patterns/dashboard/my-persona`
+**version:** `1.0.0`
+**status:** `draft`          <!-- start as draft, promote to active after review -->
+**owner:** Your Team Name
+**base-pattern:** `ds/patterns/dashboard` v1.0.0    <!-- composition specs only -->
+**persona:** `domain/personas/my-persona` v1.0.0     <!-- composition specs only -->
+```
+
+### Step 3: Write the spec sections
+
+**For a composition spec** (persona-specific delta):
+
+| Section | What to write | Tips |
+|---|---|---|
+| Intent | 2-3 sentences: who is this for, what do they care about | Include the reading order for agents |
+| Columns / Widgets | Table listing every column or widget with params | Order is authoritative — agents follow it exactly |
+| Filters | Which columns are filterable, with defaults | |
+| Row / Bulk actions | What actions are available | Be explicit about what's absent, not just what's present |
+| States | Loading, empty, error — customize messages | All three are required |
+| Checklist | Verification items for agents | Each `- [ ]` item becomes a check the agent runs |
+
+**For a base pattern spec** (new reusable pattern):
+
+| Section | What to write | Tips |
+|---|---|---|
+| Intent + Scope | What this covers and doesn't cover | Link to sibling specs for out-of-scope items |
+| Tokens | Every DS token the pattern uses | Agents will never use raw values — list everything |
+| Structure | File layout and required inputs/outputs | |
+| Configuration | The canonical config object | Agents copy this verbatim |
+| Variants | Different modes (client-side, server-side, etc.) | |
+| States | Loading, empty, error contracts | |
+| Checklist | Agent verification items | This drives the compliance checker |
+
+### Step 4: Lint your spec
+
+```bash
+node tools/linter/spec-lint.js specs/domain/patterns/dashboard/my-persona.spec.md
+```
+
+Fix any structural issues the linter flags (missing sections, bad frontmatter, etc.).
+
+### Step 5: Register it
+
+Add an entry to `tools/registry/registry.json`:
+
+```json
+{
+  "spec-id": "domain/patterns/dashboard/my-persona",
+  "version": "1.0.0",
+  "status": "draft",
+  "path": "specs/domain/patterns/dashboard/my-persona.spec.md",
+  "dependencies": ["ds/patterns/dashboard", "ds/templates/deal-pipeline-page"]
+}
+```
+
+Or let the sync tool do it:
+
+```bash
+node tools/registry/registry-sync.js
+```
+
+### Step 6: Test it with an agent
+
+Before promoting to `active`, verify that an agent can actually generate correct code from your spec:
+
+```bash
+# Ask your AI agent to generate code from the spec
+# Then run the compliance checker on the output
+node tools/ci/spec-compliance-check.js --changed-only
+```
+
+If the agent produces compliant code, your spec is clear enough. If not, the compliance report tells you what was ambiguous or missing.
+
+### Step 7: Open a PR
+
+- Set `status: draft` for initial review
+- UI Architecture reviews the spec structure and completeness
+- After approval, promote to `status: active`
+- The `spec-active-gate` CI check ensures all active specs pass linting
+
+### Quick reference: what makes a good spec
+
+| Do | Don't |
+|---|---|
+| Be explicit about what's **absent** ("no checkbox column") | Assume agents will infer what's missing |
+| List columns/widgets in exact display order | Leave ordering ambiguous |
+| Specify null/empty rendering ("—" for null dates) | Let agents guess placeholder text |
+| Include a checklist with verifiable items | Write checklist items that can't be checked |
+| Reference tokens by name, never raw values | Use hex colors or px values in spec |
+| Link to dependency specs in the reading order | Assume agents know the dependency chain |
+
+---
+
+## Contributing
+
+See [GOVERNANCE.md](docs/GOVERNANCE.md) for the full lifecycle, versioning, and review process.
 
 ---
 
