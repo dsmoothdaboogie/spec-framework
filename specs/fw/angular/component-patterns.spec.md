@@ -45,7 +45,6 @@ This spec defines the structural contract for all Angular components generated i
 └── [feature].component.scss     ← styles (semantic tokens only)
 └── [feature].component.spec.ts  ← unit tests
 └── [feature].types.ts           ← interfaces, types, enums for this component
-└── [feature].component.stories.ts ← Storybook stories (required for DS components)
 ```
 
 ### 3.2 Required decorator shape

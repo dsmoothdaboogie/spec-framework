@@ -151,5 +151,4 @@ export class FeaturePatternComponent {
 ## 13. Related Specs & Resources
 
 - `[spec-id]` — [description]
-- DS Storybook: `[internal-url]/[component]`
 - Library docs: [url]

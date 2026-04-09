@@ -370,58 +370,6 @@
       }
     },
     {
-      "specId": "ds/storybook/standards",
-      "title": "Component Spec: Storybook Standards",
-      "version": "1.0.0",
-      "status": "active",
-      "owner": "UI Architecture",
-      "path": "specs/ds/storybook/standards.spec.md",
-      "tags": [
-        "ds",
-        "storybook",
-        "standards"
-      ],
-      "appliesTo": [
-        "Storybook 8+",
-        "Angular 19+"
-      ],
-      "lastReviewed": "2026-03-20",
-      "deprecatedBy": null,
-      "_meta": {
-        "adapter": null,
-        "tokenAdapter": null,
-        "componentAdapter": null,
-        "agentInstructions": [
-          "When generating a component that has a corresponding spec, generate a `.stories.ts` file alongside it. The story file must carry the `@spec` header. Required stories are defined in §4. Do not generate empty or placeholder stories."
-        ],
-        "sections": [
-          "1. Intent",
-          "2. Scope",
-          "3. Story file structure",
-          "4. Required stories per component type",
-          "5. Story title taxonomy",
-          "6. Args and argTypes conventions",
-          "7. Spec linkage in stories",
-          "8. DS swap note",
-          "9. Agent checklist",
-          "10. Versioning & Change Log"
-        ],
-        "checklist": [
-          "`@spec` header present in story file",
-          "`title` follows taxonomy from §5",
-          "`tags: ['autodocs']` present",
-          "Component description includes spec reference per §7",
-          "All required stories present per §4",
-          "`argTypes` documented for every input",
-          "All outputs wired as `action`",
-          "No direct Material imports in story file"
-        ],
-        "pathMismatch": false,
-        "wordCount": 722,
-        "lastModified": "2026-03-25"
-      }
-    },
-    {
       "specId": "ds/tokens/semantic",
       "title": "Token Spec: Semantic Design Tokens",
       "version": "1.0.0",
