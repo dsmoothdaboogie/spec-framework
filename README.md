@@ -47,7 +47,6 @@ spec-framework/
 │   │   ├── components/            # Component adapter — semantic names to library implementations
 │   │   ├── patterns/              # Organism-level UI patterns (ag-grid, etc.)
 │   │   ├── templates/             # Page structure contracts composing organisms into layouts
-│   │   ├── storybook/             # Storybook authoring standards
 │   │   └── layout/                # App shell and page chrome specs (reserved)
 │   ├── domain/                    # Business domain specs
 │   │   ├── personas/              # User persona definitions (who uses what)
@@ -101,7 +100,6 @@ spec-framework/
 | `ds/components` | Component adapter — maps semantic component names to library implementations |
 | `ds/patterns` | Organism-level specs — reusable UI patterns any team can use |
 | `ds/templates` | Template specs — page structure contracts (atomic design: Templates) |
-| `ds/storybook` | Storybook authoring standards |
 | `ds/layout` | App shell and page chrome specs (reserved) |
 | `domain/personas` | User persona definitions — who uses the system and what they need |
 | `domain/entitlements` | Entitlement and permission contracts |

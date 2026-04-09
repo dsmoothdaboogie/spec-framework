@@ -28,7 +28,7 @@ Defines the minimum required test coverage and testing patterns for all generate
 
 ### Out of scope
 - E2E / Playwright tests → `fw/testing/e2e-standards` (reserved)
-- Visual regression tests → `ds/storybook/standards`
+- Visual regression tests → no spec yet
 - API contract / integration tests → backend testing standards (not in spec framework)
 - Performance benchmarks → no spec yet
 

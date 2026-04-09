@@ -176,22 +176,6 @@
       "deprecatedBy": null
     },
     {
-      "specId": "ds/storybook/standards",
-      "title": "Component Spec: Storybook Standards",
-      "version": "1.0.0",
-      "status": "active",
-      "specType": "pattern",
-      "layer": 2,
-      "owner": "UI Architecture",
-      "path": "specs/ds/storybook/standards.spec.md",
-      "tags": ["ds", "storybook", "standards"],
-      "appliesTo": ["Storybook 8+", "Angular 19+"],
-      "lastReviewed": "2026-03-20",
-      "dependsOn": [],
-      "requiredBy": [],
-      "deprecatedBy": null
-    },
-    {
       "specId": "fw/angular/component-patterns",
       "title": "Framework Spec: Angular Component Patterns",
       "version": "1.0.0",
