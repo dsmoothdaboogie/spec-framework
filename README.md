@@ -460,6 +460,82 @@ node ../spec-framework/tools/ci/spec-compliance-check.js --spec-root ../spec-fra
 
 See [WORKFLOW-GUIDE.md](docs/WORKFLOW-GUIDE.md) for GitHub Actions CI setup.
 
+### How `spec-compliance-check` works
+
+The compliance checker reads your actual source code — it does not trust agent self-reported compliance. Here's the exact process:
+
+**Step 1: Find components to check**
+
+The checker walks your source tree looking for `.ts` files that contain an `@spec` header comment:
+
+```typescript
+// @spec ds/patterns/ag-grid-datatable v2.0.0
+// @persona domain/patterns/ag-grid-datatable/coverage-banker v1.0.0
+```
+
+Only `.ts` files are scanned for discovery. The `.ts` file is the entry point — if a component has `@spec` headers in its `.html` or `.scss` files but not in the `.ts`, it won't be found.
+
+With `--changed-only`, it skips the full tree walk and only checks `.ts` files that changed in the last git commit (`git diff --name-only HEAD~1 HEAD`).
+
+**Step 2: Bundle sibling files**
+
+For each `.ts` file with an `@spec` header, the checker finds its sibling files by Angular naming convention:
+
+```
+deal-grid.component.ts     ← entry point (discovered in step 1)
+deal-grid.component.html   ← bundled for template checks
+deal-grid.component.scss   ← bundled for style checks
+```
+
+All three files are read and analyzed together as a single "component bundle."
+
+**Step 3: Run universal passes (Layer 1)**
+
+10 automated checks run against every component bundle, regardless of which spec it references. These enforce Angular conventions from `fw/angular/component-patterns`:
+
+| Check | Scans | What it looks for |
+|---|---|---|
+| OnPush | `.ts` | `ChangeDetectionStrategy.OnPush` in `@Component` |
+| Standalone | `.ts` | `standalone: true` |
+| Signal inputs | `.ts` | No `@Input()` decorators — use `input()` |
+| Signal outputs | `.ts` | No `@Output()` / `EventEmitter` — use `output()` |
+| Inject pattern | `.ts` | No constructor DI params — use `inject()` |
+| Control flow | `.html` | No `*ngIf` / `*ngFor` — use `@if` / `@for` |
+| DS imports | `.ts` | No direct `@angular/material` or `@angular/cdk` |
+| Token usage | `.scss` | No hardcoded hex colors (regex scan) |
+| State coverage | `.html` + `.ts` | Keywords for loading, empty, and error states |
+| Primitive imports | `.ts` | `cellRenderer` references exist in `primitives.json` |
+
+Each pass returns `pass`, `fail`, or `skip` (if the required file type doesn't exist).
+
+**Step 4: Run checklist rules (Layer 2)**
+
+This layer checks spec-specific requirements:
+
+1. Reads the `@spec` header to get the spec ID (e.g., `ds/patterns/ag-grid-datatable`)
+2. Looks up that spec in `registry.json` (via `--spec-root`) to find the spec file path
+3. Reads the spec's markdown and parses the `## Agent Checklist` section
+4. For each `- [ ]` checklist item, matches the item text against a library of 26 regex-based rules
+5. Matched items run a check function against the code → `pass` or `fail`
+6. Unmatched items are reported as `manual` — they need human review because the checker can't verify them with regex (e.g., "Persona definition read — workflow context understood")
+
+**Step 5: Report results**
+
+Three output formats:
+
+- `pretty` (default) — colored terminal output with pass/fail/manual counts per file
+- `github` — `::error::` and `::warning::` annotations for GitHub Actions
+- `json` — machine-readable for custom integrations
+
+Exit code `0` means all automated checks passed. Exit code `1` means at least one `fail`. Manual items do not count as failures.
+
+**What it does NOT check:**
+
+- Runtime behavior (it's static analysis only — regex, not AST parsing)
+- Files without `@spec` headers (invisible to the checker)
+- Whether the code actually renders correctly in a browser
+- Checklist items that can't be verified by pattern matching (reported as `manual`)
+
 ---
 
 ## Maintained by
