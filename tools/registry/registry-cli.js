@@ -96,16 +96,20 @@ switch (command) {
   }
 
   case 'search': {
-    const query = args.join(' ').toLowerCase();
-    if (!query) { console.error('Usage: search <query>'); process.exit(1); }
+    const queryStr = args.join(' ').toLowerCase();
+    if (!queryStr) { console.error('Usage: search <query>'); process.exit(1); }
+    const queryWords = queryStr.split(/\s+/).filter(Boolean);
 
-    const results = registry.specs.filter(s =>
-      s.title.toLowerCase().includes(query) ||
-      s.specId.toLowerCase().includes(query) ||
-      s.tags.some(t => t.toLowerCase().includes(query))
-    );
+    const results = registry.specs.filter(s => {
+      const haystack = [
+        s.title || '',
+        s.specId || '',
+        ...(s.tags || []),
+      ].join(' ').toLowerCase();
+      return queryWords.every(word => haystack.includes(word));
+    });
 
-    console.log(`\n${BOLD}Search: "${query}"${RESET} — ${results.length} result(s)\n`);
+    console.log(`\n${BOLD}Search: "${queryStr}"${RESET} — ${results.length} result(s)\n`);
     if (!results.length) {
       console.log('No specs found. Consider creating one with the SPEC.template.md.\n');
     } else {
