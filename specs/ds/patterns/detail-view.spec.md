@@ -40,36 +40,27 @@ This spec defines the standard implementation pattern for entity detail views �
 
 ## 3. Design System Tokens
 
-All visual properties must use semantic tokens. Never use raw values.
+All visual properties must use CSS custom properties from `ds/tokens/semantic`. Never use raw hex, px, or font values.
 
-```scss
-@use '@company/spec-tokens/color'    as color;
-@use '@company/spec-tokens/type'     as type;
-@use '@company/spec-tokens/spacing'  as spacing;
-@use '@company/spec-tokens/layout'   as layout;
-@use '@company/spec-tokens/elevation' as elevation;
-```
-
-| Property | Semantic token | Notes |
+| Property | CSS Custom Property | Notes |
 |---|---|---|
-| Page background | `color.$surface-primary` | Full-width behind all sections |
-| Section card background | `color.$surface-secondary` | Each field group is a card |
-| Section card elevation | `elevation.$level-1` | Subtle lift above page bg |
-| Section card border-radius | `layout.$radius-m` | Consistent with DS card pattern |
-| Header background | `color.$surface-primary` | Flush with page |
-| Entity title | `type.$heading-lg` + `color.$text-primary` | |
-| Entity subtitle | `type.$body-md` + `color.$text-secondary` | |
-| Metric value | `type.$heading-md` + `color.$text-primary` | |
-| Metric label | `type.$label-sm` + `color.$text-tertiary` | |
-| Field label | `type.$label-sm` + `color.$text-tertiary` | Left-aligned |
-| Field value | `type.$body-md` + `color.$text-primary` | Left-aligned |
-| Field null value | `type.$body-md` + `color.$text-disabled` | Renders "—" |
-| Section title | `type.$heading-sm` + `color.$text-primary` | |
-| Section spacing | `spacing.$s6` between sections | |
-| Field row spacing | `spacing.$s3` between label/value rows | |
-| Action bar | `color.$surface-primary` + `elevation.$level-2` | Sticky bottom on scroll |
+| Page background | `var(--color-surface-primary)` | Full-width behind all sections |
+| Section card background | `var(--color-surface-secondary)` | Each field group is a card |
+| Section card border-radius | `var(--spacing-s2)` | Consistent with DS card pattern |
+| Header background | `var(--color-surface-primary)` | Flush with page |
+| Entity title | `var(--type-label-strong)` + `var(--color-text-primary)` | |
+| Entity subtitle | `var(--type-body)` + `var(--color-text-secondary)` | |
+| Metric value | `var(--type-label-strong)` + `var(--color-text-primary)` | |
+| Metric label | `var(--type-label-small)` + `var(--color-text-secondary)` | |
+| Field label | `var(--type-label-small)` + `var(--color-text-secondary)` | Left-aligned |
+| Field value | `var(--type-body)` + `var(--color-text-primary)` | Left-aligned |
+| Field null value | `var(--type-body)` + `var(--color-text-secondary)` | Renders "—" |
+| Section title | `var(--type-label-strong)` + `var(--color-text-primary)` | |
+| Section spacing | `var(--spacing-s6)` | Between sections |
+| Field row spacing | `var(--spacing-s3)` | Between label/value rows |
+| Action bar | `var(--color-surface-primary)` | Sticky bottom on scroll |
 
-> **Agent instruction:** The "Notes" column is for context only. Always use the semantic token in generated code. Never hardcode hex, px, or rem values.
+> **Agent instruction:** Always use `var(--token-name)` in generated SCSS. See `ds/tokens/semantic` for the full token list.
 
 ---
 
@@ -237,7 +228,7 @@ interface RelatedEntityConfig {
 | `currency` | `CurrencyPipe` with DS format | Respects `fee-sensitive` / `revenue-sensitive` tags |
 | `date` | `DatePipe` with `mediumDate` | |
 | `badge` | `DsBadge` component | Uses `badgeVariantMap` from field config |
-| `link` | Router link styled as `color.$interactive-primary` | |
+| `link` | Router link styled as `var(--color-brand-primary)` | |
 | `list` | Comma-separated values, max 3 with "+N more" tooltip | |
 | `custom` | Composition spec must provide the rendering component | |
 

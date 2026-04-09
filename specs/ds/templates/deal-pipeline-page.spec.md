@@ -68,14 +68,14 @@ activeView = signal<'dashboard' | 'grid'>('dashboard');
 
 ## 5. Sub-Navigation Bar
 
-| Property | Token | Value |
+| Property | CSS Custom Property | Value |
 |---|---|---|
 | Height | — | 36px |
-| Background | `color.$surface-secondary` | Light gray |
-| Border bottom | `color.$border-subtle` | 1px solid |
-| Active tab color | `color.$brand-primary` | Blue |
-| Active tab border | `color.$brand-primary` | 2px bottom |
-| Font size | `type.$label-small` | 12px |
+| Background | `var(--color-surface-secondary)` | Light gray |
+| Border bottom | `var(--color-border-subtle)` | 1px solid |
+| Active tab color | `var(--color-brand-primary)` | Blue |
+| Active tab border | `var(--color-brand-primary)` | 2px bottom |
+| Font size | `var(--type-label-small)` | 12px |
 | Font weight (active) | — | 600 |
 
 ---

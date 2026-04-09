@@ -140,16 +140,20 @@ constructor(private service: MyService) {}
 - No direct Angular Material, AG Grid, or CDK imports in feature components
 - DS wrapper components only via `@company/ds/*`
 - No inline styles — component SCSS only
-- Semantic token imports only — no raw values
+- CSS custom properties only — no raw hex colors, px values, or font stacks
 
-### Token import paths
+### Token usage
 
 ```scss
-// These paths are always stable — never import from @angular/material
-@use '@company/spec-tokens/color'    as color;
-@use '@company/spec-tokens/type'     as type;
-@use '@company/spec-tokens/spacing'  as spacing;
-@use '@company/spec-tokens/grid'     as grid-tokens;
+// All visual properties go through CSS custom properties defined in :root
+// See ds/tokens/semantic spec for the full token list
+.my-component {
+  background: var(--color-surface-primary);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-subtle);
+  padding: var(--spacing-s4);
+  font: var(--type-label);
+}
 ```
 
 ### Cortex integration

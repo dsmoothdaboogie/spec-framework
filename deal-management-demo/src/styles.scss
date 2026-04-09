@@ -1,18 +1,63 @@
 /* ── Semantic token adapter ─────────────────────────────────────────────────
-   Maps to spec: ds/tokens/semantic v1.0.0
-   In the real DS these are @use '@company/spec-tokens/color' as color;
-   Here surfaced as CSS custom properties — semantically identical.
+   Maps to spec: ds/tokens/semantic v2.0.0
+   All tokens are CSS custom properties. Replace PLACEHOLDER values with
+   your DS values when onboarding to enterprise.
    ─────────────────────────────────────────────────────────────────────────── */
 :root {
-  --color-status-success:  #2e7d32;
-  --color-status-warning:  #e65100;
-  --color-status-error:    #c62828;
-  --color-text-primary:    #1a1a1a;
-  --color-text-secondary:  #616161;
-  --color-brand-primary:   #1565c0;
-  --color-border-subtle:   #e0e0e0;
-  --color-surface-primary: #ffffff;
-  --color-surface-raised:  #f8f9fa;
+  /* ── Surface colors ── */
+  --color-surface-primary:   #ffffff;            /* PLACEHOLDER */
+  --color-surface-secondary: #f8fafc;            /* PLACEHOLDER */
+  --color-surface-hover:     rgba(0,0,0,0.02);   /* PLACEHOLDER */
+  --color-surface-raised:    #f8f9fa;            /* PLACEHOLDER */
+  --color-surface-overlay:   rgba(0,0,0,0.04);   /* PLACEHOLDER */
+
+  /* ── Border colors ── */
+  --color-border-subtle:     #e0e0e0;            /* PLACEHOLDER */
+  --color-border-default:    #d0d5dd;            /* PLACEHOLDER */
+
+  /* ── Text colors ── */
+  --color-text-primary:      #1a1a1a;            /* PLACEHOLDER */
+  --color-text-secondary:    #616161;            /* PLACEHOLDER */
+
+  /* ── Brand colors ── */
+  --color-brand-primary:     #1565c0;            /* PLACEHOLDER */
+  --color-brand-container:   rgba(21,101,192,0.08); /* PLACEHOLDER */
+
+  /* ── Status foreground ── */
+  --color-success:           #059669;            /* PLACEHOLDER */
+  --color-warning:           #d97706;            /* PLACEHOLDER */
+  --color-error:             #dc2626;            /* PLACEHOLDER */
+  --color-info:              #2563eb;            /* PLACEHOLDER */
+  --color-neutral:           #64748b;            /* PLACEHOLDER */
+
+  /* ── Status backgrounds ── */
+  --color-success-bg:        rgba(52,211,153,0.12);  /* PLACEHOLDER */
+  --color-warning-bg:        rgba(251,191,36,0.12);  /* PLACEHOLDER */
+  --color-error-bg:          rgba(239,68,68,0.12);   /* PLACEHOLDER */
+  --color-info-bg:           rgba(59,130,246,0.12);   /* PLACEHOLDER */
+  --color-neutral-bg:        rgba(148,163,184,0.12);  /* PLACEHOLDER */
+
+  /* ── Typography ── */
+  --type-body:               400 14px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; /* PLACEHOLDER */
+  --type-label:              500 14px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;   /* PLACEHOLDER */
+  --type-label-small:        500 12px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;   /* PLACEHOLDER */
+  --type-label-strong:       700 14px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;   /* PLACEHOLDER */
+
+  /* ── Spacing scale ── */
+  --spacing-s1: 4px;   /* PLACEHOLDER */
+  --spacing-s2: 8px;   /* PLACEHOLDER */
+  --spacing-s3: 12px;  /* PLACEHOLDER */
+  --spacing-s4: 16px;  /* PLACEHOLDER */
+  --spacing-s5: 20px;  /* PLACEHOLDER */
+  --spacing-s6: 32px;  /* PLACEHOLDER */
+  --spacing-s7: 48px;  /* PLACEHOLDER */
+  --spacing-s8: 64px;  /* PLACEHOLDER */
+
+  /* ── Grid dimensions ── */
+  --grid-row-height-default: 48px;  /* PLACEHOLDER */
+  --grid-row-height-compact: 36px;  /* PLACEHOLDER */
+  --grid-header-height:      52px;  /* PLACEHOLDER */
+  --grid-toolbar-height:     56px;  /* PLACEHOLDER */
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -97,7 +142,7 @@ body {
   &--danger {
     background: #ffebee;
     border-color: #ef9a9a;
-    color: var(--color-status-error);
+    color: var(--color-error);
     &:hover { background: #ffcdd2; }
   }
 }
@@ -112,5 +157,5 @@ body {
   color: var(--color-text-secondary);
   padding: 48px;
 
-  &--error { color: var(--color-status-error); }
+  &--error { color: var(--color-error); }
 }

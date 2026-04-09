@@ -1,236 +1,226 @@
 # Token Spec: Semantic Design Tokens
 **spec-id:** `ds/tokens/semantic`
-**version:** `1.0.0`
+**version:** `2.0.0`
 **status:** `active`
 **owner:** UI Architecture
-**last-reviewed:** 2026-03-20
-**adapter:** `material-v3` <!-- change this when swapping DS -->
-**applies-to:** Angular 19+, Angular Material 17+
+**last-reviewed:** 2026-04-08
+**applies-to:** Angular 19+, any CSS-based framework
 
 ---
 
 ## 1. Intent
 
-This spec is the **single swap point** between pattern specs and the underlying component library. All pattern specs reference semantic token names defined here. This file maps those names to their current Material implementation.
+This spec is the **single swap point** between pattern specs and the underlying design system. All pattern specs reference semantic CSS custom property names defined here. This file maps those names to their current placeholder values.
 
-When your internal DS ships, only this file and `ds/components/component-map.spec.md` change. No pattern spec needs to be touched.
+When your internal DS ships, update the `:root` block in `styles.scss` with real DS values. No pattern spec, component, or composition spec needs to change.
 
-> **Agent instruction:** Never import Angular Material tokens or variables directly in a feature component. Always import from the semantic alias paths defined in §4. If a token you need is not listed here, raise it with UI Architecture — do not reach for Material directly.
+> **Agent instruction:** Never use raw hex colors, px values, or font declarations in component SCSS. Always use `var(--token-name)`. If a token you need is not listed here, raise it with UI Architecture — do not hardcode values.
 
 ---
 
-## 2. How this file is used
+## 2. Mechanism: CSS Custom Properties
 
-Pattern specs reference tokens like `color.$surface-hover` or `type.$label-strong`. This file defines what those resolve to in the current adapter. The import path is always the same regardless of adapter — only the underlying value changes.
+All tokens are CSS custom properties defined in a single `:root` block in the app's global stylesheet (`styles.scss`). Components consume them via `var()`:
 
 ```
-Pattern spec                 Token spec (this file)         Adapter output
-─────────────────────────────────────────────────────────────────────────
-color.$surface-hover    →    semantic alias               →  mat color / DS token
-type.$label-strong      →    semantic alias               →  mat typography / DS token
-spacing.$s3             →    semantic alias               →  8px / DS spacing var
+styles.scss (:root)                Component SCSS                    Browser
+──────────────────────────────────────────────────────────────────────────────
+--color-surface-primary: #fff  →   var(--color-surface-primary)  →   #fff
+--color-brand-primary: #1565c0 →   var(--color-brand-primary)    →   #1565c0
 ```
 
----
-
-## 3. Adapter declaration
-
-The current adapter is declared in the frontmatter (`adapter: material-v3`). When switching DS:
-1. Update `adapter` field to your DS name
-2. Update §5–§8 mappings
-3. Bump version (major if breaking, minor if additive)
-4. Run `spec-lint` and registry validate
+The swap point is the `:root` block. Change values there, every component updates automatically.
 
 ---
 
-## 4. Import paths (always stable)
+## 3. Where Tokens Are Defined
 
-These paths never change. The files they point to change when the adapter changes.
+**Source of truth:** `deal-management-demo/src/styles.scss` — the `:root` block at the top of the file.
+
+In enterprise deployment, this `:root` block may be replaced by a generated CSS file from the DS toolchain (e.g., Style Dictionary output, Figma Tokens export, or a DS package's `variables.css`).
+
+---
+
+## 4. How to Consume Tokens
+
+In any component SCSS file:
 
 ```scss
-// In any feature component SCSS — these are the only allowed imports
-@use '@company/spec-tokens/color'   as color;
-@use '@company/spec-tokens/type'    as type;
-@use '@company/spec-tokens/spacing' as spacing;
-@use '@company/spec-tokens/grid'    as grid-tokens;
-@use '@company/spec-tokens/elevation' as elevation;
+// Always use var() with the semantic token name
+.my-card {
+  background: var(--color-surface-primary);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+  padding: var(--spacing-s4);
+  font: var(--type-label);
+}
 ```
 
-The `@company/spec-tokens/*` path is an SCSS alias that points to
-`specs/ds/tokens/adapters/current/`. CI keeps a symlink:
-`adapters/current → adapters/material-v3` (or your DS when ready).
+**Rules:**
+- Never use raw hex colors (`#fff`), raw px values (`16px`), or font stacks in component SCSS
+- Never reference DS library variables directly (no Material, no Bootstrap, no internal DS imports)
+- All visual properties must go through a `var(--token-name)` reference
+- Fallback values in `var()` are optional but encouraged as a safety net during development
 
 ---
 
-## 5. Color tokens
+## 5. Color Tokens
 
-| Semantic token | Material v3 equivalent | Usage |
+<!-- PLACEHOLDER values below — replace with your DS values when onboarding to enterprise -->
+
+### Surface
+
+| CSS Custom Property | Placeholder Value | Usage |
 |---|---|---|
-| `color.$surface-primary` | `mat.get-theme-color($theme, surface)` | Page/card backgrounds |
-| `color.$surface-secondary` | `mat.get-theme-color($theme, surface-variant)` | Subtle background, table headers |
-| `color.$surface-hover` | `mat.get-theme-color($theme, surface-variant)` at 8% opacity | Row hover, list item hover |
-| `color.$surface-selected` | `mat.get-theme-color($theme, secondary-container)` | Selected row, active state |
-| `color.$surface-overlay` | `rgba(0,0,0,0.04)` | Scrim, overlay backgrounds |
-| `color.$border-subtle` | `mat.get-theme-color($theme, outline-variant)` | Dividers, table borders |
-| `color.$border-default` | `mat.get-theme-color($theme, outline)` | Input borders, card borders |
-| `color.$text-primary` | `mat.get-theme-color($theme, on-surface)` | Body text, labels |
-| `color.$text-secondary` | `mat.get-theme-color($theme, on-surface-variant)` | Secondary text, hints |
-| `color.$text-disabled` | `mat.get-theme-color($theme, on-surface)` at 38% opacity | Disabled labels |
-| `color.$text-inverse` | `mat.get-theme-color($theme, on-primary)` | Text on filled buttons |
-| `color.$brand-primary` | `mat.get-theme-color($theme, primary)` | CTAs, focus rings |
-| `color.$brand-container` | `mat.get-theme-color($theme, primary-container)` | Chip backgrounds, badges |
-| `color.$status-success` | `mat.get-theme-color($theme, tertiary)` | Success badge, positive trend |
-| `color.$status-warning` | `#F59E0B` (no Material equivalent — hardcoded until DS ships) | Warning badge |
-| `color.$status-error` | `mat.get-theme-color($theme, error)` | Error badge, destructive action |
-| `color.$status-info` | `mat.get-theme-color($theme, secondary)` | Info badge |
+| `--color-surface-primary` | `#ffffff` | Page backgrounds, card backgrounds |
+| `--color-surface-secondary` | `#f8fafc` | Subtle backgrounds, table headers, sub-nav |
+| `--color-surface-hover` | `rgba(0,0,0,0.02)` | Row hover, list item hover |
+| `--color-surface-raised` | `#f8f9fa` | Elevated page background, button secondary |
+| `--color-surface-overlay` | `rgba(0,0,0,0.04)` | Scrim, modal overlays |
 
-### SCSS adapter file: `adapters/material-v3/_color.scss`
+### Border
 
-```scss
-@use '@angular/material' as mat;
-
-// These variables are set at the app theme level and consumed here.
-// The $theme variable is injected via a mixin — see §9.
-$surface-primary:    mat.get-theme-color($theme, surface);
-$surface-secondary:  mat.get-theme-color($theme, surface-variant);
-$surface-hover:      rgba(mat.get-theme-color($theme, surface-variant), 0.08);
-$surface-selected:   mat.get-theme-color($theme, secondary-container);
-$surface-overlay:    rgba(0, 0, 0, 0.04);
-
-$border-subtle:      mat.get-theme-color($theme, outline-variant);
-$border-default:     mat.get-theme-color($theme, outline);
-
-$text-primary:       mat.get-theme-color($theme, on-surface);
-$text-secondary:     mat.get-theme-color($theme, on-surface-variant);
-$text-disabled:      rgba(mat.get-theme-color($theme, on-surface), 0.38);
-$text-inverse:       mat.get-theme-color($theme, on-primary);
-
-$brand-primary:      mat.get-theme-color($theme, primary);
-$brand-container:    mat.get-theme-color($theme, primary-container);
-
-$status-success:     mat.get-theme-color($theme, tertiary);
-$status-warning:     #F59E0B; // TODO: replace with DS token when available
-$status-error:       mat.get-theme-color($theme, error);
-$status-info:        mat.get-theme-color($theme, secondary);
-```
-
----
-
-## 6. Typography tokens
-
-| Semantic token | Material typescale role | Size |
+| CSS Custom Property | Placeholder Value | Usage |
 |---|---|---|
-| `type.$display` | `display-large` | 57px |
-| `type.$headline` | `headline-medium` | 28px |
-| `type.$title-large` | `title-large` | 22px |
-| `type.$title` | `title-medium` | 16px |
-| `type.$label-strong` | `label-large` (bold) | 14px bold |
-| `type.$label` | `label-large` | 14px |
-| `type.$label-small` | `label-medium` | 12px |
-| `type.$body` | `body-medium` | 14px |
-| `type.$body-small` | `body-small` | 12px |
-| `type.$code` | (no Material equivalent — use `'Roboto Mono', monospace, 13px`) | 13px |
+| `--color-border-subtle` | `#e0e0e0` | Dividers, table borders, card outlines |
+| `--color-border-default` | `#d0d5dd` | Input borders, active card borders |
 
-### SCSS adapter file: `adapters/material-v3/_type.scss`
+### Text
 
-```scss
-@use '@angular/material' as mat;
-
-$display:      mat.get-theme-typography($theme, display-large);
-$headline:     mat.get-theme-typography($theme, headline-medium);
-$title-large:  mat.get-theme-typography($theme, title-large);
-$title:        mat.get-theme-typography($theme, title-medium);
-$label-strong: (font: mat.get-theme-typography($theme, label-large), font-weight: 700);
-$label:        mat.get-theme-typography($theme, label-large);
-$label-small:  mat.get-theme-typography($theme, label-medium);
-$body:         mat.get-theme-typography($theme, body-medium);
-$body-small:   mat.get-theme-typography($theme, body-small);
-$code:         (font-family: "'Roboto Mono', monospace", font-size: 13px);
-```
-
----
-
-## 7. Spacing tokens
-
-Material does not have a native spacing scale — these are defined as multiples of the Material baseline (4px).
-
-| Semantic token | Value | Usage |
+| CSS Custom Property | Placeholder Value | Usage |
 |---|---|---|
-| `spacing.$s1` | 4px | Tight gaps, icon padding |
-| `spacing.$s2` | 8px | Internal component padding |
-| `spacing.$s3` | 12px | Cell padding, chip padding |
-| `spacing.$s4` | 16px | Card padding, section gaps |
-| `spacing.$s5` | 24px | Component-to-component gaps |
-| `spacing.$s6` | 32px | Section-to-section gaps |
-| `spacing.$s7` | 48px | Page-level gaps |
-| `spacing.$s8` | 64px | Hero spacing |
+| `--color-text-primary` | `#1a1a1a` | Body text, headings, labels |
+| `--color-text-secondary` | `#616161` | Secondary text, hints, timestamps |
 
-### SCSS adapter file: `adapters/material-v3/_spacing.scss`
+### Brand
 
-```scss
-$s1: 4px;
-$s2: 8px;
-$s3: 12px;
-$s4: 16px;
-$s5: 24px;
-$s6: 32px;
-$s7: 48px;
-$s8: 64px;
-```
-
----
-
-## 8. Grid-specific tokens
-
-| Semantic token | Value | Notes |
+| CSS Custom Property | Placeholder Value | Usage |
 |---|---|---|
-| `grid-tokens.$row-height-default` | 48px | Standard row height |
-| `grid-tokens.$row-height-compact` | 36px | Dense/compact mode |
-| `grid-tokens.$header-height` | 52px | Column header height |
-| `grid-tokens.$toolbar-height` | 56px | Table toolbar (matches mat-toolbar dense) |
+| `--color-brand-primary` | `#1565c0` | CTAs, focus rings, active tab indicators |
+| `--color-brand-container` | `rgba(21,101,192,0.08)` | Active chip backgrounds, badge containers |
+
+### Status (foreground)
+
+| CSS Custom Property | Placeholder Value | Usage |
+|---|---|---|
+| `--color-success` | `#059669` | Success badges, positive trends, cleared status |
+| `--color-warning` | `#d97706` | Warning badges, approaching deadlines |
+| `--color-error` | `#dc2626` | Error badges, destructive actions, flagged status |
+| `--color-info` | `#2563eb` | Info badges, origination/mandate stage |
+| `--color-neutral` | `#64748b` | Neutral/default badges, closed/waived status |
+
+### Status (background)
+
+| CSS Custom Property | Placeholder Value | Usage |
+|---|---|---|
+| `--color-success-bg` | `rgba(52,211,153,0.12)` | Success badge background, alert card |
+| `--color-warning-bg` | `rgba(251,191,36,0.12)` | Warning badge background, alert card |
+| `--color-error-bg` | `rgba(239,68,68,0.12)` | Error badge background, alert card |
+| `--color-info-bg` | `rgba(59,130,246,0.12)` | Info badge background, alert card |
+| `--color-neutral-bg` | `rgba(148,163,184,0.12)` | Neutral badge background |
 
 ---
 
-## 9. Theme injection pattern
+## 6. Typography Tokens
 
-Material tokens require access to the active theme. The adapter files use a mixin pattern so the theme is injected once at the app level:
+<!-- PLACEHOLDER values below — replace with your DS font stack and sizes -->
 
-```scss
-// app-theme.scss (app shell — configured once)
-@use '@angular/material' as mat;
-@use '@company/spec-tokens/adapters/material-v3/color' as color with ($theme: $app-theme);
-@use '@company/spec-tokens/adapters/material-v3/type' as type with ($theme: $app-theme);
+| CSS Custom Property | Placeholder Value | Usage |
+|---|---|---|
+| `--type-body` | `400 14px/1.5 system-ui, sans-serif` | Body text, descriptions |
+| `--type-label` | `500 14px/1 system-ui, sans-serif` | Standard labels, grid headers |
+| `--type-label-small` | `500 12px/1 system-ui, sans-serif` | Small labels, subtitles, metadata |
+| `--type-label-strong` | `700 14px/1 system-ui, sans-serif` | Emphasized labels, toolbar titles |
+
+Consumed via the CSS `font` shorthand: `font: var(--type-label-strong);`
+
+---
+
+## 7. Spacing Tokens
+
+<!-- PLACEHOLDER values below — replace with your DS spacing scale -->
+
+| CSS Custom Property | Value | Usage |
+|---|---|---|
+| `--spacing-s1` | `4px` | Tight gaps, icon padding |
+| `--spacing-s2` | `8px` | Internal component padding, widget border-radius |
+| `--spacing-s3` | `12px` | Cell padding, chip padding, mini-grid header |
+| `--spacing-s4` | `16px` | Card padding, widget padding, section gaps |
+| `--spacing-s5` | `20px` | Dashboard container padding |
+| `--spacing-s6` | `32px` | Section-to-section gaps |
+| `--spacing-s7` | `48px` | Page-level gaps, empty state padding |
+| `--spacing-s8` | `64px` | Hero spacing |
+
+---
+
+## 8. Grid Tokens
+
+| CSS Custom Property | Value | Usage |
+|---|---|---|
+| `--grid-row-height-default` | `48px` | Standard AG Grid row height |
+| `--grid-row-height-compact` | `36px` | Dense/compact mode, mini-grid rows |
+| `--grid-header-height` | `52px` | Column header height |
+| `--grid-toolbar-height` | `56px` | Table toolbar height |
+
+---
+
+## 9. Naming Convention
+
+Token names follow the pattern: `--{category}-{group}-{variant}`
+
+```
+--color-surface-primary
+  │      │       │
+  │      │       └─ variant (primary, secondary, hover, etc.)
+  │      └─ group (surface, border, text, brand, status)
+  └─ category (color, type, spacing, grid)
 ```
 
-Feature components never need to know the theme exists — they just import the semantic alias.
+Status color tokens use the short form (`--color-success`, not `--color-status-success`). Background variants append `-bg` (`--color-success-bg`).
 
 ---
 
-## 10. DS swap checklist
+## 10. DS Swap Instructions
 
-When your internal DS is ready:
+When your internal design system is ready, follow these steps:
 
-- [ ] Create `adapters/[ds-name]/` with `_color.scss`, `_type.scss`, `_spacing.scss`, `_grid.scss`
-- [ ] Map each semantic token to the DS equivalent
-- [ ] Update `adapters/current` symlink to point to `adapters/[ds-name]`
-- [ ] Update `adapter` field in this spec's frontmatter
-- [ ] Bump spec version (major)
-- [ ] Review all `// TODO: replace with DS token` comments
-- [ ] Run `spec-lint` across all pattern specs — no spec changes should be needed
-- [ ] Smoke test 2–3 generated components against the new adapter
+1. **Get the real token values** from your DS (Style Dictionary output, Figma Tokens export, or DS package CSS)
+2. **Open `styles.scss`** and locate the `:root` block
+3. **Replace each placeholder value** with the real DS value
+4. **Remove `/* PLACEHOLDER */` comments** as you go
+5. **Run `npx ng serve`** and visually verify one page from each persona
+6. **If your DS uses different names**, add aliases in `:root`:
+   ```scss
+   /* DS uses --brand-600, we need --color-brand-primary */
+   --color-brand-primary: var(--brand-600);
+   ```
+7. **Bump this spec's version** to 2.1.0 (minor — values changed, names preserved)
+8. **Run the compliance checker** to verify nothing broke: `node tools/ci/spec-compliance-check.js`
 
 ---
 
-## 11. Versioning & Change Log
+## 11. Adding New Tokens
+
+When you need a token that doesn't exist yet:
+
+1. Add the CSS custom property to the `:root` block in `styles.scss`
+2. Add a row to the appropriate table in this spec (§5-§8)
+3. Use it in component SCSS via `var(--new-token-name)`
+4. Add a changelog entry below
+
+---
+
+## 12. Versioning & Change Log
 
 | Version | Date | Change | Author |
 |---|---|---|---|
-| 1.0.0 | 2026-03-20 | Initial — Material v3 adapter | UI Architecture |
+| 1.0.0 | 2026-03-20 | Initial — Material v3 adapter (SCSS variables) | UI Architecture |
+| 2.0.0 | 2026-04-08 | Rewrite — CSS custom properties, placeholder values | UI Architecture |
 
 ---
 
-## 12. Related Specs
+## 13. Related Specs
 
-- `ds/components/component-map` — semantic component names → Material components
-- `ds/tokens/motion` — animation/transition tokens (future)
-- `ds/tokens/breakpoints` — responsive breakpoint tokens (future)
+- `ds/components/component-map` — semantic component names
+- `ds/patterns/dashboard` — dashboard pattern (references these tokens)
+- `ds/patterns/ag-grid-datatable` — grid pattern (references these tokens)

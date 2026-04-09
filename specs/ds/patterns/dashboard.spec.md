@@ -39,26 +39,22 @@ receives data and display params from a composition spec.
 
 ## 3. Design System Tokens
 
-```scss
-@use '@company/spec-tokens/color'   as color;
-@use '@company/spec-tokens/type'    as type;
-@use '@company/spec-tokens/spacing' as spacing;
-```
+All visual properties must use CSS custom properties from `ds/tokens/semantic`.
 
-| Property | Token | Notes |
+| Property | CSS Custom Property | Notes |
 |---|---|---|
-| Widget background | `color.$surface-primary` | Card surface |
-| Widget border | `color.$border-subtle` | 1px solid |
-| Widget border radius | `spacing.$s2` (8px) | Consistent card rounding |
-| Widget padding | `spacing.$s4` (16px) | Internal padding |
-| Widget gap | `spacing.$s4` (16px) | Between widgets in a row |
-| Row gap | `spacing.$s4` (16px) | Between rows |
-| Dashboard padding | `spacing.$s5` (20px) | Outer container |
-| Widget title | `type.$label-large` (13px, 600) | Section heading |
-| Metric value | `type.$display-small` (28px, 700) | KPI number |
-| Metric label | `type.$label-small` (12px, 500) | KPI label |
+| Widget background | `var(--color-surface-primary)` | Card surface |
+| Widget border | `var(--color-border-subtle)` | 1px solid |
+| Widget border radius | `var(--spacing-s2)` | 8px — consistent card rounding |
+| Widget padding | `var(--spacing-s4)` | 16px — internal padding |
+| Widget gap | `var(--spacing-s4)` | 16px — between widgets in a row |
+| Row gap | `var(--spacing-s4)` | 16px — between rows |
+| Dashboard padding | `var(--spacing-s5)` | 20px — outer container |
+| Widget title | `var(--type-label)` | 13px, 600 — section heading |
+| Metric value | `var(--type-label-strong)` | 28px, 700 — KPI number |
+| Metric label | `var(--type-label-small)` | 12px, 500 — KPI label |
 
-> **Agent instruction:** Never use raw hex, px, or rem values for any property listed above.
+> **Agent instruction:** Always use `var(--token-name)` in generated SCSS. See `ds/tokens/semantic` for the full token list.
 
 ---
 

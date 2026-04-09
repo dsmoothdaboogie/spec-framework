@@ -136,12 +136,12 @@ Stage-specific thresholds:
 
 Cell renderers consuming these calculations apply visual state via CSS custom properties that map to semantic tokens:
 
-| State | CSS custom property | Semantic token equivalent |
-|---|---|---|
-| Success / on track | `var(--color-status-success)` | `color.$status-success` |
-| Warning / approaching | `var(--color-status-warning)` | `color.$status-warning` |
-| Error / overdue | `var(--color-status-error)` | `color.$status-error` |
-| Neutral | `var(--color-text-secondary)` | `color.$text-secondary` |
+| State | CSS Custom Property |
+|---|---|
+| Success / on track | `var(--color-success)` |
+| Warning / approaching | `var(--color-warning)` |
+| Error / overdue | `var(--color-error)` |
+| Neutral | `var(--color-text-secondary)` |
 
 ---
 

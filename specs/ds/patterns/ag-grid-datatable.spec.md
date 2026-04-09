@@ -36,28 +36,21 @@ This spec defines the standard implementation pattern for AG Grid datatables acr
 
 ## 3. Design System Tokens
 
-All visual properties must use semantic tokens. Never use raw values.
+All visual properties must use CSS custom properties from `ds/tokens/semantic`. Never use raw hex, px, or font values.
 
-```scss
-@use '@company/spec-tokens/color'    as color;
-@use '@company/spec-tokens/type'     as type;
-@use '@company/spec-tokens/spacing'  as spacing;
-@use '@company/spec-tokens/grid'     as grid-tokens;
-```
-
-| Property | Semantic token | Current Material value |
+| Property | CSS Custom Property | Usage |
 |---|---|---|
-| Header background | `color.$surface-secondary` | `surface-variant` |
-| Header text | `type.$label-strong` + `color.$text-primary` | `label-large` bold + `on-surface` |
-| Row hover | `color.$surface-hover` | `surface-variant` @ 8% |
-| Row selected | `color.$surface-selected` | `secondary-container` |
-| Border color | `color.$border-subtle` | `outline-variant` |
-| Row height | `grid-tokens.$row-height-default` | 48px |
-| Header height | `grid-tokens.$header-height` | 52px |
-| Cell padding | `spacing.$s3` horizontal | 12px |
-| Toolbar height | `grid-tokens.$toolbar-height` | 56px |
+| Header background | `var(--color-surface-secondary)` | Column header row |
+| Header text | `var(--type-label-strong)` + `var(--color-text-primary)` | Column header labels |
+| Row hover | `var(--color-surface-hover)` | Mouse-over row highlight |
+| Row selected | `var(--color-surface-secondary)` | Selected row background |
+| Border color | `var(--color-border-subtle)` | Row dividers, grid borders |
+| Row height | `var(--grid-row-height-default)` | Standard row height (48px) |
+| Header height | `var(--grid-header-height)` | Column header height (52px) |
+| Cell padding | `var(--spacing-s3)` | Horizontal cell padding (12px) |
+| Toolbar height | `var(--grid-toolbar-height)` | Table toolbar height (56px) |
 
-> **Agent instruction:** The "Current Material value" column is informational only. Always use the semantic token in generated code.
+> **Agent instruction:** Always use `var(--token-name)` in generated SCSS. See `ds/tokens/semantic` for the full token list.
 
 ---
 
