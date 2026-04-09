@@ -13,6 +13,34 @@ A spec defines: DS tokens to use, component structure, canonical configuration, 
 
 ---
 
+## How this repo fits with your codebase
+
+The spec-framework is a **standalone repo** — it lives outside your application code. Your team's repo references it for specs and tooling:
+
+```
+your-team-repo/                  spec-framework/  (this repo)
+├── src/                         ├── specs/
+│   └── app/                     ├── tools/
+│       └── features/            ├── docs/
+│           └── my-grid/         └── CLAUDE.md
+├── tools/ci/ ← (copy or symlink from spec-framework)
+└── CLAUDE.md ← (copy or extend from spec-framework)
+```
+
+**Two ways to use the tools:**
+
+```bash
+# Option A: Run directly from spec-framework (for exploration)
+cd spec-framework
+node tools/registry/registry-cli.js search "dashboard"
+
+# Option B: Run from your repo with --spec-root (for CI and compliance checks)
+cd your-team-repo
+node ../spec-framework/tools/ci/spec-compliance-check.js --spec-root ../spec-framework --changed-only
+```
+
+Most teams copy `tools/ci/` into their own repo and configure `--spec-root` to point at the spec-framework checkout. See [WORKFLOW-GUIDE.md](docs/WORKFLOW-GUIDE.md) for CI setup details.
+
 ## Quick start
 
 ```bash
@@ -207,7 +235,10 @@ Follow the spec section by section. The spec is designed to be read in order:
 ### Step 4: Verify compliance
 
 ```bash
-# Check your generated code against the spec
+# From your team's repo — point --spec-root at the spec-framework checkout
+node tools/ci/spec-compliance-check.js --spec-root ../spec-framework --changed-only
+
+# Or if running from inside the spec-framework (e.g., the demo app)
 node tools/ci/spec-compliance-check.js --changed-only
 
 # Expected output: ✓ pass for each automated check
@@ -415,14 +446,19 @@ These tools run in your CI pipeline to catch spec drift:
 
 All tools support `--format github` for GitHub Actions annotations and `--format json` for machine-readable output.
 
+All compliance/header tools accept `--spec-root <path>` to point at the spec-framework when running from a separate repo.
+
 ```bash
-# Run all CI checks locally
+# Run from inside spec-framework (browsing specs, linting)
 node tools/linter/spec-lint.js specs/ds/patterns/ag-grid-datatable.spec.md
 node tools/ci/spec-active-gate.js
-node tools/ci/spec-header-check.js
-node tools/ci/spec-dependency-check.js
-node tools/ci/spec-compliance-check.js
+
+# Run from your team's repo (compliance checks against your generated code)
+node ../spec-framework/tools/ci/spec-header-check.js --spec-root ../spec-framework --changed-only
+node ../spec-framework/tools/ci/spec-compliance-check.js --spec-root ../spec-framework --changed-only
 ```
+
+See [WORKFLOW-GUIDE.md](docs/WORKFLOW-GUIDE.md) for GitHub Actions CI setup.
 
 ---
 
