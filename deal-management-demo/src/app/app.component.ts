@@ -1,13 +1,13 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CoverageBankerGridComponent } from './features/coverage-banker/deal-grid/deal-grid.component';
-import { SyndicateBankerGridComponent } from './features/syndicate-banker/deal-grid/deal-grid.component';
-import { BusinessExecutionLeadGridComponent } from './features/business-execution-lead/deal-grid/deal-grid.component';
-import { ConflictClearanceGridComponent } from './features/conflict-clearance/deal-grid/deal-grid.component';
-import { ComplianceViewerGridComponent } from './features/compliance-viewer/deal-grid/deal-grid.component';
 import { CoverageBankerDashboardComponent } from './features/coverage-banker/dashboard/dashboard.component';
+import { SyndicateBankerGridComponent } from './features/syndicate-banker/deal-grid/deal-grid.component';
 import { SyndicateBankerDashboardComponent } from './features/syndicate-banker/dashboard/dashboard.component';
+import { BusinessExecutionLeadGridComponent } from './features/business-execution-lead/deal-grid/deal-grid.component';
 import { BusinessExecutionLeadDashboardComponent } from './features/business-execution-lead/dashboard/dashboard.component';
+import { ConflictClearanceGridComponent } from './features/conflict-clearance/deal-grid/deal-grid.component';
 import { ConflictClearanceDashboardComponent } from './features/conflict-clearance/dashboard/dashboard.component';
+import { ComplianceViewerGridComponent } from './features/compliance-viewer/deal-grid/deal-grid.component';
 import { ComplianceViewerDashboardComponent } from './features/compliance-viewer/dashboard/dashboard.component';
 import { DealOriginationBankerGridComponent } from './features/deal-origination-banker/deal-grid/deal-grid.component';
 import { DealOriginationBankerDashboardComponent } from './features/deal-origination-banker/dashboard/dashboard.component';
