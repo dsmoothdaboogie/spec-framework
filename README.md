@@ -51,16 +51,13 @@ node tools/registry/registry-cli.js search "data table"
 node tools/registry/registry-cli.js list --status active
 
 # Get full spec details
-node tools/registry/registry-cli.js get ds/patterns/ag-grid-datatable
-
-# Show a spec's composition tree (templates and pages)
-node tools/registry/registry-cli.js tree ds/templates/deal-list
+node tools/registry/registry-cli.js get grid/coverage-banker
 
 # Validate registry integrity
 node tools/registry/registry-cli.js validate
 
 # Lint a spec file
-node tools/linter/spec-lint.js specs/ds/patterns/ag-grid-datatable.spec.md
+node tools/linter/spec-lint.js specs/grid/coverage-banker.spec.md
 ```
 
 ---
@@ -70,23 +67,10 @@ node tools/linter/spec-lint.js specs/ds/patterns/ag-grid-datatable.spec.md
 ```
 spec-framework/
 ├── specs/
-│   ├── ds/                        # Design system specs
-│   │   ├── tokens/                # Token adapter — swap point between specs and library
-│   │   ├── components/            # Component adapter — semantic names to library implementations
-│   │   ├── patterns/              # Organism-level UI patterns (ag-grid, etc.)
-│   │   ├── templates/             # Page structure contracts composing organisms into layouts
-│   │   └── layout/                # App shell and page chrome specs (reserved)
-│   ├── domain/                    # Business domain specs
-│   │   ├── personas/              # User persona definitions (who uses what)
-│   │   ├── entitlements/          # Entitlement and permission contracts
-│   │   └── patterns/              # Domain-specific organism compositions (e.g. ag-grid variants per persona)
-│   ├── feat/                      # Feature page specs (persona implementations of templates)
-│   │   └── [feature]/             # One folder per feature; one page spec per persona
-│   └── fw/                        # Framework standards (independent of DS)
-│       ├── angular/               # Angular component patterns and conventions
-│       ├── services/              # Data access layer patterns
-│       ├── state/                 # State management (NgRx SignalStore)
-│       └── testing/               # Testing standards
+│   ├── grid/                         # Standalone grid specs per persona
+│   ├── dashboard/                    # Standalone dashboard specs per persona
+│   ├── detail-view/                  # Standalone detail view specs per persona
+│   └── reference/                    # Background docs (grid defaults, widget contracts, calculations)
 │
 ├── tools/
 │   ├── registry/
@@ -124,34 +108,10 @@ spec-framework/
 
 | Namespace | What lives here |
 |---|---|
-| `ds/tokens` | Token adapter — maps semantic tokens to the current DS library |
-| `ds/components` | Component adapter — maps semantic component names to library implementations |
-| `ds/patterns` | Organism-level specs — reusable UI patterns any team can use |
-| `ds/templates` | Template specs — page structure contracts (atomic design: Templates) |
-| `ds/layout` | App shell and page chrome specs (reserved) |
-| `domain/personas` | User persona definitions — who uses the system and what they need |
-| `domain/entitlements` | Entitlement and permission contracts |
-| `domain/patterns` | Domain-specific compositions — organism specs scoped to a persona or business context |
-| `feat/[feature]` | Page specs — persona-specific implementations of a template spec |
-| `fw/angular` | Angular component patterns and conventions |
-| `fw/services` | Data access layer patterns |
-| `fw/state` | State management patterns (NgRx SignalStore) |
-| `fw/testing` | Testing standards |
-
----
-
-## Atomic design tiers
-
-Specs map to atomic design levels. Each tier builds on the one below.
-
-| Tier | Spec type | Namespace | Owner |
-|---|---|---|---|
-| Atoms / Molecules | Token + component specs | `ds/tokens`, `ds/components` | UI Architecture |
-| Organisms | Pattern specs | `ds/patterns`, `domain/patterns` | UI Architecture |
-| Templates | Template specs | `ds/templates` | UI Architecture |
-| Pages | Page specs | `feat/[feature]` | Feature teams (reviewed by UI Architecture) |
-
-When implementing a feature, agents read specs bottom-up: tokens → components → organism → template → page spec.
+| `grid/` | Standalone grid specs — one per persona |
+| `dashboard/` | Standalone dashboard specs — one per persona |
+| `detail-view/` | Standalone detail view specs — one per persona |
+| `reference/` | Background docs for grid defaults, widget contracts, calculation functions |
 
 ---
 
@@ -186,21 +146,11 @@ node tools/explorer/server.js
 
 If you find a spec with `status: active`, use it. If no spec exists, see "Creating a new spec" below.
 
-### Step 2: Read the spec and its dependencies
+### Step 2: Read the spec
 
-Every spec tells you what to read first. Look for the **Agent instruction** block in section 1 — it lists the reading order.
+Every spec is standalone — open it and read it completely before writing any code. Look for the **Agent instruction** block in section 1, which lists any reference docs to consult alongside the spec (e.g., `reference/ag-grid-datatable` for grid defaults, `reference/deal-grid-calculations` for calculation functions).
 
-**Example:** To build a Coverage Banker grid, the composition spec says read these in order:
-
-```
-1. fw/angular/component-patterns     ← Angular conventions (signals, OnPush, etc.)
-2. ds/tokens/semantic                 ← Token names to use in SCSS
-3. ds/components/component-map        ← Component names to use in templates
-4. ds/patterns/ag-grid-datatable      ← Base grid pattern (structure, states, options)
-5. This composition spec              ← What's different for this persona
-```
-
-The base pattern spec tells you **how** the pattern works. The composition spec tells you **what** this specific persona sees (which columns, which widgets, which actions).
+Each spec defines its own columns, widgets, states, and checklist. There are no external dependency chains to follow.
 
 ### Step 3: Generate the code
 
@@ -209,11 +159,11 @@ The base pattern spec tells you **how** the pattern works. The composition spec 
 If you have Claude, Copilot, or another AI agent configured with the `CLAUDE.md` instructions, just ask it:
 
 ```
-Build the Coverage Banker dashboard from spec domain/patterns/dashboard/coverage-banker
+Build the Coverage Banker dashboard from spec dashboard/coverage-banker
 ```
 
 The agent will:
-- Read all dependency specs in order
+- Read the spec completely
 - Generate the component files
 - Stamp `@spec` headers for traceability
 - Output a compliance report showing what it checked
@@ -252,8 +202,7 @@ Fix any failures, then commit. The CI pipeline will run the same checks on your 
 Your generated files should have a provenance header so CI can trace them back:
 
 ```typescript
-// @spec    ds/patterns/ag-grid-datatable v2.0.0
-// @persona domain/patterns/ag-grid-datatable/coverage-banker v1.0.0
+// @spec grid/coverage-banker v1.0.0
 ```
 
 This is how `spec-header-check` knows which spec your code was built from — and can flag it if the spec gets a new version later.
@@ -266,23 +215,21 @@ You need a pattern that doesn't have a spec yet, or you need a new persona-speci
 
 ### First: figure out what kind of spec you need
 
-| I want to... | Spec type | Template | Where it goes |
-|---|---|---|---|
-| Define a new reusable UI pattern (grid, dashboard, form) | Pattern spec | `docs/SPEC.template.md` | `specs/ds/patterns/` |
-| Customize an existing pattern for a specific persona | Composition spec | `docs/COMPOSITION-SPEC.template.md` | `specs/domain/patterns/{pattern}/{persona}.spec.md` |
-| Define a page layout that combines patterns | Template spec | `docs/SPEC.template.md` | `specs/ds/templates/` |
-| Define a user persona | Persona doc | `docs/PERSONA.template.md` | `specs/domain/personas/` |
+| I want to... | Where it goes |
+|---|---|
+| Add a grid view for a new persona | `specs/grid/my-persona.spec.md` |
+| Add a dashboard view for a new persona | `specs/dashboard/my-persona.spec.md` |
+| Add a detail view for a new persona | `specs/detail-view/my-persona.spec.md` |
+| Document shared defaults or calculation functions | `specs/reference/my-topic.spec.md` |
 
-**Most of the time, you're writing a composition spec.** The base patterns (`ag-grid-datatable`, `dashboard`) already exist. You just need to define the delta for your persona — which columns, which widgets, which actions.
-
-### Step 1: Copy the right template
+### Step 1: Copy an existing spec
 
 ```bash
-# For a new composition spec (most common)
-cp docs/COMPOSITION-SPEC.template.md specs/domain/patterns/dashboard/my-persona.spec.md
+# For a new grid spec — copy the closest existing persona as your starting point
+cp specs/grid/coverage-banker.spec.md specs/grid/my-persona.spec.md
 
-# For a new base pattern
-cp docs/SPEC.template.md specs/ds/patterns/my-pattern.spec.md
+# For a new dashboard spec
+cp specs/dashboard/coverage-banker.spec.md specs/dashboard/my-persona.spec.md
 ```
 
 ### Step 2: Fill in the frontmatter
@@ -290,43 +237,29 @@ cp docs/SPEC.template.md specs/ds/patterns/my-pattern.spec.md
 Every spec starts with metadata. Fill in these fields:
 
 ```markdown
-**spec-id:** `domain/patterns/dashboard/my-persona`
+**spec-id:** `grid/my-persona`
 **version:** `1.0.0`
 **status:** `draft`          <!-- start as draft, promote to active after review -->
 **owner:** Your Team Name
-**base-pattern:** `ds/patterns/dashboard` v1.0.0    <!-- composition specs only -->
-**persona:** `domain/personas/my-persona` v1.0.0     <!-- composition specs only -->
 ```
 
 ### Step 3: Write the spec sections
 
-**For a composition spec** (persona-specific delta):
+Each spec is standalone — it contains everything an agent needs to build that view for that persona:
 
 | Section | What to write | Tips |
 |---|---|---|
-| Intent | 2-3 sentences: who is this for, what do they care about | Include the reading order for agents |
+| Intent | 2-3 sentences: who is this for, what do they care about | Note any reference docs agents should read |
 | Columns / Widgets | Table listing every column or widget with params | Order is authoritative — agents follow it exactly |
 | Filters | Which columns are filterable, with defaults | |
 | Row / Bulk actions | What actions are available | Be explicit about what's absent, not just what's present |
 | States | Loading, empty, error — customize messages | All three are required |
 | Checklist | Verification items for agents | Each `- [ ]` item becomes a check the agent runs |
 
-**For a base pattern spec** (new reusable pattern):
-
-| Section | What to write | Tips |
-|---|---|---|
-| Intent + Scope | What this covers and doesn't cover | Link to sibling specs for out-of-scope items |
-| Tokens | Every DS token the pattern uses | Agents will never use raw values — list everything |
-| Structure | File layout and required inputs/outputs | |
-| Configuration | The canonical config object | Agents copy this verbatim |
-| Variants | Different modes (client-side, server-side, etc.) | |
-| States | Loading, empty, error contracts | |
-| Checklist | Agent verification items | This drives the compliance checker |
-
 ### Step 4: Lint your spec
 
 ```bash
-node tools/linter/spec-lint.js specs/domain/patterns/dashboard/my-persona.spec.md
+node tools/linter/spec-lint.js specs/grid/my-persona.spec.md
 ```
 
 Fix any structural issues the linter flags (missing sections, bad frontmatter, etc.).
@@ -337,11 +270,15 @@ Add an entry to `tools/registry/registry.json`:
 
 ```json
 {
-  "spec-id": "domain/patterns/dashboard/my-persona",
+  "specId": "grid/my-persona",
   "version": "1.0.0",
   "status": "draft",
-  "path": "specs/domain/patterns/dashboard/my-persona.spec.md",
-  "dependencies": ["ds/patterns/dashboard", "ds/templates/deal-pipeline-page"]
+  "specType": "grid",
+  "owner": "Your Team Name",
+  "path": "specs/grid/my-persona.spec.md",
+  "tags": ["grid", "my-persona"],
+  "lastReviewed": "2026-04-10",
+  "deprecatedBy": null
 }
 ```
 
@@ -450,7 +387,7 @@ All compliance/header tools accept `--spec-root <path>` to point at the spec-fra
 
 ```bash
 # Run from inside spec-framework (browsing specs, linting)
-node tools/linter/spec-lint.js specs/ds/patterns/ag-grid-datatable.spec.md
+node tools/linter/spec-lint.js specs/grid/coverage-banker.spec.md
 node tools/ci/spec-active-gate.js
 
 # Run from your team's repo (compliance checks against your generated code)
@@ -469,8 +406,7 @@ The compliance checker reads your actual source code — it does not trust agent
 The checker walks your source tree looking for `.ts` files that contain an `@spec` header comment:
 
 ```typescript
-// @spec ds/patterns/ag-grid-datatable v2.0.0
-// @persona domain/patterns/ag-grid-datatable/coverage-banker v1.0.0
+// @spec grid/coverage-banker v1.0.0
 ```
 
 Only `.ts` files are scanned for discovery. The `.ts` file is the entry point — if a component has `@spec` headers in its `.html` or `.scss` files but not in the `.ts`, it won't be found.
@@ -512,7 +448,7 @@ Each pass returns `pass`, `fail`, or `skip` (if the required file type doesn't e
 
 This layer checks spec-specific requirements:
 
-1. Reads the `@spec` header to get the spec ID (e.g., `ds/patterns/ag-grid-datatable`)
+1. Reads the `@spec` header to get the spec ID (e.g., `grid/coverage-banker`)
 2. Looks up that spec in `registry.json` (via `--spec-root`) to find the spec file path
 3. Reads the spec's markdown and parses the `## Agent Checklist` section
 4. For each `- [ ]` checklist item, matches the item text against a library of 26 regex-based rules
