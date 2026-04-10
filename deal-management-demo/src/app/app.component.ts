@@ -44,7 +44,7 @@ interface Tab {
 })
 export class AppComponent {
   readonly activeTab = signal<PersonaTab>('coverage');
-  readonly activeView = signal<ActiveView>('dashboard');
+  readonly activeView = signal<ActiveView>('grid');
 
   readonly tabs: Tab[] = [
     { id: 'coverage',    label: 'Coverage Banker',         subtitle: 'deal-full entitlement' },
@@ -57,7 +57,7 @@ export class AppComponent {
 
   setTab(id: PersonaTab): void {
     this.activeTab.set(id);
-    this.activeView.set('dashboard');
+    this.activeView.set('grid');
   }
 
   setView(view: ActiveView): void {
